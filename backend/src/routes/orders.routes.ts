@@ -1,18 +1,18 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from '../config/database';
 import { orders } from '../models/schema';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import { eq, or } from 'drizzle-orm';
 
 const router = Router();
 
 // Get user orders
-router.get('/', authenticate, async (req: AuthRequest, res) => {
+router.get('/', authenticate, async (req: Request, res) => {
   try {
     const userOrders = await db.select().from(orders).where(
       or(
-        eq(orders.buyerId, req.user!.id),
-        eq(orders.sellerId, req.user!.id)
+        eq(orders.buyerId, ((req as any).user).id),
+        eq(orders.sellerId, ((req as any).user).id)
       )
     );
     res.json(userOrders);
@@ -22,10 +22,10 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Create order
-router.post('/', authenticate, async (req: AuthRequest, res) => {
+router.post('/', authenticate, async (req: Request, res) => {
   try {
     const [order] = await db.insert(orders).values({
-      buyerId: req.user!.id,
+      buyerId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(order);
@@ -35,7 +35,7 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Update order status
-router.patch('/:id/status', authenticate, async (req: AuthRequest, res) => {
+router.patch('/:id/status', authenticate, async (req: Request, res) => {
   try {
     const [order] = await db.update(orders)
       .set({ status: req.body.status, updatedAt: new Date() })

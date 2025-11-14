@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
+import passport from '../config/passport';
 import authService from '../services/auth.service';
 
 const router = Router();
@@ -40,6 +41,21 @@ router.post('/login',
     } catch (error: any) {
       res.status(401).json({ error: error.message });
     }
+  }
+);
+
+// Google OAuth routes
+router.get('/google',
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+);
+
+router.get('/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/auth/login' }),
+  (req, res) => {
+    const result = req.user as any;
+    // Redirect to frontend with token
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?token=${result.token}`;
+    res.redirect(redirectUrl);
   }
 );
 
