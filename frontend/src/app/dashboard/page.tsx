@@ -48,12 +48,6 @@ export default function Dashboard() {
                 <Users className="w-5 h-5 mr-2" />
                 Community
               </button>
-              <Link href="/pricing" className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-                Pricing
-              </Link>
-              <Link href="/about" className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-                About
-              </Link>
             </nav>
 
             {/* Right side icons */}
@@ -113,20 +107,6 @@ export default function Dashboard() {
                 <Users className="w-5 h-5 mr-2" />
                 Community
               </button>
-              <Link
-                href="/pricing"
-                className="block w-full px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/about"
-                className="block w-full px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </Link>
             </div>
           </div>
         )}
