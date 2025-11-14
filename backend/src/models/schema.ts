@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, timestamp, integer, boolean, decimal, pgEnum } from 'drizzle-orm/pg-core';
 
 // Enums
-export const userRoleEnum = pgEnum('user_role', ['buyer', 'seller', 'service_provider', 'researcher']);
+export const userRoleEnum = pgEnum('user_role', ['buyer', 'seller', 'service_provider', 'researcher', 'admin', 'platform_manager']);
 export const orderStatusEnum = pgEnum('order_status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']);
 export const bookingStatusEnum = pgEnum('booking_status', ['queued', 'in_progress', 'completed', 'pickup', 'delivery']);
 export const componentTypeEnum = pgEnum('component_type', ['electrical', 'mechanical', 'materials', 'consumables']);
