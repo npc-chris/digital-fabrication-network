@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Package, Wrench, Users, Menu, X, User } from 'lucide-react';
+import { Package, Wrench, Users, Menu, X, User, ArrowRight } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
@@ -50,45 +50,39 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      <header className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
-              <span className="ml-2 text-sm text-gray-600 hidden sm:block">Digital Fabrication Network</span>
+              <Link href="/" className="text-2xl font-bold text-primary-600">
+                DFN
+              </Link>
+              <span className="ml-2 text-sm text-gray-600 hidden sm:block">
+                Digital Fabrication Network
+              </span>
             </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <button
-                onClick={() => setActiveTab('components')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'components' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+            <nav className="flex items-center space-x-4">
+              <Link
+                href="/pricing"
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
               >
-                <Package className="w-5 h-5 mr-2" />
-                Components
-              </button>
-              <button
-                onClick={() => setActiveTab('services')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'services' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                Pricing
+              </Link>
+              <Link
+                href="/about"
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
               >
-                <Wrench className="w-5 h-5 mr-2" />
-                Services
-              </button>
-              <button
-                onClick={() => setActiveTab('community')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'community' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                About
+              </Link>
+              <Link
+                href="/auth/login"
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
               >
                 <Users className="w-5 h-5 mr-2" />
                 Community
-              </button>
+              </Link>
             </nav>
 
             {/* Right side icons */}
@@ -111,60 +105,53 @@ export default function Home() {
                 </>
               )}
               
-              {/* Mobile menu button */}
-              <button 
-                className="md:hidden p-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
+                {/* Mobile menu button */}
+                <button
+                  type="button"
+                  className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  aria-label="Toggle menu"
+                >
+                  {mobileMenuOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <button
-                onClick={() => { setActiveTab('components'); setMobileMenuOpen(false); }}
-                className={`flex items-center w-full px-3 py-2 rounded-md ${
-                  activeTab === 'components' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Package className="w-5 h-5 mr-2" />
-                Components
-              </button>
-              <button
-                onClick={() => { setActiveTab('services'); setMobileMenuOpen(false); }}
-                className={`flex items-center w-full px-3 py-2 rounded-md ${
-                  activeTab === 'services' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Wrench className="w-5 h-5 mr-2" />
-                Services
-              </button>
-              <button
-                onClick={() => { setActiveTab('community'); setMobileMenuOpen(false); }}
-                className={`flex items-center w-full px-3 py-2 rounded-md ${
-                  activeTab === 'community' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Users className="w-5 h-5 mr-2" />
-                Community
-              </button>
-            </div>
-          </div>
-        )}
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-8 mb-8 text-white">
-          <h2 className="text-3xl font-bold mb-2">Welcome to Digital Fabrication Network</h2>
-          <p className="text-lg opacity-90">Connect with workshops, suppliers, and innovators to bring your ideas to life</p>
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-50 to-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Transform Your Ideas Into
+              <span className="block text-primary-600 mt-2">Physical Reality</span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Connect with workshops, fabrication plants, component suppliers, and innovators
+              worldwide. The complete platform for hardware development and digital fabrication.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/auth/register"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-lg transition-all"
+              >
+                Start Building Now
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+              <Link
+                href="/about"
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-700 bg-white hover:bg-gray-50 border-2 border-gray-300 rounded-lg transition-all"
+              >
+                Learn More
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
 
         {/* Tab Content */}
         {activeTab === 'components' && (
@@ -241,12 +228,12 @@ export default function Home() {
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
+      )}
 
-        {activeTab === 'services' && (
+      {activeTab === 'services' && (
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Services & Fabrication</h3>
@@ -407,44 +394,64 @@ export default function Home() {
             )}
           </div>
         )}
-      </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-gray-900 text-gray-300 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h5 className="font-semibold mb-4">About DFN</h5>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-white font-semibold mb-4">About DFN</h3>
+              <p className="text-sm">
                 Connecting the digital fabrication ecosystem to accelerate innovation.
               </p>
             </div>
             <div>
-              <h5 className="font-semibold mb-4">For Buyers</h5>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="#">Find Components</Link></li>
-                <li><Link href="#">Book Services</Link></li>
-                <li><Link href="#">Request Help</Link></li>
+              <h3 className="text-white font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/pricing" className="hover:text-white">
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="hover:text-white">
+                    About Us
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h5 className="font-semibold mb-4">For Sellers</h5>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="#">List Components</Link></li>
-                <li><Link href="#">Offer Services</Link></li>
-                <li><Link href="#">Manage Orders</Link></li>
+              <h3 className="text-white font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Contact Us
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h5 className="font-semibold mb-4">Support</h5>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="#">Help Center</Link></li>
-                <li><Link href="#">Contact Us</Link></li>
-                <li><Link href="#">Terms of Service</Link></li>
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white">
+                    Privacy Policy
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-gray-600">
+          <div className="border-t border-gray-800 pt-8 text-center text-sm">
             © 2024 Digital Fabrication Network. All rights reserved.
           </div>
         </div>

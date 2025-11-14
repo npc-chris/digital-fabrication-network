@@ -1,9 +1,61 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, ArrowRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 
 export default function PricingPage() {
+  const plans = [
+    {
+      name: 'Free',
+      price: '$0',
+      period: 'forever',
+      description: 'Perfect for getting started',
+      features: [
+        'Browse components marketplace',
+        'View service providers',
+        'Access community board',
+        'Basic search functionality',
+        'Up to 5 saved items',
+      ],
+      cta: 'Get Started',
+      featured: false,
+    },
+    {
+      name: 'Professional',
+      price: '$29',
+      period: 'per month',
+      description: 'For active makers and designers',
+      features: [
+        'All Free features',
+        'Post unlimited components',
+        'Offer services',
+        'Advanced search & filters',
+        'Unlimited saved items',
+        'Priority support',
+        'Analytics dashboard',
+      ],
+      cta: 'Start Free Trial',
+      featured: true,
+    },
+    {
+      name: 'Enterprise',
+      price: 'Custom',
+      period: 'contact us',
+      description: 'For organizations and teams',
+      features: [
+        'All Professional features',
+        'Team collaboration tools',
+        'API access',
+        'Custom integrations',
+        'Dedicated account manager',
+        'SLA guarantees',
+        'Custom training',
+      ],
+      cta: 'Contact Sales',
+      featured: false,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
