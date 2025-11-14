@@ -1,7 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from '../config/database';
 import { components } from '../models/schema';
-import { authenticate, authorize, AuthRequest } from '../middleware/auth';
+import { authenticate, authorize } from '../middleware/auth';
 import { eq, like, and, or } from 'drizzle-orm';
 
 const router = Router();
@@ -54,10 +54,10 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create component (sellers only)
-router.post('/', authenticate, authorize('seller'), async (req: AuthRequest, res) => {
+router.post('/', authenticate, authorize('seller'), async (req: Request, res) => {
   try {
     const [component] = await db.insert(components).values({
-      sellerId: req.user!.id,
+      sellerId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(component);
@@ -67,7 +67,7 @@ router.post('/', authenticate, authorize('seller'), async (req: AuthRequest, res
 });
 
 // Update component
-router.put('/:id', authenticate, authorize('seller'), async (req: AuthRequest, res) => {
+router.put('/:id', authenticate, authorize('seller'), async (req: Request, res) => {
   try {
     const [component] = await db.update(components)
       .set({ ...req.body, updatedAt: new Date() })
@@ -80,7 +80,7 @@ router.put('/:id', authenticate, authorize('seller'), async (req: AuthRequest, r
 });
 
 // Delete component
-router.delete('/:id', authenticate, authorize('seller'), async (req: AuthRequest, res) => {
+router.delete('/:id', authenticate, authorize('seller'), async (req: Request, res) => {
   try {
     await db.delete(components).where(eq(components.id, parseInt(req.params.id)));
     res.status(204).send();

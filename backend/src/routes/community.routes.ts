@@ -1,7 +1,8 @@
+import { Request, Response } from 'express';
 import { Router } from 'express';
 import { db } from '../config/database';
 import { communityPosts, postReplies } from '../models/schema';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import { eq, like, or } from 'drizzle-orm';
 
 const router = Router();
@@ -62,10 +63,10 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create post
-router.post('/', authenticate, async (req: AuthRequest, res) => {
+router.post('/', authenticate, async (req: Request, res) => {
   try {
     const [post] = await db.insert(communityPosts).values({
-      authorId: req.user!.id,
+      authorId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(post);
@@ -75,11 +76,11 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Create reply
-router.post('/:id/replies', authenticate, async (req: AuthRequest, res) => {
+router.post('/:id/replies', authenticate, async (req: Request, res) => {
   try {
     const [reply] = await db.insert(postReplies).values({
       postId: parseInt(req.params.id),
-      userId: req.user!.id,
+      userId: ((req as any).user).id,
       content: req.body.content,
     }).returning();
     res.status(201).json(reply);
@@ -89,7 +90,7 @@ router.post('/:id/replies', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Update post status
-router.patch('/:id/status', authenticate, async (req: AuthRequest, res) => {
+router.patch('/:id/status', authenticate, async (req: Request, res) => {
   try {
     const [post] = await db.update(communityPosts)
       .set({ status: req.body.status, updatedAt: new Date() })

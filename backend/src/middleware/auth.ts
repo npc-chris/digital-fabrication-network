@@ -1,15 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: number;
-    email: string;
-    role: string;
-  };
-}
-
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     
@@ -26,12 +18,12 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 };
 
 export const authorize = (...roles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !(req.user as any).role) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    if (roles.length && !roles.includes(req.user.role)) {
+    if (roles.length && !roles.includes((req.user as any).role)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 

@@ -1,7 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from '../config/database';
 import { services } from '../models/schema';
-import { authenticate, authorize, AuthRequest } from '../middleware/auth';
+import { authenticate, authorize } from '../middleware/auth';
 import { eq, like, and, or } from 'drizzle-orm';
 
 const router = Router();
@@ -54,10 +54,10 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create service (service providers only)
-router.post('/', authenticate, authorize('service_provider'), async (req: AuthRequest, res) => {
+router.post('/', authenticate, authorize('service_provider'), async (req: Request, res) => {
   try {
     const [service] = await db.insert(services).values({
-      providerId: req.user!.id,
+      providerId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(service);
@@ -67,7 +67,7 @@ router.post('/', authenticate, authorize('service_provider'), async (req: AuthRe
 });
 
 // Update service
-router.put('/:id', authenticate, authorize('service_provider'), async (req: AuthRequest, res) => {
+router.put('/:id', authenticate, authorize('service_provider'), async (req: Request, res) => {
   try {
     const [service] = await db.update(services)
       .set({ ...req.body, updatedAt: new Date() })
@@ -80,7 +80,7 @@ router.put('/:id', authenticate, authorize('service_provider'), async (req: Auth
 });
 
 // Delete service
-router.delete('/:id', authenticate, authorize('service_provider'), async (req: AuthRequest, res) => {
+router.delete('/:id', authenticate, authorize('service_provider'), async (req: Request, res) => {
   try {
     await db.delete(services).where(eq(services.id, parseInt(req.params.id)));
     res.status(204).send();

@@ -160,3 +160,33 @@ export const wishlists = pgTable('wishlists', {
   serviceId: integer('service_id').references(() => services.id),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// Notifications table
+export const notifications = pgTable('notifications', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  type: varchar('type', { length: 50 }).notNull(), // order, booking, message, reply, review
+  title: varchar('title', { length: 255 }).notNull(),
+  message: text('message').notNull(),
+  relatedType: varchar('related_type', { length: 50 }), // component, service, order, booking, post
+  relatedId: integer('related_id'),
+  isRead: boolean('is_read').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Quotes table
+export const quotes = pgTable('quotes', {
+  id: serial('id').primaryKey(),
+  serviceId: integer('service_id').notNull().references(() => services.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  providerId: integer('provider_id').notNull().references(() => users.id),
+  projectDescription: text('project_description').notNull(),
+  specifications: text('specifications'), // JSON
+  estimatedPrice: decimal('estimated_price', { precision: 10, scale: 2 }),
+  estimatedDuration: integer('estimated_duration'), // in days
+  status: varchar('status', { length: 50 }).default('pending'), // pending, approved, rejected, expired
+  notes: text('notes'),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
