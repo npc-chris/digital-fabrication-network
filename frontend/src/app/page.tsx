@@ -58,9 +58,12 @@ export default function Home() {
               <button className="p-2 rounded-full hover:bg-gray-100">
                 <Bell className="w-5 h-5 text-gray-600" />
               </button>
-              <button className="p-2 rounded-full hover:bg-gray-100">
-                <User className="w-5 h-5 text-gray-600" />
-              </button>
+              <Link href="/auth/login" className="hidden md:block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
+                Sign In
+              </Link>
+              <Link href="/auth/register" className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
+                Sign Up
+              </Link>
               
               {/* Mobile menu button */}
               <button 
