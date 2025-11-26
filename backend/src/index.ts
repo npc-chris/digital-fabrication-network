@@ -1,7 +1,11 @@
+import dotenv from 'dotenv';
+
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import passport from './config/passport';
 import { initializeWebSocket } from './config/websocket';
 import authRoutes from './routes/auth.routes';
@@ -16,8 +20,6 @@ import notificationsRoutes from './routes/notifications.routes';
 import quotesRoutes from './routes/quotes.routes';
 import uploadRoutes from './routes/upload.routes';
 import { connectRedis } from './config/redis';
-
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);

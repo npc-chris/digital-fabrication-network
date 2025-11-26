@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { Router } from 'express';
 import { db } from '../config/database';
-import { communityPosts, postReplies } from '../models/schema';
+import { communityPosts, postReplies, users, profiles } from '../models/schema';
 import { authenticate } from '../middleware/auth';
-import { eq, like, or } from 'drizzle-orm';
+import { eq, like, or, desc, and } from 'drizzle-orm';
 
 const router = Router();
 
@@ -12,13 +12,34 @@ router.get('/', async (req, res) => {
   try {
     const { category, search, status } = req.query;
     
-    let query = db.select().from(communityPosts);
+    let query = db.select({
+      id: communityPosts.id,
+      authorId: communityPosts.authorId,
+      title: communityPosts.title,
+      content: communityPosts.content,
+      category: communityPosts.category,
+      tags: communityPosts.tags,
+      images: communityPosts.images,
+      status: communityPosts.status,
+      viewCount: communityPosts.viewCount,
+      createdAt: communityPosts.createdAt,
+      updatedAt: communityPosts.updatedAt,
+      authorName: profiles.firstName,
+      authorLastName: profiles.lastName,
+      authorCompany: profiles.company,
+      authorAvatar: profiles.avatar,
+    })
+    .from(communityPosts)
+    .leftJoin(users, eq(communityPosts.authorId, users.id))
+    .leftJoin(profiles, eq(users.id, profiles.userId))
+    .orderBy(desc(communityPosts.createdAt));
+
     const conditions = [];
 
-    if (category) {
+    if (category && category !== 'all') {
       conditions.push(eq(communityPosts.category, category as string));
     }
-    if (status) {
+    if (status && status !== 'all') {
       conditions.push(eq(communityPosts.status, status as string));
     }
     if (search) {
@@ -31,11 +52,27 @@ router.get('/', async (req, res) => {
     }
 
     if (conditions.length > 0) {
-      query = query.where(or(...conditions)) as any;
+      query = query.where(and(...conditions)) as any;
     }
 
-    const result = await query;
-    res.json(result);
+    const posts = await query;
+
+    // Get reply counts for each post
+    const postsWithCounts = await Promise.all(
+      posts.map(async (post) => {
+        const replies = await db
+          .select()
+          .from(postReplies)
+          .where(eq(postReplies.postId, post.id));
+        
+        return {
+          ...post,
+          replyCount: replies.length,
+        };
+      })
+    );
+
+    res.json(postsWithCounts);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

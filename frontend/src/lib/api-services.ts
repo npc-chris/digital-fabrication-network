@@ -108,14 +108,24 @@ export const uploadAPI = {
 
 // Components API (existing endpoints, added for completeness)
 export const componentsAPI = {
+  getFilters: async (filters?: { type?: string }) => {
+    const response = await api.get('/api/components/filters', { params: filters });
+    return response.data as { locations: string[]; types: string[] };
+  },
   getAll: async (filters?: {
-    type?: string;
-    location?: string;
+    type?: string | string[];
+    location?: string | string[];
     search?: string;
   }) => {
     const params = new URLSearchParams();
-    if (filters?.type) params.append('type', filters.type);
-    if (filters?.location) params.append('location', filters.location);
+    if (filters?.type) {
+      const types = Array.isArray(filters.type) ? filters.type : String(filters.type).split(',').map(s => s.trim()).filter(Boolean);
+      types.forEach(t => params.append('type', t));
+    }
+    if (filters?.location) {
+      const locations = Array.isArray(filters.location) ? filters.location : String(filters.location).split(',').map(s => s.trim()).filter(Boolean);
+      locations.forEach(l => params.append('location', l));
+    }
     if (filters?.search) params.append('search', filters.search);
     const response = await api.get(`/api/components?${params.toString()}`);
     return response.data;
@@ -144,14 +154,24 @@ export const componentsAPI = {
 
 // Services API (existing endpoints, added for completeness)
 export const servicesAPI = {
+  getFilters: async (filters?: { category?: string }) => {
+    const response = await api.get('/api/services/filters', { params: filters });
+    return response.data as { locations: string[]; categories: string[] };
+  },
   getAll: async (filters?: {
-    category?: string;
-    location?: string;
+    category?: string | string[];
+    location?: string | string[];
     search?: string;
   }) => {
     const params = new URLSearchParams();
-    if (filters?.category) params.append('category', filters.category);
-    if (filters?.location) params.append('location', filters.location);
+    if (filters?.category) {
+      const cats = Array.isArray(filters.category) ? filters.category : String(filters.category).split(',').map(s => s.trim()).filter(Boolean);
+      cats.forEach(c => params.append('category', c));
+    }
+    if (filters?.location) {
+      const locations = Array.isArray(filters.location) ? filters.location : String(filters.location).split(',').map(s => s.trim()).filter(Boolean);
+      locations.forEach(l => params.append('location', l));
+    }
     if (filters?.search) params.append('search', filters.search);
     const response = await api.get(`/api/services?${params.toString()}`);
     return response.data;
@@ -273,6 +293,48 @@ export const bookingsAPI = {
   
   updateStatus: async (id: number, status: string) => {
     const response = await api.patch(`/api/bookings/${id}/status`, { status });
+    return response.data;
+  },
+};
+
+// Community API
+export const communityAPI = {
+  getPosts: async (filters?: {
+    category?: string;
+    status?: string;
+    search?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.category && filters.category !== 'all') params.append('category', filters.category);
+    if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
+    if (filters?.search) params.append('search', filters.search);
+    const response = await api.get(`/api/community?${params.toString()}`);
+    return response.data;
+  },
+
+  getPostById: async (id: number) => {
+    const response = await api.get(`/api/community/posts/${id}`);
+    return response.data;
+  },
+
+  createPost: async (data: {
+    title: string;
+    content: string;
+    category?: string;
+    tags?: string[];
+    images?: string[];
+  }) => {
+    const response = await api.post('/api/community/posts', data);
+    return response.data;
+  },
+
+  getReplies: async (postId: number) => {
+    const response = await api.get(`/api/community/posts/${postId}/replies`);
+    return response.data;
+  },
+
+  addReply: async (postId: number, content: string) => {
+    const response = await api.post(`/api/community/posts/${postId}/replies`, { content });
     return response.data;
   },
 };

@@ -1,24 +1,100 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../config/database';
-import { components } from '../models/schema';
+import { components, users, profiles } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
-import { eq, like, and, or } from 'drizzle-orm';
+import { eq, like, and, or, inArray } from 'drizzle-orm';
 
 const router = Router();
+
+// Get distinct filter options
+router.get('/filters', async (req, res) => {
+  try {
+    const { type } = req.query;
+
+    // Distinct locations, optionally filtered by type
+    let locationsQuery = db
+      .select({ value: components.location })
+      .from(components);
+
+    if (type) {
+      locationsQuery = (locationsQuery.where(eq(components.type, type as any)) as any);
+    }
+
+    // Use GROUP BY to emulate DISTINCT
+    const locationsRaw = await (locationsQuery as any).groupBy(components.location);
+    const locations = (locationsRaw || [])
+      .map((r: any) => r.value)
+      .filter((v: any) => v && typeof v === 'string');
+
+    // Distinct types present in DB
+    const typesRaw = await (db
+      .select({ value: components.type })
+      .from(components) as any)
+      .groupBy(components.type);
+    const types = (typesRaw || []).map((r: any) => r.value).filter((v: any) => !!v);
+
+    res.json({ locations, types });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Get all components with filters
 router.get('/', async (req, res) => {
   try {
-    const { type, location, search } = req.query;
+    const { type, location, search } = req.query as { [key: string]: any };
     
-    let query = db.select().from(components);
-    const conditions = [];
+    let query = db.select({
+      id: components.id,
+      sellerId: components.sellerId,
+      name: components.name,
+      description: components.description,
+      type: components.type,
+      price: components.price,
+      availability: components.availability,
+      images: components.images,
+      technicalDetails: components.technicalDetails,
+      datasheetUrl: components.datasheetUrl,
+      compatibilities: components.compatibilities,
+      location: components.location,
+      rating: components.rating,
+      reviewCount: components.reviewCount,
+      createdAt: components.createdAt,
+      updatedAt: components.updatedAt,
+      sellerName: profiles.firstName,
+      sellerLastName: profiles.lastName,
+      sellerCompany: profiles.company,
+    })
+    .from(components)
+    .leftJoin(users, eq(components.sellerId, users.id))
+    .leftJoin(profiles, eq(users.id, profiles.userId));
+    const conditions: any[] = [];
 
     if (type) {
-      conditions.push(eq(components.type, type as any));
+      let types: string[] = [];
+      if (Array.isArray(type)) {
+        types = type as string[];
+      } else if (typeof type === 'string') {
+        types = type.split(',').map((t) => t.trim()).filter(Boolean);
+      }
+      if (types.length === 1) {
+        conditions.push(eq(components.type, types[0] as any));
+      } else if (types.length > 1) {
+        conditions.push(inArray(components.type, types as any));
+      }
     }
     if (location) {
-      conditions.push(like(components.location, `%${location}%`));
+      let locations: string[] = [];
+      if (Array.isArray(location)) {
+        locations = location as string[];
+      } else if (typeof location === 'string') {
+        locations = location.split(',').map((l) => l.trim()).filter(Boolean);
+      }
+      if (locations.length === 1) {
+        conditions.push(like(components.location, `%${locations[0]}%`));
+      } else if (locations.length > 1) {
+        conditions.push(or(...locations.map(l => like(components.location, `%${l}%`))));
+      }
     }
     if (search) {
       conditions.push(

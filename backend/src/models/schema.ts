@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, timestamp, integer, boolean, decimal, pgEnum } from 'drizzle-orm/pg-core';
 
 // Enums
-export const userRoleEnum = pgEnum('user_role', ['buyer', 'seller', 'service_provider', 'researcher', 'admin', 'platform_manager']);
+export const userRoleEnum = pgEnum('user_role', ['explorer', 'provider', 'admin', 'platform_manager']);
 export const orderStatusEnum = pgEnum('order_status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']);
 export const bookingStatusEnum = pgEnum('booking_status', ['queued', 'in_progress', 'completed', 'pickup', 'delivery']);
 export const componentTypeEnum = pgEnum('component_type', ['electrical', 'mechanical', 'materials', 'consumables']);
@@ -12,7 +12,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }),
   googleId: varchar('google_id', { length: 255 }),
-  role: userRoleEnum('role').notNull().default('buyer'),
+  role: userRoleEnum('role').notNull().default('explorer'),
   isVerified: boolean('is_verified').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),

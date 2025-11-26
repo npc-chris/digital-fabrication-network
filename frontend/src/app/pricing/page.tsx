@@ -11,7 +11,7 @@ export default function PricingPage() {
       period: 'forever',
       description: 'Perfect for getting started',
       features: [
-        'Browse components marketplace',
+        'Browse components & parts marketplace',
         'View service providers',
         'Access community board',
         'Basic search functionality',
@@ -27,7 +27,7 @@ export default function PricingPage() {
       description: 'For active makers and designers',
       features: [
         'All Free features',
-        'Post unlimited components',
+        'Post unlimited components & parts',
         'Offer services',
         'Advanced search & filters',
         'Unlimited saved items',
@@ -103,7 +103,7 @@ export default function PricingPage() {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start">
                   <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>Browse components & services</span>
+                  <span>Browse components & parts & services</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />

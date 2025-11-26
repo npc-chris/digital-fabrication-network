@@ -31,3 +31,10 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Fix for select/option text color being white or invisible */
+/* Needs adjustments for dark mode later on */
+select, select option, option {
+  color: #111 !important;
+  background-color: #fff !important;
+}
