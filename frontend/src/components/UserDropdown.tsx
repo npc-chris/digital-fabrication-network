@@ -36,7 +36,10 @@ export default function UserDropdown({ user }: UserDropdownProps) {
   const handleLogout = async () => {
     try {
       // Call logout API (optional, for tracking)
-      await api.post('/api/auth/logout').catch(() => {});
+      await api.post('/api/auth/logout').catch((err) => {
+        // Logout API failure is not critical - proceed with local logout
+        console.debug('Logout API call failed (non-critical):', err.message);
+      });
     } finally {
       // Clear local storage
       localStorage.removeItem('token');

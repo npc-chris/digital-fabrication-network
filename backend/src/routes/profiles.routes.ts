@@ -62,7 +62,19 @@ router.put('/me', authenticate, async (req: any, res) => {
     }
 
     // Build update object with only provided fields
-    const updateData: any = { updatedAt: new Date() };
+    interface ProfileUpdate {
+      firstName?: string | null;
+      lastName?: string | null;
+      company?: string | null;
+      bio?: string | null;
+      location?: string | null;
+      phone?: string | null;
+      avatar?: string | null;
+      portfolio?: string | null;
+      updatedAt: Date;
+    }
+    
+    const updateData: ProfileUpdate = { updatedAt: new Date() };
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (company !== undefined) updateData.company = company;

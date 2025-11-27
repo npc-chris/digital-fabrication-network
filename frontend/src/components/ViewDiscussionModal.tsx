@@ -1,11 +1,26 @@
 'use client';
 
 import { X, Send, User } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { communityAPI } from '@/lib/api-services';
 
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  category?: string;
+  status?: string;
+  tags?: string | string[];
+  viewCount?: number;
+  createdAt: string;
+  authorId: number;
+  authorName?: string;
+  authorLastName?: string;
+  authorCompany?: string;
+}
+
 interface ViewDiscussionModalProps {
-  post: any;
+  post: Post;
   onClose: () => void;
 }
 
@@ -25,16 +40,7 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Prevent body scroll when modal is open
-    document.body.style.overflow = 'hidden';
-    loadReplies();
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, []);
-
-  const loadReplies = async () => {
+  const loadReplies = useCallback(async () => {
     try {
       const response = await communityAPI.getById(post.id);
       setReplies(response.replies || []);
@@ -43,7 +49,16 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
     } finally {
       setLoading(false);
     }
-  };
+  }, [post.id]);
+
+  useEffect(() => {
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    loadReplies();
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [loadReplies]);
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
