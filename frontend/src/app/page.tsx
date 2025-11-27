@@ -52,7 +52,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-              The premier platform connecting workshops, fabrication plants, component sellers, and product designers to accelerate hardware innovation.
+              The premier platform connecting workshops, fabrication plants, component providers, and product designers to accelerate hardware innovation.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
               <Link 
@@ -105,7 +105,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Components & Parts Marketplace</h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                Browse and purchase components, parts, raw materials, and toolkits from verified sellers worldwide.
+                Browse and purchase components, parts, raw materials, and toolkits from verified providers worldwide.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start">
@@ -201,7 +201,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Trusted & Secure</h3>
               <p className="text-gray-600 leading-relaxed">
-                All sellers and service providers are verified. Secure payments and comprehensive order tracking built-in.
+                All providers and service providers are verified. Secure payments and comprehensive order tracking built-in.
               </p>
             </div>
 

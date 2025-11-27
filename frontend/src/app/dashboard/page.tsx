@@ -11,6 +11,9 @@ import NotificationsDropdown from '@/components/NotificationsDropdown';
 export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'components' | 'services' | 'community'>('components');
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [showProviderUpgradeModal, setShowProviderUpgradeModal] = useState(false);
 
   // Components & Parts filter state
   const [componentTypes, setComponentTypes] = useState<string[]>([]);
@@ -48,6 +51,41 @@ export default function Dashboard() {
   // Modal state
   const [selectedComponent, setSelectedComponent] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
+
+  useEffect(() => {
+    // Load user from localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    
+    // Check if welcome banner was dismissed in this session
+    const bannerDismissed = sessionStorage.getItem('welcomeBannerDismissed');
+    if (bannerDismissed === 'true') {
+      setShowWelcomeBanner(false);
+    }
+  }, []);
+
+  const dismissWelcomeBanner = () => {
+    setShowWelcomeBanner(false);
+    sessionStorage.setItem('welcomeBannerDismissed', 'true');
+  };
+
+  const handleProviderAction = () => {
+    if (!user) {
+      // Not logged in, redirect to register
+      window.location.href = '/auth/register';
+      return;
+    }
+    
+    if (user.role === 'provider') {
+      // Already a provider, go to provider dashboard
+      window.location.href = '/dashboard/provider';
+    } else {
+      // Explorer trying to access provider features
+      setShowProviderUpgradeModal(true);
+    }
+  };
 
   useEffect(() => {
     if (activeTab === 'components') {
@@ -289,12 +327,27 @@ export default function Dashboard() {
                 <Search className="w-5 h-5 text-gray-600" />
               </button>
               <NotificationsDropdown />
-              <Link href="/auth/login" className="hidden md:block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-                Sign In
-              </Link>
-              <Link href="/auth/register" className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
-                Sign Up
-              </Link>
+              {user ? (
+                <div className="hidden md:flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 cursor-pointer">
+                    <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
+                      {user.firstName ? user.firstName[0].toUpperCase() : user.email[0].toUpperCase()}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {user.firstName ? `${user.firstName}${user.lastName ? ' ' + user.lastName[0] + '.' : ''}` : user.email.split('@')[0]}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="hidden md:block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
+                    Sign In
+                  </Link>
+                  <Link href="/auth/register" className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
+                    Sign Up
+                  </Link>
+                </>
+              )}
               
               {/* Mobile menu button */}
               <button 
@@ -347,17 +400,29 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-8 mb-8 text-white">
-          <h2 className="text-3xl font-bold mb-2">Welcome to Digital Fabrication Network</h2>
-          <p className="text-lg opacity-90">Connect with workshops, suppliers, and innovators to bring your ideas to life</p>
-        </div>
+        {showWelcomeBanner && (
+          <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-8 mb-8 text-white relative">
+            <button
+              onClick={dismissWelcomeBanner}
+              className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/20 transition-colors"
+              aria-label="Dismiss welcome banner"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-3xl font-bold mb-2">Welcome to Digital Fabrication Network</h2>
+            <p className="text-lg opacity-90">Connect with workshops, suppliers, and innovators to bring your ideas to life</p>
+          </div>
+        )}
 
         {/* Tab Content */}
         {activeTab === 'components' && (
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Components & Parts Marketplace</h3>
-              <button className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+              <button 
+                onClick={handleProviderAction}
+                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+              >
                 Post Component or Part
               </button>
             </div>
@@ -525,7 +590,7 @@ export default function Dashboard() {
                       <div className="text-xs text-gray-500 mb-1">Type: <span className="capitalize">{item.type}</span></div>
                       <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
                       <div className="text-xs text-gray-500 mb-2">
-                        Provider: {item.sellerCompany || `${item.sellerName || ''} ${item.sellerLastName || ''}`.trim() || `Seller #${item.sellerId}`}
+                        Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `provider #${item.providerId}`}
                       </div>
                       <button 
                         onClick={() => setSelectedComponent(item)}
@@ -545,7 +610,10 @@ export default function Dashboard() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Services & Fabrication</h3>
-              <button className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+              <button 
+                onClick={handleProviderAction}
+                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+              >
                 Offer Service
               </button>
             </div>
@@ -864,7 +932,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="border-t mt-8 pt-8 text-center text-sm text-gray-600">
-            © 2024 Digital Fabrication Network. All rights reserved.
+            © 2026 Digital Fabrication Network. All rights reserved.
           </div>
         </div>
       </footer>
@@ -884,6 +952,48 @@ export default function Dashboard() {
             alert('Quote request submitted successfully! The provider will contact you soon.');
           }}
         />
+      )}
+      
+      {/* Provider Upgrade Modal */}
+      {showProviderUpgradeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Upgrade to Provider Account</h3>
+              <button
+                onClick={() => setShowProviderUpgradeModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <p className="text-gray-600 mb-4">
+              To post components or offer services, you need to upgrade your account to a Provider account.
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> Provider account upgrades require manual verification by our admin team. 
+                You can access the provider dashboard to prepare your listings, but they won&apos;t be publicly visible 
+                until your account is upgraded.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowProviderUpgradeModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => window.location.href = '/dashboard/provider'}
+                className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+              >
+                Continue to Provider Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

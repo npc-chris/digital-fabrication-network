@@ -19,6 +19,14 @@ import searchRoutes from './routes/search.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import quotesRoutes from './routes/quotes.routes';
 import uploadRoutes from './routes/upload.routes';
+// New strategic feature routes
+import projectsRoutes from './routes/projects.routes';
+import cartRoutes from './routes/cart.routes';
+import affiliatesRoutes from './routes/affiliates.routes';
+import forumRoutes from './routes/forum.routes';
+import mentorshipRoutes from './routes/mentorship.routes';
+import groupbuyingRoutes from './routes/groupbuying.routes';
+import verificationRoutes from './routes/verification.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -51,6 +59,14 @@ app.use('/api/search', searchRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/upload', uploadRoutes);
+// New strategic feature routes
+app.use('/api/projects', projectsRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/affiliates', affiliatesRoutes);
+app.use('/api/forum', forumRoutes);
+app.use('/api/mentorship', mentorshipRoutes);
+app.use('/api/group-buying', groupbuyingRoutes);
+app.use('/api/verification', verificationRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

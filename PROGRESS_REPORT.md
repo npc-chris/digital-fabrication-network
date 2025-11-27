@@ -111,7 +111,7 @@ This implementation has successfully completed the majority of the backend infra
 - **Added Roles**:
   - `admin` - Full platform administration
   - `platform_manager` - Workflow and operations management
-- **Existing Roles**: buyer, seller, service_provider, researcher
+- **Existing Roles**: explorer, provider, provider, explorer
 
 ### ✅ Frontend Public Pages (100% Complete)
 

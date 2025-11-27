@@ -28,10 +28,10 @@ Update `backend/src/models/schema.ts`:
 ```typescript
 // Add admin role to enum
 export const userRoleEnum = pgEnum('user_role', [
-  'buyer', 
-  'seller', 
-  'service_provider', 
-  'researcher',
+  'explorer', 
+  'provider', 
+  'provider', 
+  'explorer',
   'admin',
   'platform_manager'
 ]);
@@ -137,7 +137,7 @@ describe('Auth Routes', () => {
       .send({
         email: 'test@example.com',
         password: 'password123',
-        role: 'buyer'
+        role: 'explorer'
       });
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('token');

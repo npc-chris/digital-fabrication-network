@@ -1,6 +1,6 @@
 # Digital Fabrication Network
 
-A full-stack platform connecting workshops, fabrication plants, research centres, component sellers/resellers, and product designers/contractors to accelerate hardware/engineering product development and innovation.
+A full-stack platform connecting workshops, fabrication plants, research centres, component providers/reproviders, and product designers/contractors to accelerate hardware/engineering product development and innovation.
 
 ## Features
 
@@ -142,7 +142,7 @@ digital-fabrication-network/
 ### Components
 - `GET /api/components` - List all components (with filters)
 - `GET /api/components/:id` - Get component details
-- `POST /api/components` - Create component (sellers only)
+- `POST /api/components` - Create component (providers only)
 - `PUT /api/components/:id` - Update component
 - `DELETE /api/components/:id` - Delete component
 
@@ -178,7 +178,7 @@ digital-fabrication-network/
 ## Database Schema
 
 ### Core Entities
-- **Users**: User accounts with roles (buyer, seller, service_provider, researcher)
+- **Users**: User accounts with roles (explorer, provider, provider, explorer)
 - **Profiles**: Extended user profile information
 - **Components**: Marketplace listings for parts and materials
 - **Services**: Service offerings from providers

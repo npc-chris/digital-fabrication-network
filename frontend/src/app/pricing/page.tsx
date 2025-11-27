@@ -218,7 +218,7 @@ export default function PricingPage() {
           <div className="bg-gray-50 rounded-lg p-8">
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-xl font-semibold mb-4">For Buyers</h3>
+                <h3 className="text-xl font-semibold mb-4">For explorers</h3>
                 <ul className="space-y-3">
                   <li className="flex justify-between">
                     <span>Component Orders</span>
@@ -235,7 +235,7 @@ export default function PricingPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-4">For Sellers & Providers</h3>
+                <h3 className="text-xl font-semibold mb-4">For service providers & Sellers</h3>
                 <ul className="space-y-3">
                   <li className="flex justify-between">
                     <span>Component Sales</span>
@@ -284,7 +284,7 @@ export default function PricingPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">&copy; 2024 Digital Fabrication Network. All rights reserved.</p>
+          <p className="text-sm">&copy; 2026 Digital Fabrication Network. All rights reserved.</p>
         </div>
       </footer>
     </div>

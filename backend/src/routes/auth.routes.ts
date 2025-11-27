@@ -10,9 +10,9 @@ import { eq } from 'drizzle-orm';
 const router = Router();
 
 router.post('/register',
-  body('email').isEmail(),
-  body('password').isLength({ min: 6 }),
-  body('role').optional().isIn(['buyer', 'seller', 'service_provider', 'researcher']),
+  body('email').isEmail().withMessage('Please provide a valid email address'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  body('role').optional().isIn(['explorer', 'provider']).withMessage('Role must be either "explorer" or "provider"'),
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -33,8 +33,8 @@ router.post('/register',
 );
 
 router.post('/login',
-  body('email').isEmail(),
-  body('password').notEmpty(),
+  body('email').isEmail().withMessage('Please provide a valid email address'),
+  body('password').notEmpty().withMessage('Password is required'),
   async (req, res) => {
     try {
       const errors = validationResult(req);

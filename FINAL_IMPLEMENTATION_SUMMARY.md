@@ -12,7 +12,7 @@
   - Technical specifications
   - Compatibilities
   - Datasheet download link
-  - Contact seller and Add to cart actions
+  - Contact provider and Add to cart actions
 
 - `frontend/src/components/RequestQuoteModal.tsx` - Quote request form with:
   - Service preview with specs
@@ -34,14 +34,14 @@
 
 **Backend Changes:**
 - Updated `backend/src/models/schema.ts`:
-  - Changed role enum from `['buyer', 'seller', 'service_provider', 'researcher']` to `['explorer', 'provider']`
-  - Updated default role from 'buyer' to 'explorer'
+  - Changed role enum from `['explorer', 'provider', 'provider', 'explorer']` to `['explorer', 'provider']`
+  - Updated default role from 'explorer' to 'explorer'
   
 - Created `backend/drizzle/0001_role_migration.sql`:
   - Migration script to update existing users
-  - buyer → explorer
-  - seller + service_provider → provider
-  - researcher → explorer (fallback)
+  - explorer → explorer
+  - provider + provider → provider
+  - explorer → explorer (fallback)
   
 - Updated `backend/src/routes/auth.routes.ts`:
   - Role validation now only accepts 'explorer' or 'provider'
@@ -52,13 +52,13 @@
 **Frontend Changes:**
 - Updated `frontend/src/app/auth/register/page.tsx`:
   - Role options simplified to:
-    - "Explorer (Buyer/User)"
-    - "Provider (Seller/Service Provider)"
+    - "Explorer (explorer/User)"
+    - "Provider (provider/Service Provider)"
   - Default role set to 'explorer'
   
 - Updated `frontend/src/app/dashboard/page.tsx` footer:
-  - "For Buyers" → "For Explorers"
-  - "For Sellers" → "For Providers"
+  - "For explorers" → "For Explorers"
+  - "For providers" → "For Providers"
 
 ---
 
@@ -112,7 +112,7 @@
 
 ### Backend APIs (Express.js)
 1. ✅ Authentication (JWT + Google OAuth)
-2. ✅ Components & Parts (CRUD + filtering + seller info)
+2. ✅ Components & Parts (CRUD + filtering + provider info)
 3. ✅ Services (CRUD + filtering + provider info)
 4. ✅ Community (posts + replies + author info)
 5. ✅ Orders & Bookings
@@ -137,7 +137,7 @@
 ### Database Schema (PostgreSQL + Drizzle)
 - ✅ Users (explorer/provider roles)
 - ✅ Profiles (detailed user info)
-- ✅ Components (with seller relations)
+- ✅ Components (with provider relations)
 - ✅ Services (with provider relations)
 - ✅ Orders & Bookings
 - ✅ Community Posts & Replies

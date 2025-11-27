@@ -11,8 +11,8 @@ router.get('/', authenticate, async (req: Request, res) => {
   try {
     const userOrders = await db.select().from(orders).where(
       or(
-        eq(orders.buyerId, ((req as any).user).id),
-        eq(orders.sellerId, ((req as any).user).id)
+        eq(orders.explorerId, ((req as any).user).id),
+        eq(orders.providerId, ((req as any).user).id)
       )
     );
     res.json(userOrders);
@@ -25,7 +25,7 @@ router.get('/', authenticate, async (req: Request, res) => {
 router.post('/', authenticate, async (req: Request, res) => {
   try {
     const [order] = await db.insert(orders).values({
-      buyerId: ((req as any).user).id,
+      explorerId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(order);

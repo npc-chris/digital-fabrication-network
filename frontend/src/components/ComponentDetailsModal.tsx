@@ -96,9 +96,9 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
             <div>
               <p className="text-sm font-medium text-gray-500">Provider</p>
               <p className="text-base">
-                {component.sellerCompany || 
-                 `${component.sellerName || ''} ${component.sellerLastName || ''}`.trim() || 
-                 `Seller #${component.sellerId}`}
+                {component.providerCompany || 
+                 `${component.providerName || ''} ${component.providerLastName || ''}`.trim() || 
+                 `provider #${component.providerId}`}
               </p>
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
             Add to Cart
           </button>
           <button className="flex-1 py-3 border border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 font-medium transition-colors">
-            Contact Seller
+            Contact provider
           </button>
         </div>
       </div>

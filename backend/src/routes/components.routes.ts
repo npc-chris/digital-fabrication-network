@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
     
     let query = db.select({
       id: components.id,
-      sellerId: components.sellerId,
+      providerId: components.providerId,
       name: components.name,
       description: components.description,
       type: components.type,
@@ -61,12 +61,12 @@ router.get('/', async (req, res) => {
       reviewCount: components.reviewCount,
       createdAt: components.createdAt,
       updatedAt: components.updatedAt,
-      sellerName: profiles.firstName,
-      sellerLastName: profiles.lastName,
-      sellerCompany: profiles.company,
+      providerName: profiles.firstName,
+      providerLastName: profiles.lastName,
+      providerCompany: profiles.company,
     })
     .from(components)
-    .leftJoin(users, eq(components.sellerId, users.id))
+    .leftJoin(users, eq(components.providerId, users.id))
     .leftJoin(profiles, eq(users.id, profiles.userId));
     const conditions: any[] = [];
 
@@ -129,11 +129,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create component (sellers only)
-router.post('/', authenticate, authorize('seller'), async (req: Request, res) => {
+// Create component (providers only)
+router.post('/', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     const [component] = await db.insert(components).values({
-      sellerId: ((req as any).user).id,
+      providerId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(component);
@@ -143,7 +143,7 @@ router.post('/', authenticate, authorize('seller'), async (req: Request, res) =>
 });
 
 // Update component
-router.put('/:id', authenticate, authorize('seller'), async (req: Request, res) => {
+router.put('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     const [component] = await db.update(components)
       .set({ ...req.body, updatedAt: new Date() })
@@ -156,7 +156,7 @@ router.put('/:id', authenticate, authorize('seller'), async (req: Request, res) 
 });
 
 // Delete component
-router.delete('/:id', authenticate, authorize('seller'), async (req: Request, res) => {
+router.delete('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     await db.delete(components).where(eq(components.id, parseInt(req.params.id)));
     res.status(204).send();

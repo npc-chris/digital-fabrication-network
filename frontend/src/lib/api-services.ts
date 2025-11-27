@@ -198,41 +198,6 @@ export const servicesAPI = {
   },
 };
 
-// Community API (existing endpoints, added for completeness)
-export const communityAPI = {
-  getAll: async (filters?: {
-    category?: string;
-    status?: string;
-    search?: string;
-  }) => {
-    const params = new URLSearchParams();
-    if (filters?.category) params.append('category', filters.category);
-    if (filters?.status) params.append('status', filters.status);
-    if (filters?.search) params.append('search', filters.search);
-    const response = await api.get(`/api/community?${params.toString()}`);
-    return response.data;
-  },
-  
-  getById: async (id: number) => {
-    const response = await api.get(`/api/community/${id}`);
-    return response.data;
-  },
-  
-  create: async (data: any) => {
-    const response = await api.post('/api/community', data);
-    return response.data;
-  },
-  
-  createReply: async (postId: number, content: string) => {
-    const response = await api.post(`/api/community/${postId}/replies`, { content });
-    return response.data;
-  },
-  
-  updateStatus: async (postId: number, status: string) => {
-    const response = await api.patch(`/api/community/${postId}/status`, { status });
-    return response.data;
-  },
-};
 
 // Wishlist API
 export const wishlistAPI = {
@@ -299,7 +264,7 @@ export const bookingsAPI = {
 
 // Community API
 export const communityAPI = {
-  getPosts: async (filters?: {
+  getAll: async (filters?: {
     category?: string;
     status?: string;
     search?: string;
@@ -312,8 +277,31 @@ export const communityAPI = {
     return response.data;
   },
 
+  getPosts: async (filters?: {
+    category?: string;
+    status?: string;
+    search?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.category && filters.category !== 'all') params.append('category', filters.category);
+    if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
+    if (filters?.search) params.append('search', filters.search);
+    const response = await api.get(`/api/community?${params.toString()}`);
+    return response.data;
+  },
+  
+  getById: async (id: number) => {
+    const response = await api.get(`/api/community/${id}`);
+    return response.data;
+  },
+
   getPostById: async (id: number) => {
     const response = await api.get(`/api/community/posts/${id}`);
+    return response.data;
+  },
+  
+  create: async (data: any) => {
+    const response = await api.post('/api/community', data);
     return response.data;
   },
 
@@ -332,9 +320,19 @@ export const communityAPI = {
     const response = await api.get(`/api/community/posts/${postId}/replies`);
     return response.data;
   },
+  
+  createReply: async (postId: number, content: string) => {
+    const response = await api.post(`/api/community/${postId}/replies`, { content });
+    return response.data;
+  },
 
   addReply: async (postId: number, content: string) => {
     const response = await api.post(`/api/community/posts/${postId}/replies`, { content });
+    return response.data;
+  },
+  
+  updateStatus: async (postId: number, status: string) => {
+    const response = await api.patch(`/api/community/${postId}/status`, { status });
     return response.data;
   },
 };

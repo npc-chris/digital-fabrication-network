@@ -128,7 +128,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create service (service providers only)
-router.post('/', authenticate, authorize('service_provider'), async (req: Request, res) => {
+router.post('/', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     const [service] = await db.insert(services).values({
       providerId: ((req as any).user).id,
@@ -141,7 +141,7 @@ router.post('/', authenticate, authorize('service_provider'), async (req: Reques
 });
 
 // Update service
-router.put('/:id', authenticate, authorize('service_provider'), async (req: Request, res) => {
+router.put('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     const [service] = await db.update(services)
       .set({ ...req.body, updatedAt: new Date() })
@@ -154,7 +154,7 @@ router.put('/:id', authenticate, authorize('service_provider'), async (req: Requ
 });
 
 // Delete service
-router.delete('/:id', authenticate, authorize('service_provider'), async (req: Request, res) => {
+router.delete('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     await db.delete(services).where(eq(services.id, parseInt(req.params.id)));
     res.status(204).send();

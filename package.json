@@ -17,6 +17,8 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
     "concurrently": "^8.2.2",
     "drizzle-orm": "^0.30.10",
     "husky": "^8.0.3",

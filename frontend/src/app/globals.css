@@ -8,13 +8,14 @@
   --background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Disabled dark mode for now to prevent text visibility issues */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
-}
+} */
 
 body {
   color: rgb(var(--foreground-rgb));
@@ -34,7 +35,86 @@ body {
 
 /* Fix for select/option text color being white or invisible */
 /* Needs adjustments for dark mode later on */
-select, select option, option {
+select, select option, option, textarea {
   color: #111 !important;
   background-color: #fff !important;
+}
+
+/* Fix text inputs to show text properly */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  color: #111827 !important;
+}
+
+/* Fix checkbox visibility in filter dropdowns only */
+input[type="checkbox"].rounded {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  border: 2px solid #d1d5db;
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"].rounded:checked {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+input[type="checkbox"].rounded:checked::after {
+  content: '';
+  position: absolute;
+  left: 0.25rem;
+  top: 0.05rem;
+  width: 0.3rem;
+  height: 0.6rem;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Ensure text visibility in filter dropdown labels - use more specific selector */
+label.flex.items-center span {
+  color: #111827;
+}
+
+/* Ensure SVG icons are visible (lucide-react icons) */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Ensure button icons are visible with proper color */
+button svg {
+  color: currentColor !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Specifically for filter buttons */
+button.flex.items-center svg {
+  width: 1rem;
+  height: 1rem;
+  color: #374151 !important;
+}
+
+/* Ensure text visibility in filter dropdown labels */
+.hover\:bg-gray-50 span {
+  color: #111827 !important;
+}
+
+/* Capitalize text in filter options */
+.capitalize {
+  text-transform: capitalize;
+  color: #111827 !important;
 }

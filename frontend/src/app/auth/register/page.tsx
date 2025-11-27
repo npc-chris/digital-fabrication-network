@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -15,6 +15,27 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Password validation criteria
+  const passwordValidation = useMemo(() => {
+    const password = formData.password;
+    return {
+      minLength: password.length >= 6,
+      hasUpperCase: /[A-Z]/.test(password),
+      hasLowerCase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    };
+  }, [formData.password]);
+
+  const passwordStrength = useMemo(() => {
+    const checks = Object.values(passwordValidation);
+    const passed = checks.filter(Boolean).length;
+    if (passed <= 1) return { label: 'Weak', color: 'bg-red-500', textColor: 'text-red-600' };
+    if (passed <= 3) return { label: 'Fair', color: 'bg-yellow-500', textColor: 'text-yellow-600' };
+    if (passed <= 4) return { label: 'Good', color: 'bg-blue-500', textColor: 'text-blue-600' };
+    return { label: 'Strong', color: 'bg-green-500', textColor: 'text-green-600' };
+  }, [passwordValidation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +56,7 @@ export default function RegisterPage() {
       });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      router.push('/dashboard');
+      router.push('/onboarding');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to register');
     } finally {
@@ -97,7 +118,7 @@ export default function RegisterPage() {
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               >
-                <option value="explorer">Explorer (Buyer/User)</option>
+                <option value="explorer">Explorer (explorer/User)</option>
                 <option value="provider">Provider (Seller/Service Provider)</option>
               </select>
             </div>
@@ -117,6 +138,47 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
+              
+              {/* Password Strength Indicator */}
+              {formData.password && (
+                <div className="mt-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-300 ${passwordStrength.color}`}
+                        style={{ width: `${(Object.values(passwordValidation).filter(Boolean).length / 5) * 100}%` } as React.CSSProperties}
+                      />
+                    </div>
+                    <span className={`text-xs font-medium ${passwordStrength.textColor}`}>
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  
+                  {/* Password Requirements */}
+                  <div className="text-xs space-y-1">
+                    <div className={`flex items-center gap-1 ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                      <span>{passwordValidation.minLength ? '✓' : '○'}</span>
+                      <span>At least 6 characters (required)</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
+                      <span>{passwordValidation.hasUpperCase ? '✓' : '○'}</span>
+                      <span>One uppercase letter</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
+                      <span>{passwordValidation.hasLowerCase ? '✓' : '○'}</span>
+                      <span>One lowercase letter</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                      <span>{passwordValidation.hasNumber ? '✓' : '○'}</span>
+                      <span>One number</span>
+                    </div>
+                    <div className={`flex items-center gap-1 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
+                      <span>{passwordValidation.hasSpecialChar ? '✓' : '○'}</span>
+                      <span>One special character (!@#$%^&*...)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

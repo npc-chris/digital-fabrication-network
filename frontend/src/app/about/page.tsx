@@ -108,7 +108,7 @@ export default function AboutPage() {
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
               <h3 className="text-xl font-semibold mb-3">Quality</h3>
               <p className="text-gray-600">
-                We vet all sellers and service providers to ensure you get reliable, high-quality products and services.
+                We vet all providers and service providers to ensure you get reliable, high-quality products and services.
               </p>
             </div>
             <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
@@ -143,7 +143,7 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">&copy; 2024 Digital Fabrication Network. All rights reserved.</p>
+          <p className="text-sm">&copy; 2026 Digital Fabrication Network. All rights reserved.</p>
         </div>
       </footer>
     </div>
