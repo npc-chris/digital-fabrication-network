@@ -87,4 +87,69 @@ router.get('/me', authenticate, async (req, res) => {
   }
 });
 
+// Complete onboarding
+router.post('/complete-onboarding', authenticate, async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { role, businessType, categories, componentTypes, serviceableLocations } = req.body;
+
+    // Update user role and mark onboarding as completed
+    await db.update(users)
+      .set({
+        role: role as any,
+        onboardingCompleted: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+
+    // If provider, store additional business info in profile (or metadata)
+    if (role === 'provider' && (businessType || categories || componentTypes || serviceableLocations)) {
+      const [existingProfile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+      
+      if (existingProfile) {
+        // Store provider-specific data in portfolio field as JSON for now
+        const providerData = {
+          businessType: businessType || [],
+          categories: categories || [],
+          componentTypes: componentTypes || [],
+          serviceableLocations: serviceableLocations || [],
+        };
+        
+        await db.update(profiles)
+          .set({
+            portfolio: JSON.stringify(providerData),
+            updatedAt: new Date(),
+          })
+          .where(eq(profiles.userId, userId));
+      }
+    }
+
+    // Fetch updated user
+    const [updatedUser] = await db.select().from(users).where(eq(users.id, userId));
+    const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+
+    // Remove sensitive fields
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = updatedUser as any;
+
+    res.json({ user: safeUser, profile: profile || null, message: 'Onboarding completed successfully' });
+  } catch (error: any) {
+    console.error('Complete onboarding error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Logout (client-side token removal, but we can track for analytics)
+router.post('/logout', authenticate, async (req, res) => {
+  try {
+    // In a stateless JWT system, logout is handled client-side
+    // But we can log the event or invalidate tokens in a blacklist if needed
+    res.json({ message: 'Logged out successfully' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

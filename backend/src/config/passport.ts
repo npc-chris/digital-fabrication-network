@@ -17,7 +17,7 @@ passport.use(
         }
 
         const result = await authService.googleAuth(profile.id, email, profile);
-        return done(null, result);
+        return done(null, result as any);
       } catch (error) {
         return done(error as Error, undefined);
       }

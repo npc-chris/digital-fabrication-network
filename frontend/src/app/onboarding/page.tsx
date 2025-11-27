@@ -18,6 +18,7 @@ export default function OnboardingPage() {
     lastName: '',
     phone: '',
     location: '',
+    avatar: '',
   });
 
   // Provider-specific data
@@ -28,6 +29,7 @@ export default function OnboardingPage() {
     businessType: [] as string[], // 'components', 'services', 'both'
     categories: [] as string[], // For services
     componentTypes: [] as string[], // For components
+    serviceableLocations: [] as string[], // Locations where provider can deliver/serve
   });
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function OnboardingPage() {
         }
         
         const response = await api.get('/api/auth/me');
-        const user = response.data;
+        const { user, profile } = response.data;
         
         // If user has completed onboarding, redirect to appropriate dashboard
         if (user.onboardingCompleted) {
@@ -50,6 +52,17 @@ export default function OnboardingPage() {
           } else {
             router.push('/dashboard');
           }
+          return;
+        }
+        
+        // Pre-fill profile data from Google OAuth if available
+        if (profile) {
+          setProfileData(prev => ({
+            ...prev,
+            firstName: profile.firstName || prev.firstName,
+            lastName: profile.lastName || prev.lastName,
+            avatar: profile.avatar || prev.avatar,
+          }));
         }
       } catch (err) {
         console.error('Failed to check onboarding status', err);
@@ -102,6 +115,7 @@ export default function OnboardingPage() {
         businessType: userRole === 'provider' ? providerData.businessType : undefined,
         categories: userRole === 'provider' ? providerData.categories : undefined,
         componentTypes: userRole === 'provider' ? providerData.componentTypes : undefined,
+        serviceableLocations: userRole === 'provider' ? providerData.serviceableLocations : undefined,
       });
 
       // Redirect to appropriate dashboard
@@ -144,6 +158,31 @@ export default function OnboardingPage() {
     }));
   };
 
+  const toggleServiceableLocation = (location: string) => {
+    setProviderData(prev => ({
+      ...prev,
+      serviceableLocations: prev.serviceableLocations.includes(location)
+        ? prev.serviceableLocations.filter(l => l !== location)
+        : [...prev.serviceableLocations, location],
+    }));
+  };
+
+  // Common locations in Nigeria for serviceable areas
+  const availableLocations = [
+    'Lagos',
+    'Abuja',
+    'Port Harcourt',
+    'Ibadan',
+    'Kano',
+    'Enugu',
+    'Kaduna',
+    'Benin City',
+    'Jos',
+    'Calabar',
+    'Nationwide',
+    'International',
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -173,7 +212,7 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div>
               <h2 className="text-3xl font-bold text-center mb-2">Welcome to DFN!</h2>
-              <p className="text-center text-gray-600 mb-8">Let's get you started. How will you be using the platform?</p>
+              <p className="text-center text-gray-600 mb-8">Let&apos;s get you started. How will you be using the platform?</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <button
@@ -183,7 +222,7 @@ export default function OnboardingPage() {
                   <User className="w-12 h-12 mx-auto mb-4 text-gray-600 group-hover:text-primary-600" />
                   <h3 className="text-xl font-semibold mb-2">Explorer</h3>
                   <p className="text-gray-600 text-sm">
-                    I'm looking to find components, book services, and connect with the fabrication community.
+                    I&apos;m looking to find components, book services, and connect with the fabrication community.
                   </p>
                 </button>
 
@@ -211,6 +250,38 @@ export default function OnboardingPage() {
                 </div>
               )}
               <form onSubmit={handleProfileSubmit} className="space-y-4">
+                {/* Profile Picture */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Profile Picture (Optional)
+                  </label>
+                  <div className="flex items-center gap-4">
+                    {profileData.avatar ? (
+                      <img
+                        src={profileData.avatar}
+                        alt="Profile"
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        placeholder="Enter image URL or leave empty to use Google profile pic"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                        value={profileData.avatar}
+                        onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {profileData.avatar ? 'Your profile picture will be updated' : 'If you signed in with Google, your Google profile picture will be used'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -396,6 +467,29 @@ export default function OnboardingPage() {
                 )}
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <MapPin className="w-4 h-4 inline mr-1" />
+                    Serviceable Locations *
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Select the locations where you can deliver products or provide services
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {availableLocations.map((location) => (
+                      <label key={location} className="flex items-center p-2 border rounded cursor-pointer hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          className="mr-2 w-4 h-4 text-primary-600"
+                          checked={providerData.serviceableLocations.includes(location)}
+                          onChange={() => toggleServiceableLocation(location)}
+                        />
+                        <span className="text-sm">{location}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Portfolio/Website URL
                   </label>
@@ -418,7 +512,7 @@ export default function OnboardingPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={loading || providerData.businessType.length === 0}
+                    disabled={loading || providerData.businessType.length === 0 || providerData.serviceableLocations.length === 0}
                     className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
                   >
                     {loading ? 'Completing...' : 'Complete Setup'}
