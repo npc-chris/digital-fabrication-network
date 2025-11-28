@@ -1,7 +1,7 @@
 'use client';
 
 import { X, CheckCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { communityAPI } from '@/lib/api-services';
 
 interface CreatePostModalProps {
@@ -17,12 +17,17 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'unset';
+      // Cleanup timeout on unmount
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -49,7 +54,7 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
       if (onSuccess) onSuccess();
       
       // Close modal after a short delay to show success message
-      setTimeout(() => {
+      closeTimeoutRef.current = setTimeout(() => {
         onClose();
       }, 1500);
     } catch (err: any) {

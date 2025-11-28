@@ -19,12 +19,17 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'unset';
+      // Cleanup timeout on unmount
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -107,7 +112,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
       if (onSuccess) onSuccess();
       
       // Close modal after a short delay to show success message
-      setTimeout(() => {
+      closeTimeoutRef.current = setTimeout(() => {
         onClose();
       }, 2000);
     } catch (err: any) {
