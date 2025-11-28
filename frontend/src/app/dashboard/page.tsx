@@ -955,9 +955,6 @@ export default function Dashboard() {
         <RequestQuoteModal
           service={selectedService}
           onClose={() => setSelectedService(null)}
-          onSuccess={() => {
-            alert('Quote request submitted successfully! The provider will contact you soon.');
-          }}
         />
       )}
       
@@ -1009,7 +1006,6 @@ export default function Dashboard() {
           onClose={() => setShowCreatePostModal(false)}
           onSuccess={() => {
             fetchCommunityPosts();
-            alert('Post created successfully!');
           }}
         />
       )}

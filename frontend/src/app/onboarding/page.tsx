@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { User, Building2, MapPin, Phone, FileText, Wrench, Package } from 'lucide-react';
+import { User, Building2, MapPin, Phone, FileText, Wrench, Package, Upload, X } from 'lucide-react';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -11,6 +11,8 @@ export default function OnboardingPage() {
   const [userRole, setUserRole] = useState<'explorer' | 'provider' | ''>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Common profile data
   const [profileData, setProfileData] = useState({
@@ -167,6 +169,52 @@ export default function OnboardingPage() {
     }));
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file must be smaller than 5MB');
+      return;
+    }
+
+    setAvatarUploading(true);
+    setError('');
+
+    try {
+      // Convert to base64 for preview and storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileData(prev => ({ ...prev, avatar: reader.result as string }));
+        setAvatarUploading(false);
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file');
+        setAvatarUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setError('Failed to upload image');
+      setAvatarUploading(false);
+    }
+
+    // Reset input
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = '';
+    }
+  };
+
+  const removeAvatar = () => {
+    setProfileData(prev => ({ ...prev, avatar: '' }));
+  };
+
   // Common locations in Nigeria for serviceable areas
   const availableLocations = [
     'Lagos',
@@ -257,11 +305,21 @@ export default function OnboardingPage() {
                   </label>
                   <div className="flex items-center gap-4">
                     {profileData.avatar ? (
-                      <img
-                        src={profileData.avatar}
-                        alt="Profile"
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
+                      <div className="relative">
+                        <img
+                          src={profileData.avatar}
+                          alt="Profile"
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeAvatar}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                          aria-label="Remove profile picture"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
                         <User className="w-8 h-8 text-gray-400" />
@@ -269,14 +327,24 @@ export default function OnboardingPage() {
                     )}
                     <div className="flex-1">
                       <input
-                        type="text"
-                        placeholder="Enter image URL or leave empty to use Google profile pic"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                        value={profileData.avatar}
-                        onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        className="hidden"
+                        id="avatar-upload"
                       />
-                      <p className="text-xs text-gray-500 mt-1">
-                        {profileData.avatar ? 'Your profile picture will be updated' : 'If you signed in with Google, your Google profile picture will be used'}
+                      <label
+                        htmlFor="avatar-upload"
+                        className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {avatarUploading ? 'Uploading...' : 'Upload Photo'}
+                      </label>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {profileData.avatar 
+                          ? 'Your profile picture will be updated' 
+                          : 'Upload an image or leave empty to use your Google profile picture'}
                       </p>
                     </div>
                   </div>

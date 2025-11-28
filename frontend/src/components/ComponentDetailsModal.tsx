@@ -1,19 +1,21 @@
 'use client';
 
-import { X, Minus, Plus, Trash2, Phone, Mail, MapPin } from 'lucide-react';
+import { X, Minus, Plus, Trash2, Phone, Mail, MapPin, CheckCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 
 interface ComponentDetailsModalProps {
   component: any;
   onClose: () => void;
+  onAddToCart?: () => void;
 }
 
-export default function ComponentDetailsModal({ component, onClose }: ComponentDetailsModalProps) {
+export default function ComponentDetailsModal({ component, onClose, onAddToCart }: ComponentDetailsModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [inCart, setInCart] = useState(false);
   const [showContactInfo, setShowContactInfo] = useState(false);
   const [cartLoading, setCartLoading] = useState(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     // Prevent body scroll when modal is open
@@ -22,6 +24,14 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
       document.body.style.overflow = 'unset';
     };
   }, []);
+
+  // Auto-hide notification after 3 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const images = component.images ? JSON.parse(component.images) : [];
   const technicalDetails = component.technicalDetails ? JSON.parse(component.technicalDetails) : {};
@@ -36,9 +46,11 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
         price: component.price,
       });
       setInCart(true);
+      setNotification({ type: 'success', message: `${component.name} added to cart!` });
+      if (onAddToCart) onAddToCart();
     } catch (error) {
       console.error('Failed to add to cart:', error);
-      alert('Failed to add item to cart. Please try again.');
+      setNotification({ type: 'error', message: 'Failed to add item to cart. Please try again.' });
     } finally {
       setCartLoading(false);
     }
@@ -65,6 +77,23 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Notification Toast */}
+        {notification && (
+          <div className={`sticky top-0 z-10 px-4 py-3 flex items-center gap-2 ${
+            notification.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+          }`}>
+            {notification.type === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+            <span className="text-sm font-medium">{notification.message}</span>
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-auto p-1 hover:bg-white/50 rounded"
+              aria-label="Close notification"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-bold">{component.name}</h2>

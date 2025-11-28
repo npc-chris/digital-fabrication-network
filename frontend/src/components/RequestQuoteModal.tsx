@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Paperclip, FileText, Trash2 } from 'lucide-react';
+import { X, Paperclip, FileText, Trash2, CheckCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { quotesAPI, uploadAPI } from '@/lib/api-services';
 
@@ -17,6 +17,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -77,6 +78,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
 
     try {
@@ -101,8 +103,13 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
         specifications: specsObj,
       });
 
+      setSuccessMessage('Quote request submitted successfully! The provider will review your request and send you a quote.');
       if (onSuccess) onSuccess();
-      onClose();
+      
+      // Close modal after a short delay to show success message
+      setTimeout(() => {
+        onClose();
+      }, 2000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to submit quote request. Please try again.');
     } finally {
@@ -177,6 +184,13 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
 
           {/* Quote Request Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                {successMessage}
+              </div>
+            )}
+            
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -191,7 +205,8 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
                 id="projectDescription"
                 rows={4}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                disabled={!!successMessage}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm disabled:bg-gray-100"
                 placeholder="Describe your project requirements, goals, and any specific details..."
                 value={projectDescription}
                 onChange={(e) => setProjectDescription(e.target.value)}
