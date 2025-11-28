@@ -19,6 +19,7 @@ import searchRoutes from './routes/search.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import quotesRoutes from './routes/quotes.routes';
 import uploadRoutes from './routes/upload.routes';
+import profilesRoutes from './routes/profiles.routes';
 // New strategic feature routes
 import projectsRoutes from './routes/projects.routes';
 import cartRoutes from './routes/cart.routes';
@@ -49,6 +50,7 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/profiles', profilesRoutes);
 app.use('/api/components', componentsRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/orders', ordersRoutes);

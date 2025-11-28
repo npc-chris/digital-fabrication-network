@@ -3,10 +3,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
 import Link from 'next/link';
-import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon } from 'lucide-react';
+import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus } from 'lucide-react';
 import ComponentDetailsModal from '@/components/ComponentDetailsModal';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
+import UserDropdown from '@/components/UserDropdown';
+import CreatePostModal from '@/components/CreatePostModal';
+import ViewDiscussionModal from '@/components/ViewDiscussionModal';
 
 export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,6 +54,8 @@ export default function Dashboard() {
   // Modal state
   const [selectedComponent, setSelectedComponent] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
+  const [showCreatePostModal, setShowCreatePostModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
 
   useEffect(() => {
     // Load user from localStorage
@@ -328,15 +333,8 @@ export default function Dashboard() {
               </button>
               <NotificationsDropdown />
               {user ? (
-                <div className="hidden md:flex items-center space-x-3">
-                  <div className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-gray-100 cursor-pointer">
-                    <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                      {user.firstName ? user.firstName[0].toUpperCase() : user.email[0].toUpperCase()}
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {user.firstName ? `${user.firstName}${user.lastName ? ' ' + user.lastName[0] + '.' : ''}` : user.email.split('@')[0]}
-                    </span>
-                  </div>
+                <div className="hidden md:block">
+                  <UserDropdown user={user} />
                 </div>
               ) : (
                 <>
@@ -806,7 +804,11 @@ export default function Dashboard() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Community & Innovation Board</h3>
-              <button className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+              <button 
+                onClick={() => setShowCreatePostModal(true)}
+                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
                 Create Post
               </button>
             </div>
@@ -886,7 +888,12 @@ export default function Dashboard() {
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span>👁 {post.viewCount || 0} views</span>
                       <span>💬 {post.replyCount || 0} replies</span>
-                      <button className="text-primary-600 hover:text-primary-700 font-medium">View Discussion</button>
+                      <button 
+                        onClick={() => setSelectedPost(post)}
+                        className="text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        View Discussion
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -994,6 +1001,25 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Create Post Modal */}
+      {showCreatePostModal && (
+        <CreatePostModal
+          onClose={() => setShowCreatePostModal(false)}
+          onSuccess={() => {
+            fetchCommunityPosts();
+            alert('Post created successfully!');
+          }}
+        />
+      )}
+      
+      {/* View Discussion Modal */}
+      {selectedPost && (
+        <ViewDiscussionModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+        />
       )}
     </div>
   );
