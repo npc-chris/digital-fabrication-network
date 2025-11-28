@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
 import Link from 'next/link';
-import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus } from 'lucide-react';
+import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus, Grid3X3, Grid2X2, LayoutGrid } from 'lucide-react';
 import ComponentDetailsModal from '@/components/ComponentDetailsModal';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
@@ -11,12 +11,15 @@ import UserDropdown from '@/components/UserDropdown';
 import CreatePostModal from '@/components/CreatePostModal';
 import ViewDiscussionModal from '@/components/ViewDiscussionModal';
 
+type CardSize = 'small' | 'medium' | 'large';
+
 export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'components' | 'services' | 'community'>('components');
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showProviderUpgradeModal, setShowProviderUpgradeModal] = useState(false);
+  const [cardSize, setCardSize] = useState<CardSize>('medium');
 
   // Components & Parts filter state
   const [componentTypes, setComponentTypes] = useState<string[]>([]);
@@ -56,6 +59,43 @@ export default function Dashboard() {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
+
+  // Load card size preference from localStorage
+  useEffect(() => {
+    const savedCardSize = localStorage.getItem('dfn-card-size') as CardSize;
+    if (savedCardSize && ['small', 'medium', 'large'].includes(savedCardSize)) {
+      setCardSize(savedCardSize);
+    }
+  }, []);
+
+  // Save card size preference to localStorage
+  const handleCardSizeChange = (size: CardSize) => {
+    setCardSize(size);
+    localStorage.setItem('dfn-card-size', size);
+  };
+
+  // Card size CSS classes
+  const getGridClasses = () => {
+    switch (cardSize) {
+      case 'small':
+        return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
+      case 'large':
+        return 'grid-cols-1 md:grid-cols-2';
+      default:
+        return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+    }
+  };
+
+  const getImageHeightClass = () => {
+    switch (cardSize) {
+      case 'small':
+        return 'h-32';
+      case 'large':
+        return 'h-64';
+      default:
+        return 'h-48';
+    }
+  };
 
   useEffect(() => {
     // Load user from localStorage
@@ -523,6 +563,34 @@ export default function Dashboard() {
                     Clear all
                   </button>
                 )}
+                
+                {/* Card Size Selector */}
+                <div className="ml-auto flex items-center gap-1 border border-gray-300 rounded-lg p-1">
+                  <button
+                    onClick={() => handleCardSizeChange('small')}
+                    className={`p-1.5 rounded ${cardSize === 'small' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}
+                    aria-label="Small cards"
+                    title="Small cards"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleCardSizeChange('medium')}
+                    className={`p-1.5 rounded ${cardSize === 'medium' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}
+                    aria-label="Medium cards"
+                    title="Medium cards"
+                  >
+                    <Grid2X2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleCardSizeChange('large')}
+                    className={`p-1.5 rounded ${cardSize === 'large' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}
+                    aria-label="Large cards"
+                    title="Large cards"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Active Filter Chips */}
@@ -568,33 +636,39 @@ export default function Dashboard() {
             ) : componentsList.length === 0 ? (
               <div className="text-center py-12 text-gray-500">No components or parts found.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className={`grid ${getGridClasses()} gap-6`}>
                 {componentsList.map((item, i) => (
                   <div key={item.id || i} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                    <div className="h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                    <div className={`${getImageHeightClass()} bg-gray-200 rounded-t-lg flex items-center justify-center`}>
                       {item.images && Array.isArray(JSON.parse(item.images)) && JSON.parse(item.images)[0] ? (
                         <img src={JSON.parse(item.images)[0]} alt={item.name} className="h-full w-full object-cover rounded-t-lg" />
                       ) : (
                         <span className="text-gray-400">No Image</span>
                       )}
                     </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-lg mb-2">{item.name}</h4>
-                      <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>
+                    <div className={cardSize === 'small' ? 'p-3' : 'p-4'}>
+                      <h4 className={`font-semibold ${cardSize === 'small' ? 'text-sm' : 'text-lg'} mb-2 ${cardSize === 'small' ? 'line-clamp-1' : ''}`}>{item.name}</h4>
+                      {cardSize !== 'small' && (
+                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>
+                      )}
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-primary-600 font-bold">${item.price}</span>
-                        <span className="text-sm text-gray-500">{item.availability > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                        <span className={`text-primary-600 font-bold ${cardSize === 'small' ? 'text-sm' : ''}`}>${item.price}</span>
+                        <span className={`${cardSize === 'small' ? 'text-xs' : 'text-sm'} text-gray-500`}>{item.availability > 0 ? 'In Stock' : 'Out of Stock'}</span>
                       </div>
-                      <div className="text-xs text-gray-500 mb-1">Type: <span className="capitalize">{item.type}</span></div>
-                      <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
-                      <div className="text-xs text-gray-500 mb-2">
-                        Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `provider #${item.providerId}`}
-                      </div>
+                      {cardSize !== 'small' && (
+                        <>
+                          <div className="text-xs text-gray-500 mb-1">Type: <span className="capitalize">{item.type}</span></div>
+                          <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
+                          <div className="text-xs text-gray-500 mb-2">
+                            Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `provider #${item.providerId}`}
+                          </div>
+                        </>
+                      )}
                       <button 
                         onClick={() => setSelectedComponent(item)}
-                        className="mt-2 w-full py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                        className={`mt-2 w-full ${cardSize === 'small' ? 'py-1.5 text-sm' : 'py-2'} bg-primary-600 text-white rounded-md hover:bg-primary-700`}
                       >
-                        View Details
+                        {cardSize === 'small' ? 'Details' : 'View Details'}
                       </button>
                     </div>
                   </div>
@@ -714,6 +788,34 @@ export default function Dashboard() {
                     Clear all
                   </button>
                 )}
+                
+                {/* Card Size Selector */}
+                <div className="ml-auto flex items-center gap-1 border border-gray-300 rounded-lg p-1">
+                  <button
+                    onClick={() => handleCardSizeChange('small')}
+                    className={`p-1.5 rounded ${cardSize === 'small' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}
+                    aria-label="Small cards"
+                    title="Small cards"
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleCardSizeChange('medium')}
+                    className={`p-1.5 rounded ${cardSize === 'medium' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}
+                    aria-label="Medium cards"
+                    title="Medium cards"
+                  >
+                    <Grid2X2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleCardSizeChange('large')}
+                    className={`p-1.5 rounded ${cardSize === 'large' ? 'bg-primary-100 text-primary-700' : 'hover:bg-gray-100 text-gray-500'}`}
+                    aria-label="Large cards"
+                    title="Large cards"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Active Filter Chips */}
@@ -759,38 +861,44 @@ export default function Dashboard() {
             ) : servicesList.length === 0 ? (
               <div className="text-center py-12 text-gray-500">No services found.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className={`grid ${getGridClasses()} gap-6`}>
                 {servicesList.map((item, i) => (
                   <div key={item.id || i} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                    <div className="h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                    <div className={`${getImageHeightClass()} bg-gray-200 rounded-t-lg flex items-center justify-center`}>
                       {item.images && Array.isArray(JSON.parse(item.images)) && JSON.parse(item.images)[0] ? (
                         <img src={JSON.parse(item.images)[0]} alt={item.name} className="h-full w-full object-cover rounded-t-lg" />
                       ) : (
                         <span className="text-gray-400">No Image</span>
                       )}
                     </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-lg mb-2">{item.name}</h4>
-                      <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>
+                    <div className={cardSize === 'small' ? 'p-3' : 'p-4'}>
+                      <h4 className={`font-semibold ${cardSize === 'small' ? 'text-sm' : 'text-lg'} mb-2 ${cardSize === 'small' ? 'line-clamp-1' : ''}`}>{item.name}</h4>
+                      {cardSize !== 'small' && (
+                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>
+                      )}
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500">
-                          {item.pricingModel === 'hourly' ? `From $${item.pricePerUnit}/hour` : 
-                           item.pricingModel === 'project' ? `From $${item.pricePerUnit}/project` : 
-                           item.pricingModel === 'per_unit' ? `From $${item.pricePerUnit}/unit` : ''}
+                        <span className={`${cardSize === 'small' ? 'text-xs' : 'text-sm'} text-gray-500`}>
+                          {item.pricingModel === 'hourly' ? `$${item.pricePerUnit}/hr` : 
+                           item.pricingModel === 'project' ? `$${item.pricePerUnit}/proj` : 
+                           item.pricingModel === 'per_unit' ? `$${item.pricePerUnit}/unit` : ''}
                         </span>
-                        <span className="text-sm text-gray-500">⭐ {item.rating || 'N/A'}</span>
+                        <span className={`${cardSize === 'small' ? 'text-xs' : 'text-sm'} text-gray-500`}>⭐ {item.rating || 'N/A'}</span>
                       </div>
-                      <div className="text-xs text-gray-500 mb-1">Category: {item.category}</div>
-                      <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
-                      <div className="text-xs text-gray-500 mb-2">
-                        Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `Provider #${item.providerId}`}
-                      </div>
-                      <div className="text-xs text-gray-500 mb-3">Lead time: {item.leadTime ? `${item.leadTime} days` : 'N/A'}</div>
+                      {cardSize !== 'small' && (
+                        <>
+                          <div className="text-xs text-gray-500 mb-1">Category: {item.category}</div>
+                          <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
+                          <div className="text-xs text-gray-500 mb-2">
+                            Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `Provider #${item.providerId}`}
+                          </div>
+                          <div className="text-xs text-gray-500 mb-3">Lead time: {item.leadTime ? `${item.leadTime} days` : 'N/A'}</div>
+                        </>
+                      )}
                       <button 
                         onClick={() => setSelectedService(item)}
-                        className="w-full py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                        className={`w-full ${cardSize === 'small' ? 'py-1.5 text-sm' : 'py-2'} bg-primary-600 text-white rounded-md hover:bg-primary-700`}
                       >
-                        Request Quote
+                        {cardSize === 'small' ? 'Quote' : 'Request Quote'}
                       </button>
                     </div>
                   </div>
