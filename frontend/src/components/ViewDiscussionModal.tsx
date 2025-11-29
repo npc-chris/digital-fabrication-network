@@ -39,10 +39,11 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [hasIncrementedView, setHasIncrementedView] = useState(false);
 
-  const loadReplies = useCallback(async () => {
+  const loadReplies = useCallback(async (incrementView: boolean = false) => {
     try {
-      const response = await communityAPI.getById(post.id);
+      const response = await communityAPI.getById(post.id, incrementView);
       setReplies(response.replies || []);
     } catch (err) {
       console.error('Failed to load replies:', err);
@@ -54,11 +55,15 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   useEffect(() => {
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-    loadReplies();
+    // Only increment view count on initial load
+    loadReplies(!hasIncrementedView);
+    if (!hasIncrementedView) {
+      setHasIncrementedView(true);
+    }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [loadReplies]);
+  }, [loadReplies, hasIncrementedView]);
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,9 +73,10 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
     setError('');
 
     try {
-      await communityAPI.createReply(post.id, newReply);
+      const newReplyData = await communityAPI.createReply(post.id, newReply);
       setNewReply('');
-      loadReplies(); // Reload replies
+      // Add the new reply directly to avoid refetching
+      setReplies(prev => [...prev, newReplyData]);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to submit reply. Please login and try again.');
     } finally {

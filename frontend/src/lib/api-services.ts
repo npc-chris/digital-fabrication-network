@@ -290,8 +290,8 @@ export const communityAPI = {
     return response.data;
   },
   
-  getById: async (id: number) => {
-    const response = await api.get(`/api/community/${id}`);
+  getById: async (id: number, incrementView: boolean = true) => {
+    const response = await api.get(`/api/community/${id}?incrementView=${incrementView}`);
     return response.data;
   },
 
