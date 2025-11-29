@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
 import Link from 'next/link';
-import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus } from 'lucide-react';
+import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus, Store } from 'lucide-react';
 import ComponentDetailsModal from '@/components/ComponentDetailsModal';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
@@ -324,6 +324,13 @@ export default function Dashboard() {
                 <Users className="w-5 h-5 mr-2" />
                 Community
               </button>
+              <Link
+                href="/affiliates"
+                className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                <Store className="w-5 h-5 mr-2" />
+                Affiliates
+              </Link>
             </nav>
 
             {/* Right side icons */}
@@ -390,6 +397,14 @@ export default function Dashboard() {
                 <Users className="w-5 h-5 mr-2" />
                 Community
               </button>
+              <Link
+                href="/affiliates"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                <Store className="w-5 h-5 mr-2" />
+                Affiliates
+              </Link>
             </div>
           </div>
         )}
