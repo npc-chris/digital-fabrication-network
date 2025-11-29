@@ -67,7 +67,10 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">{component.name}</h2>
+          <div>
+            <h2 className="text-xl font-bold">{component.name}</h2>
+            <p className="text-sm text-gray-500 mt-1 capitalize">{component.type} • {component.location}</p>
+          </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -79,67 +82,56 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
 
         {/* Content */}
         <div className="p-6 space-y-5">
-          {/* Image Gallery - Reduced size */}
-          {images.length > 0 && (
-            <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-              {images.slice(0, 4).map((img: string, idx: number) => (
-                <div key={idx} className="aspect-square bg-gray-200 rounded-lg overflow-hidden max-w-[100px]">
+          {/* Product Preview - Compact (similar to RequestQuoteModal) */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex gap-4">
+              {images.length > 0 && (
+                <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={img}
-                    alt={`${component.name} - Image ${idx + 1}`}
+                    src={images[0]}
+                    alt={component.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-              ))}
+              )}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold mb-1">{component.name}</h3>
+                <p className="text-sm text-gray-600 line-clamp-2">{component.description || 'No description available.'}</p>
+                <div className="flex gap-3 text-xs text-gray-500 mt-2">
+                  <span className="capitalize">Type: {component.type}</span>
+                  <span>Location: {component.location}</span>
+                </div>
+              </div>
             </div>
-          )}
 
-          {/* Basic Information */}
-          <div>
-            <h3 className="text-base font-semibold mb-2">Description</h3>
-            <p className="text-gray-700 text-sm">{component.description || 'No description available.'}</p>
-          </div>
-
-          {/* Pricing & Availability */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500 mb-1">Price</p>
-              <p className="text-xl font-bold text-primary-600">${component.price}</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500 mb-1">Availability</p>
-              <p className="text-base font-semibold">
-                {component.availability > 0 ? (
-                  <span className="text-green-600">{component.availability} in stock</span>
-                ) : (
-                  <span className="text-red-600">Out of stock</span>
-                )}
-              </p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500 mb-1">Rating</p>
-              <p className="text-base font-semibold">
-                ⭐ {component.rating || 'N/A'} ({component.reviewCount || 0})
-              </p>
+            {/* Pricing Info - Compact Grid */}
+            <div className="mt-3 pt-3 border-t grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <p className="text-xs text-gray-500">Price</p>
+                <p className="font-semibold text-primary-600">${component.price}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Availability</p>
+                <p className={`font-medium ${component.availability > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {component.availability > 0 ? `${component.availability} in stock` : 'Out of stock'}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Rating</p>
+                <p className="font-medium">⭐ {component.rating || 'N/A'} ({component.reviewCount || 0})</p>
+              </div>
             </div>
           </div>
 
-          {/* Component Details */}
+          {/* Provider Info */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-            <div>
-              <p className="text-xs font-medium text-gray-500">Type</p>
-              <p className="capitalize">{component.type}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500">Location</p>
-              <p>{component.location || 'N/A'}</p>
-            </div>
             <div>
               <p className="text-xs font-medium text-gray-500">Provider</p>
               <p>
                 {component.providerCompany || 
                  `${component.providerName || ''} ${component.providerLastName || ''}`.trim() || 
-                 `provider #${component.providerId}`}
+                 `Provider #${component.providerId}`}
               </p>
             </div>
           </div>

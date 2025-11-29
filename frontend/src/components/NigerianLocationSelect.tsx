@@ -151,12 +151,12 @@ export default function NigerianLocationSelect({
         </div>
       </div>
 
-      {/* Hidden input for form validation */}
+      {/* Hidden input for form validation - readOnly because value is controlled by dropdown */}
       <input
         type="text"
         required={required}
         value={value}
-        onChange={() => {}}
+        readOnly
         className="sr-only"
         tabIndex={-1}
       />

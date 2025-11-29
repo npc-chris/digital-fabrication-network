@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
   Users, Package, Wrench, MessageSquare, Shield, Search, 
   ChevronDown, CheckCircle, XCircle, Trash2, ArrowUpCircle,
-  ArrowDownCircle, BarChart3, AlertTriangle, Eye
+  ArrowDownCircle, BarChart3, AlertTriangle, Eye, X
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -608,8 +608,9 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setSelectedUser(null)}
                 className="p-2 hover:bg-gray-100 rounded-full"
+                aria-label="Close"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6">

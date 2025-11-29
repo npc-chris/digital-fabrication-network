@@ -24,8 +24,10 @@ if (!USE_S3 && !fs.existsSync(LOCAL_UPLOAD_DIR)) {
 
 export class StorageService {
   async uploadFile(file: Buffer, fileName: string, contentType: string): Promise<string> {
-    // Sanitize filename
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    // Sanitize filename - only allow alphanumeric, dashes, underscores, and single dot for extension
+    const ext = fileName.includes('.') ? fileName.split('.').pop() || '' : '';
+    const baseName = fileName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const sanitizedFileName = ext ? `${baseName}.${ext.replace(/[^a-zA-Z0-9]/g, '')}` : baseName;
     const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
 
     if (USE_S3 && s3Client) {
@@ -80,9 +82,31 @@ export class StorageService {
   }
 
   async deleteFile(fileUrl: string): Promise<void> {
-    if (fileUrl.includes('s3.amazonaws.com') && USE_S3 && s3Client) {
+    // Validate URL before processing
+    let url: URL;
+    try {
+      url = new URL(fileUrl);
+    } catch {
+      // Not a valid URL, could be a relative path
+      if (fileUrl.startsWith('/uploads/')) {
+        const fileName = fileUrl.substring('/uploads/'.length);
+        const sanitizedFileName = fileName.replace(/\.\./g, '').replace(/[^a-zA-Z0-9._-]/g, '');
+        const filePath = path.join(LOCAL_UPLOAD_DIR, sanitizedFileName);
+        
+        // Ensure the file path is within uploads directory
+        const resolvedPath = path.resolve(filePath);
+        if (resolvedPath.startsWith(path.resolve(LOCAL_UPLOAD_DIR)) && fs.existsSync(filePath)) {
+          await fs.promises.unlink(filePath);
+        }
+      }
+      return;
+    }
+
+    // Handle S3 URLs - must match expected bucket domain exactly
+    const s3Domain = `${BUCKET_NAME}.s3.amazonaws.com`;
+    if (USE_S3 && s3Client && url.hostname === s3Domain) {
       // Delete from S3
-      const key = fileUrl.split('.com/')[1];
+      const key = url.pathname.substring(1); // Remove leading slash
 
       const command = new DeleteObjectCommand({
         Bucket: BUCKET_NAME,
@@ -90,12 +114,15 @@ export class StorageService {
       });
 
       await s3Client.send(command);
-    } else if (fileUrl.includes('/uploads/')) {
+    } else if (url.pathname.startsWith('/uploads/')) {
       // Delete from local storage
-      const fileName = fileUrl.split('/uploads/')[1];
-      const filePath = path.join(LOCAL_UPLOAD_DIR, fileName);
+      const fileName = url.pathname.substring('/uploads/'.length);
+      const sanitizedFileName = fileName.replace(/\.\./g, '').replace(/[^a-zA-Z0-9._-]/g, '');
+      const filePath = path.join(LOCAL_UPLOAD_DIR, sanitizedFileName);
       
-      if (fs.existsSync(filePath)) {
+      // Ensure the file path is within uploads directory
+      const resolvedPath = path.resolve(filePath);
+      if (resolvedPath.startsWith(path.resolve(LOCAL_UPLOAD_DIR)) && fs.existsSync(filePath)) {
         await fs.promises.unlink(filePath);
       }
     }

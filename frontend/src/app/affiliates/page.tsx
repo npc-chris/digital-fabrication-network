@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Store, MapPin, ExternalLink, Star, ShoppingCart, Search, 
-  Filter, CheckCircle, ArrowLeft, Globe, Package
+  Filter, CheckCircle, ArrowLeft, Globe, Package, X
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -248,8 +248,9 @@ export default function AffiliatesPage() {
               <button
                 onClick={() => setSelectedStore(null)}
                 className="p-2 hover:bg-gray-100 rounded-full"
+                aria-label="Close"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 

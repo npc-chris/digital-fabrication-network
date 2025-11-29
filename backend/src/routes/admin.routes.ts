@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { db } from '../config/database';
 import { users, profiles, components, services, communityPosts, orders, bookings, verificationDocuments, affiliateStores } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
@@ -6,7 +6,37 @@ import { eq, like, or, desc, sql, and, count } from 'drizzle-orm';
 
 const router = Router();
 
-// All admin routes require authentication and admin role
+// Simple in-memory rate limiting for admin routes
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+const adminRateLimiter = (req: Request, res: Response, next: NextFunction) => {
+  const userId = (req as any).user?.id || req.ip;
+  const key = `admin:${userId}`;
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute window
+  const maxRequests = 100; // 100 requests per minute
+
+  const record = rateLimitStore.get(key);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
+    return next();
+  }
+
+  if (record.count >= maxRequests) {
+    return res.status(429).json({ 
+      error: 'Too many requests',
+      retryAfter: Math.ceil((record.resetTime - now) / 1000)
+    });
+  }
+
+  record.count++;
+  return next();
+};
+
+// All admin routes require rate limiting, authentication and admin role
+// Rate limiting applied first to prevent DoS attacks before auth checks
+router.use(adminRateLimiter);
 router.use(authenticate);
 router.use(authorize('admin', 'platform_manager'));
 

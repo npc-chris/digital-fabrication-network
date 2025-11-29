@@ -1,7 +1,7 @@
 'use client';
 
 import { X, Send, User } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { communityAPI } from '@/lib/api-services';
 
 interface Post {
@@ -39,7 +39,7 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [hasIncrementedView, setHasIncrementedView] = useState(false);
+  const hasIncrementedViewRef = useRef(false);
 
   const loadReplies = useCallback(async (incrementView: boolean = false) => {
     try {
@@ -55,15 +55,13 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   useEffect(() => {
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-    // Only increment view count on initial load
-    loadReplies(!hasIncrementedView);
-    if (!hasIncrementedView) {
-      setHasIncrementedView(true);
-    }
+    // Only increment view count on initial load (using ref to avoid dependency issues)
+    loadReplies(!hasIncrementedViewRef.current);
+    hasIncrementedViewRef.current = true;
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [loadReplies, hasIncrementedView]);
+  }, [loadReplies]);
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
