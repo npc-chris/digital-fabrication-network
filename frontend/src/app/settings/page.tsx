@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, User, Bell, Shield, Save, Camera } from 'lucide-react';
+import { ArrowLeft, User, Bell, Shield, Save, Upload, X } from 'lucide-react';
 import api from '@/lib/api';
 
 export default function SettingsPage() {
@@ -12,6 +12,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'security'>('profile');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -81,6 +83,52 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Please select an image file' });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Image file must be smaller than 5MB' });
+      return;
+    }
+
+    setAvatarUploading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      // Convert to base64 for preview and storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileData(prev => ({ ...prev, avatar: reader.result as string }));
+        setAvatarUploading(false);
+      };
+      reader.onerror = () => {
+        setMessage({ type: 'error', text: 'Failed to read image file' });
+        setAvatarUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Failed to upload image' });
+      setAvatarUploading(false);
+    }
+
+    // Reset input
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = '';
+    }
+  };
+
+  const removeAvatar = () => {
+    setProfileData(prev => ({ ...prev, avatar: '' }));
   };
 
   if (loading) {
@@ -167,11 +215,21 @@ export default function SettingsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
               <div className="flex items-center gap-4">
                 {profileData.avatar ? (
-                  <img
-                    src={profileData.avatar}
-                    alt="Profile"
-                    className="w-20 h-20 rounded-full object-cover"
-                  />
+                  <div className="relative">
+                    <img
+                      src={profileData.avatar}
+                      alt="Profile"
+                      className="w-20 h-20 rounded-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeAvatar}
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                      aria-label="Remove profile picture"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center">
                     <User className="w-10 h-10 text-primary-600" />
@@ -179,13 +237,21 @@ export default function SettingsPage() {
                 )}
                 <div>
                   <input
-                    type="text"
-                    placeholder="Enter image URL"
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    value={profileData.avatar}
-                    onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    id="settings-avatar-upload"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Enter an image URL or use your Google profile photo</p>
+                  <label
+                    htmlFor="settings-avatar-upload"
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {avatarUploading ? 'Uploading...' : 'Upload Photo'}
+                  </label>
+                  <p className="text-xs text-gray-500 mt-2">Upload an image or use your Google profile photo</p>
                 </div>
               </div>
             </div>
