@@ -11,7 +11,6 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'explorer',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,7 +51,6 @@ export default function RegisterPage() {
       const response = await api.post('/api/auth/register', {
         email: formData.email,
         password: formData.password,
-        role: formData.role,
       });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -105,22 +103,6 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
-            </div>
-            
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                I am a...
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
-                <option value="explorer">Explorer (explorer/User)</option>
-                <option value="provider">Provider (Seller/Service Provider)</option>
-              </select>
             </div>
 
             <div>
