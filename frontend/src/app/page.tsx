@@ -1,9 +1,38 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, Wrench, Users, ArrowRight, CheckCircle, Zap, Shield, Globe, Star, TrendingUp, Clock } from 'lucide-react';
+import { Package, Wrench, Users, ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from 'lucide-react';
+import { verifySession } from '@/lib/auth';
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    verifySession().then(({ isAuthenticated }) => {
+      if (isAuthenticated) {
+        router.push('/dashboard');
+      } else {
+        setIsCheckingAuth(false);
+      }
+    });
+  }, [router]);
+
+  // Show loading state while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Navigation */}

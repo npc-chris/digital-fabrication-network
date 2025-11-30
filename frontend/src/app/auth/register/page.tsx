@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
 import EmailVerification from '@/components/EmailVerification';
+import { verifySession } from '@/lib/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,6 +17,18 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    verifySession().then(({ isAuthenticated }) => {
+      if (isAuthenticated) {
+        router.push('/dashboard');
+      } else {
+        setIsCheckingAuth(false);
+      }
+    });
+  }, [router]);
 
   // Password validation criteria
   const passwordValidation = useMemo(() => {
@@ -73,6 +86,18 @@ export default function RegisterPage() {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     window.location.href = `${backendUrl}/api/auth/google`;
   };
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show email verification screen
   if (showVerification) {

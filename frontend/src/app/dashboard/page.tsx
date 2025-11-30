@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
 import Link from 'next/link';
 import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus, Store } from 'lucide-react';
@@ -11,13 +12,16 @@ import UserDropdown from '@/components/UserDropdown';
 import CreatePostModal from '@/components/CreatePostModal';
 import ViewDiscussionModal from '@/components/ViewDiscussionModal';
 import HierarchicalCategoryFilter from '@/components/HierarchicalCategoryFilter';
+import { verifySession, getStoredUser } from '@/lib/auth';
 
 export default function Dashboard() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'components' | 'services' | 'community'>('components');
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showProviderUpgradeModal, setShowProviderUpgradeModal] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   // Components & Parts filter state
   const [componentCategories, setComponentCategories] = useState<string[]>([]);
@@ -60,19 +64,29 @@ export default function Dashboard() {
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
 
+  // Verify session on page load and refresh user data
   useEffect(() => {
-    // Load user from localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
+    const checkSession = async () => {
+      const result = await verifySession();
+      
+      if (result.isAuthenticated && result.user) {
+        setUser(result.user);
+      } else {
+        // Allow public dashboard view without login
+        setUser(null);
+      }
+      
+      setIsAuthChecked(true);
+    };
+    
+    checkSession();
     
     // Check if welcome banner was dismissed in this session
     const bannerDismissed = sessionStorage.getItem('welcomeBannerDismissed');
     if (bannerDismissed === 'true') {
       setShowWelcomeBanner(false);
     }
-  }, []);
+  }, [router]);
 
   const dismissWelcomeBanner = () => {
     setShowWelcomeBanner(false);
@@ -290,6 +304,18 @@ export default function Dashboard() {
     const years = Math.floor(months / 12);
     return `${years} year${years !== 1 ? 's' : ''} ago`;
   };
+
+  // Show loading while verifying authentication
+  if (!isAuthChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
