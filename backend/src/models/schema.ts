@@ -452,3 +452,13 @@ export const projectCompletions = pgTable('project_completions', {
   rating: integer('rating'), // 1-5
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// Email verification codes table
+export const emailVerificationCodes = pgTable('email_verification_codes', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull(),
+  code: varchar('code', { length: 6 }).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  verified: boolean('verified').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+});

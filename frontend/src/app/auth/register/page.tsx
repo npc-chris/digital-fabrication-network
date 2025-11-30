@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
+import EmailVerification from '@/components/EmailVerification';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
 
   // Password validation criteria
   const passwordValidation = useMemo(() => {
@@ -45,8 +47,12 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
+    // Show email verification step
+    setShowVerification(true);
+  };
 
+  const handleEmailVerified = async () => {
+    setLoading(true);
     try {
       const response = await api.post('/api/auth/register', {
         email: formData.email,
@@ -57,6 +63,7 @@ export default function RegisterPage() {
       router.push('/onboarding');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to register');
+      setShowVerification(false);
     } finally {
       setLoading(false);
     }
@@ -66,6 +73,21 @@ export default function RegisterPage() {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     window.location.href = `${backendUrl}/api/auth/google`;
   };
+
+  // Show email verification screen
+  if (showVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
+          <EmailVerification
+            email={formData.email}
+            onVerified={handleEmailVerified}
+            onCancel={() => setShowVerification(false)}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

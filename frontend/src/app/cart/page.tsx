@@ -15,7 +15,7 @@ export default function CartPage() {
   const loadCart = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/cart');
+      const response = await api.get('/api/cart');
       setCart(response.data);
     } catch (error) {
       console.error('Failed to load cart:', error);
@@ -27,7 +27,7 @@ export default function CartPage() {
   const updateQuantity = async (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
     try {
-      await api.put(`/cart/items/${itemId}`, { quantity: newQuantity });
+      await api.put(`/api/cart/items/${itemId}`, { quantity: newQuantity });
       loadCart();
     } catch (error) {
       console.error('Failed to update quantity:', error);
@@ -36,7 +36,7 @@ export default function CartPage() {
 
   const removeItem = async (itemId: number) => {
     try {
-      await api.delete(`/cart/items/${itemId}`);
+      await api.delete(`/api/cart/items/${itemId}`);
       loadCart();
     } catch (error) {
       console.error('Failed to remove item:', error);

@@ -30,6 +30,7 @@ import mentorshipRoutes from './routes/mentorship.routes';
 import groupbuyingRoutes from './routes/groupbuying.routes';
 import verificationRoutes from './routes/verification.routes';
 import adminRoutes from './routes/admin.routes';
+import emailVerificationRoutes from './routes/email-verification.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -76,6 +77,7 @@ app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/group-buying', groupbuyingRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/email-verification', emailVerificationRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
