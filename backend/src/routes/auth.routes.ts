@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 import passport from '../config/passport';
 import authService from '../services/auth.service';
@@ -9,7 +9,41 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
+// Rate limiting for auth routes to prevent brute force attacks
+const authRateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+const authRateLimiter = (maxRequests: number, windowMs: number) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const key = req.ip || 'unknown';
+    const now = Date.now();
+    
+    const record = authRateLimitStore.get(key);
+    
+    if (!record || now > record.resetTime) {
+      authRateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
+      return next();
+    }
+    
+    if (record.count >= maxRequests) {
+      return res.status(429).json({ 
+        error: 'Too many requests. Please try again later.',
+        retryAfter: Math.ceil((record.resetTime - now) / 1000)
+      });
+    }
+    
+    record.count++;
+    return next();
+  };
+};
+
+// Strict rate limit for registration (5 attempts per 15 minutes)
+const registerRateLimit = authRateLimiter(5, 15 * 60 * 1000);
+
+// Moderate rate limit for login (10 attempts per 15 minutes)
+const loginRateLimit = authRateLimiter(10, 15 * 60 * 1000);
+
 router.post('/register',
+  registerRateLimit,
   body('email').isEmail().withMessage('Please provide a valid email address'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
   body('role').optional().isIn(['explorer', 'provider']).withMessage('Role must be either "explorer" or "provider"'),
@@ -33,6 +67,7 @@ router.post('/register',
 );
 
 router.post('/login',
+  loginRateLimit,
   body('email').isEmail().withMessage('Please provide a valid email address'),
   body('password').notEmpty().withMessage('Password is required'),
   async (req, res) => {

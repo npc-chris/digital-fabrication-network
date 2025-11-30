@@ -10,6 +10,7 @@ import NotificationsDropdown from '@/components/NotificationsDropdown';
 import UserDropdown from '@/components/UserDropdown';
 import CreatePostModal from '@/components/CreatePostModal';
 import ViewDiscussionModal from '@/components/ViewDiscussionModal';
+import HierarchicalCategoryFilter from '@/components/HierarchicalCategoryFilter';
 
 export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,13 +20,15 @@ export default function Dashboard() {
   const [showProviderUpgradeModal, setShowProviderUpgradeModal] = useState(false);
 
   // Components & Parts filter state
+  const [componentCategories, setComponentCategories] = useState<string[]>([]);
+  const [componentSubcategories, setComponentSubcategories] = useState<string[]>([]);
   const [componentTypes, setComponentTypes] = useState<string[]>([]);
   const [componentLocations, setComponentLocations] = useState<string[]>([]);
   const [componentSearch, setComponentSearch] = useState<string>('');
   const [componentsList, setComponentsList] = useState<any[]>([]);
   const [componentsLoading, setComponentsLoading] = useState<boolean>(false);
   const [componentLocationOptions, setComponentLocationOptions] = useState<string[]>([]);
-  const [componentTypeOptions] = useState<string[]>(['electrical', 'mechanical', 'materials', 'consumables']);
+  const [componentTypeOptions] = useState<string[]>(['electrical', 'mechanical', 'materials', 'consumables', 'sensors', 'thermal', 'chemical', 'tools']);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const typeDropdownRef = useRef<HTMLDivElement>(null);
@@ -98,7 +101,7 @@ export default function Dashboard() {
       fetchComponentFilters();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [componentTypes, componentLocations, componentSearch, activeTab]);
+  }, [componentCategories, componentSubcategories, componentTypes, componentLocations, componentSearch, activeTab]);
 
   useEffect(() => {
     if (activeTab === 'services') {
@@ -140,6 +143,8 @@ export default function Dashboard() {
     setComponentsLoading(true);
     try {
       const filters: any = {};
+      if (componentCategories.length > 0) filters.category = componentCategories;
+      if (componentSubcategories.length > 0) filters.subcategory = componentSubcategories;
       if (componentTypes.length > 0) filters.type = componentTypes;
       if (componentLocations.length > 0) filters.location = componentLocations;
       if (componentSearch) filters.search = componentSearch;
@@ -223,6 +228,8 @@ export default function Dashboard() {
   };
 
   const clearComponentFilters = () => {
+    setComponentCategories([]);
+    setComponentSubcategories([]);
     setComponentTypes([]);
     setComponentLocations([]);
     setComponentSearch('');
@@ -443,8 +450,20 @@ export default function Dashboard() {
             {/* Enhanced Filter UI with Dropdowns and Chips */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               {/* Filter Buttons Row */}
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                {/* Type Filter Dropdown */}
+              <div className="flex flex-wrap items-start gap-3 mb-4">
+                {/* Hierarchical Category Filter */}
+                <HierarchicalCategoryFilter
+                  selectedCategories={componentCategories}
+                  selectedSubcategories={componentSubcategories}
+                  onCategoryChange={setComponentCategories}
+                  onSubcategoryChange={setComponentSubcategories}
+                  onClear={() => {
+                    setComponentCategories([]);
+                    setComponentSubcategories([]);
+                  }}
+                />
+
+                {/* Type Filter Dropdown (Legacy - for backward compatibility) */}
                 <div className="relative" ref={typeDropdownRef}>
                   <button
                     onClick={() => setShowTypeDropdown(!showTypeDropdown)}
@@ -530,7 +549,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Clear All Button */}
-                {(componentTypes.length > 0 || componentLocations.length > 0 || componentSearch) && (
+                {(componentCategories.length > 0 || componentSubcategories.length > 0 || componentTypes.length > 0 || componentLocations.length > 0 || componentSearch) && (
                   <button
                     onClick={clearComponentFilters}
                     className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 underline"
@@ -540,7 +559,7 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Active Filter Chips */}
+              {/* Active Filter Chips - Types and Locations only (Categories handled by HierarchicalCategoryFilter) */}
               {(componentTypes.length > 0 || componentLocations.length > 0) && (
                 <div className="flex flex-wrap gap-2">
                   {componentTypes.map((type) => (

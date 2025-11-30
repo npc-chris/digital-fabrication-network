@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { User, Building2, MapPin, Phone, FileText, Wrench, Package } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
-import NigerianLocationSelect from '@/components/NigerianLocationSelect';
+import LocationAutocomplete from '@/components/LocationAutocomplete';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -331,11 +331,12 @@ export default function OnboardingPage() {
                     <MapPin className="w-4 h-4 inline mr-1" />
                     Location *
                   </label>
-                  <NigerianLocationSelect
+                  <LocationAutocomplete
                     value={profileData.location}
                     onChange={(location) => setProfileData({ ...profileData, location })}
-                    placeholder="Select your location in Nigeria"
+                    placeholder="Search for your location in Nigeria"
                     required
+                    restrictToNigeria={true}
                   />
                   <p className="text-xs text-gray-500 mt-1">DFN is currently available only in Nigeria</p>
                 </div>
