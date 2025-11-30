@@ -4,7 +4,16 @@ import { pgTable, serial, varchar, text, timestamp, integer, boolean, decimal, p
 export const userRoleEnum = pgEnum('user_role', ['explorer', 'provider', 'admin', 'platform_manager']);
 export const orderStatusEnum = pgEnum('order_status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']);
 export const bookingStatusEnum = pgEnum('booking_status', ['queued', 'in_progress', 'completed', 'pickup', 'delivery']);
-export const componentTypeEnum = pgEnum('component_type', ['electrical', 'mechanical', 'materials', 'consumables']);
+export const componentTypeEnum = pgEnum('component_type', [
+  'electrical', 
+  'mechanical', 
+  'materials', 
+  'consumables',
+  'sensors',
+  'thermal',
+  'chemical',
+  'tools'
+]);
 export const supplierTypeEnum = pgEnum('supplier_type', ['local', 'african', 'international']);
 export const supplierVerificationEnum = pgEnum('supplier_verification', ['unverified', 'pending', 'verified', 'premium']);
 export const groupBuyingStatusEnum = pgEnum('group_buying_status', ['open', 'funding', 'ordered', 'shipped', 'completed', 'cancelled']);
@@ -58,6 +67,8 @@ export const components = pgTable('components', {
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   type: componentTypeEnum('type').notNull(),
+  subcategoryId: varchar('subcategory_id', { length: 100 }).references(() => componentSubcategories.id),
+  applicationId: integer('application_id').references(() => componentApplications.id),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   availability: integer('availability').default(0),
   images: text('images'), // JSON array of image URLs
@@ -462,3 +473,26 @@ export const emailVerificationCodes = pgTable('email_verification_codes', {
   verified: boolean('verified').default(false),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+// ===== COMPONENT CATEGORIES HIERARCHY =====
+
+export const componentCategories = pgTable('component_categories', {
+  id: varchar('id', { length: 100 }).primaryKey(), // e.g., 'electrical'
+  name: varchar('name', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const componentSubcategories = pgTable('component_subcategories', {
+  id: varchar('id', { length: 100 }).primaryKey(), // e.g., 'power'
+  categoryId: varchar('category_id', { length: 100 }).notNull().references(() => componentCategories.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const componentApplications = pgTable('component_applications', {
+  id: serial('id').primaryKey(),
+  subcategoryId: varchar('subcategory_id', { length: 100 }).notNull().references(() => componentSubcategories.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+

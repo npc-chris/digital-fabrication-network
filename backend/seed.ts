@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
 import { hash } from 'bcrypt';
+import { COMPONENT_CATEGORIES } from './src/config/componentCategories';
 
 dotenv.config();
 
@@ -15,6 +16,54 @@ async function seed() {
     await client.query('BEGIN');
 
     console.log('🌱 Starting database seeding...');
+
+    // 0. Seed Categories, Subcategories, and Applications
+    console.log('Seeding component categories...');
+    
+    const applicationMap = new Map<string, number>();
+
+    for (const category of COMPONENT_CATEGORIES) {
+      // Insert Category
+      await client.query(
+        `INSERT INTO component_categories (id, name) 
+         VALUES ($1, $2) 
+         ON CONFLICT (id) DO NOTHING`,
+        [category.id, category.name]
+      );
+
+      for (const subcategory of category.subcategories) {
+        // Insert Subcategory
+        await client.query(
+          `INSERT INTO component_subcategories (id, category_id, name) 
+           VALUES ($1, $2, $3) 
+           ON CONFLICT (id) DO NOTHING`,
+          [subcategory.id, category.id, subcategory.name]
+        );
+
+        if (subcategory.applications) {
+          for (const appName of subcategory.applications) {
+            let appId: number;
+            const existingApp = await client.query(
+              `SELECT id FROM component_applications WHERE subcategory_id = $1 AND name = $2`,
+              [subcategory.id, appName]
+            );
+
+            if (existingApp.rows.length > 0) {
+              appId = existingApp.rows[0].id;
+            } else {
+              const newApp = await client.query(
+                `INSERT INTO component_applications (subcategory_id, name) 
+                 VALUES ($1, $2) RETURNING id`,
+                [subcategory.id, appName]
+              );
+              appId = newApp.rows[0].id;
+            }
+            applicationMap.set(`${subcategory.id}:${appName}`, appId);
+          }
+        }
+      }
+    }
+    console.log('✓ Seeded component categories hierarchy');
 
     // Hash password for test users
     const hashedPassword = await hash('password123', 10);
@@ -161,6 +210,8 @@ async function seed() {
         name: 'Arduino Uno R3',
         description: 'Original Arduino Uno R3 microcontroller board with ATmega328P chip. Perfect for beginners and prototyping.',
         type: 'electrical',
+        subcategoryId: 'microcontrollers',
+        applicationName: 'Arduino',
         price: 25.99,
         availability: 50,
         location: 'Ikeja, Lagos, Nigeria',
@@ -173,6 +224,8 @@ async function seed() {
         name: 'Raspberry Pi 4 Model B - 4GB',
         description: 'Latest Raspberry Pi with 4GB RAM. Ideal for IoT projects, media centers, and learning programming.',
         type: 'electrical',
+        subcategoryId: 'microcontrollers',
+        applicationName: 'Raspberry Pi',
         price: 55.00,
         availability: 30,
         location: 'Ikeja, Lagos, Nigeria',
@@ -185,6 +238,8 @@ async function seed() {
         name: 'Servo Motor SG90',
         description: 'Micro servo motor with 180-degree rotation. Lightweight and compatible with Arduino.',
         type: 'mechanical',
+        subcategoryId: 'motors',
+        applicationName: 'Servo Motors',
         price: 3.50,
         availability: 100,
         location: 'Ibadan, Oyo, Nigeria',
@@ -196,7 +251,9 @@ async function seed() {
         providerId: userIds.providers[3],
         name: 'Breadboard 830 Points',
         description: 'Solderless breadboard for prototyping circuits. 830 tie points with power rails.',
-        type: 'electrical',
+        type: 'consumables',
+        subcategoryId: 'pcb',
+        applicationName: 'Breadboards',
         price: 5.99,
         availability: 75,
         location: 'Ibadan, Oyo, Nigeria',
@@ -209,6 +266,8 @@ async function seed() {
         name: 'PLA Filament 1.75mm - 1kg',
         description: 'High-quality PLA filament for 3D printing. Multiple colors available. Low warping.',
         type: 'materials',
+        subcategoryId: 'filaments',
+        applicationName: 'PLA',
         price: 22.00,
         availability: 40,
         location: 'Ikeja, Lagos, Nigeria',
@@ -221,6 +280,8 @@ async function seed() {
         name: 'Jumper Wire Set (120pcs)',
         description: 'Assorted male-to-male, male-to-female, and female-to-female jumper wires.',
         type: 'consumables',
+        subcategoryId: 'pcb',
+        applicationName: 'Jumper Wires',
         price: 8.50,
         availability: 60,
         location: 'Ibadan, Oyo, Nigeria',
@@ -233,6 +294,8 @@ async function seed() {
         name: 'ESP32 Development Board',
         description: 'ESP32 DevKitC with WiFi and Bluetooth. Dual-core processor, ideal for IoT projects.',
         type: 'electrical',
+        subcategoryId: 'microcontrollers',
+        applicationName: 'ESP32',
         price: 12.00,
         availability: 45,
         location: 'Yaba, Lagos, Nigeria',
@@ -245,6 +308,8 @@ async function seed() {
         name: 'Stepper Motor NEMA 17',
         description: 'High-torque stepper motor for CNC machines, 3D printers, and robotics projects.',
         type: 'mechanical',
+        subcategoryId: 'motors',
+        applicationName: 'Stepper Motors',
         price: 18.50,
         availability: 25,
         location: 'Yaba, Lagos, Nigeria',
@@ -255,14 +320,18 @@ async function seed() {
     ];
 
     for (const component of components) {
+      const applicationId = applicationMap.get(`${component.subcategoryId}:${component.applicationName}`);
+      
       await client.query(
-        `INSERT INTO components (provider_id, name, description, type, price, availability, location, rating, review_count, images) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        `INSERT INTO components (provider_id, name, description, type, subcategory_id, application_id, price, availability, location, rating, review_count, images) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
           component.providerId,
           component.name,
           component.description,
           component.type,
+          component.subcategoryId,
+          applicationId || null,
           component.price,
           component.availability,
           component.location,

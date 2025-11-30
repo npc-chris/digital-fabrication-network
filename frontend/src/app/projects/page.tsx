@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import api from '@/lib/api';
-import { Project } from '@/types';
-import { Heart, Eye, Users, Wrench } from 'lucide-react';
+import { projectsAPI } from '@/lib/api-services';
+import { Heart, Eye, Users, Wrench, Plus } from 'lucide-react';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -22,13 +21,8 @@ export default function ProjectsPage() {
   const loadProjects = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (filters.category) params.append('category', filters.category);
-      if (filters.difficulty) params.append('difficulty', filters.difficulty);
-      if (filters.search) params.append('search', filters.search);
-      
-      const response = await api.get(`/projects?${params.toString()}`);
-      setProjects(response.data);
+      const data = await projectsAPI.getAll(filters);
+      setProjects(data);
     } catch (error) {
       console.error('Failed to load projects:', error);
     } finally {
@@ -40,9 +34,17 @@ export default function ProjectsPage() {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Project Hub</h1>
-          <p className="text-gray-600">Explore builds, share your projects, and find inspiration</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Project Hub</h1>
+            <p className="text-gray-600">Explore builds, share your projects, and find inspiration</p>
+          </div>
+          <Link href="/projects/create">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+              <Plus className="w-5 h-5" />
+              Share Project
+            </button>
+          </Link>
         </div>
 
         {/* Filters */}
@@ -59,6 +61,7 @@ export default function ProjectsPage() {
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              title="Filter by category"
             >
               <option value="">All Categories</option>
               <option value="robotics">Robotics</option>
@@ -71,6 +74,7 @@ export default function ProjectsPage() {
               value={filters.difficulty}
               onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              title="Filter by difficulty"
             >
               <option value="">All Levels</option>
               <option value="beginner">Beginner</option>
@@ -91,7 +95,7 @@ export default function ProjectsPage() {
           ) : (
             projects.map((item) => (
               <Link key={item.project.id} href={`/projects/${item.project.id}`}>
-                <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer h-full">
+                <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer h-full flex flex-col">
                   {/* Project Image */}
                   <div className="h-48 bg-gray-200 relative">
                     {item.project.images && JSON.parse(item.project.images)[0] ? (
@@ -117,34 +121,36 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Project Info */}
-                  <div className="p-5">
+                  <div className="p-5 flex-1 flex flex-col">
                     <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">
                       {item.project.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
                       {item.project.description}
                     </p>
 
                     {/* Author */}
                     <div className="flex items-center mb-4">
-                      <div className="w-8 h-8 rounded-full bg-gray-300 mr-2"></div>
+                      <div className="w-8 h-8 rounded-full bg-gray-300 mr-2 flex items-center justify-center text-xs font-bold text-gray-600">
+                        {item.author?.firstName?.[0]}{item.author?.lastName?.[0]}
+                      </div>
                       <span className="text-sm text-gray-700">
                         {item.author?.firstName} {item.author?.lastName}
                       </span>
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
                       <div className="flex items-center space-x-4">
-                        <span className="flex items-center">
+                        <span className="flex items-center" title="Likes">
                           <Heart className="w-4 h-4 mr-1" />
                           {item.project.likeCount}
                         </span>
-                        <span className="flex items-center">
+                        <span className="flex items-center" title="Views">
                           <Eye className="w-4 h-4 mr-1" />
                           {item.project.viewCount}
                         </span>
-                        <span className="flex items-center">
+                        <span className="flex items-center" title="Completed">
                           <Users className="w-4 h-4 mr-1" />
                           {item.project.completedCount}
                         </span>
@@ -161,13 +167,6 @@ export default function ProjectsPage() {
             ))
           )}
         </div>
-
-        {/* Create Project Button */}
-        <Link href="/projects/create">
-          <button className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-colors">
-            <span className="text-2xl">+</span>
-          </button>
-        </Link>
       </div>
     </div>
   );

@@ -1,10 +1,45 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import { db } from '../config/database';
-import { components, users, profiles } from '../models/schema';
+import { components, users, profiles, componentCategories, componentSubcategories, componentApplications } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
 import { eq, like, and, or, inArray } from 'drizzle-orm';
 
 const router = Router();
+
+// Get component categories hierarchy
+router.get('/categories', async (req, res) => {
+  try {
+    // Fetch all data in parallel
+    const [categories, subcategories, applications] = await Promise.all([
+      db.select().from(componentCategories),
+      db.select().from(componentSubcategories),
+      db.select().from(componentApplications),
+    ]);
+
+    // Build the hierarchy
+    const result = categories.map(category => {
+      const categorySubs = subcategories.filter(sub => sub.categoryId === category.id);
+      
+      return {
+        id: category.id,
+        name: category.name,
+        subcategories: categorySubs.map(sub => {
+          const subApps = applications.filter(app => app.subcategoryId === sub.id);
+          
+          return {
+            id: sub.id,
+            name: sub.name,
+            applications: subApps.map(app => app.name)
+          };
+        })
+      };
+    });
+
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Get distinct filter options
 router.get('/filters', async (req, res) => {

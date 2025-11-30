@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import { db } from '../config/database';
 import { services, users, profiles } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';

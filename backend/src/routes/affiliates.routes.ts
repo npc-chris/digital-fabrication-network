@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { db } from '../config/database';
 import { affiliateStores, users, profiles, components } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';

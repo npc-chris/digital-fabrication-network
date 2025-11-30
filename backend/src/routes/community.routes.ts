@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { Router } from 'express';
 import { db } from '../config/database';
 import { communityPosts, postReplies, users, profiles } from '../models/schema';

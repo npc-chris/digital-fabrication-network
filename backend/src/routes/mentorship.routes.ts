@@ -1,15 +1,15 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { db } from '../config/database';
 import { mentorshipRequests, users, profiles } from '../models/schema';
 import { authenticate } from '../middleware/auth';
-import { eq, desc, and, or } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 
 const router = Router();
 
 // Get all mentorship requests (filtered)
 router.get('/', async (req, res) => {
   try {
-    const { status, topic, mentorId, menteeId } = req.query as any;
+    const { status, mentorId, menteeId } = req.query as any;
 
     const conditions = [];
 
@@ -50,7 +50,7 @@ router.get('/', async (req, res) => {
 // Get available mentors
 router.get('/mentors', async (req, res) => {
   try {
-    const { area } = req.query as any;
+    // const { area } = req.query as any;
 
     const conditions = [eq(profiles.isMentor, true)];
 

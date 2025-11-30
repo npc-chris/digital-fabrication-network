@@ -108,6 +108,10 @@ export const uploadAPI = {
 
 // Components API (existing endpoints, added for completeness)
 export const componentsAPI = {
+  getCategories: async () => {
+    const response = await api.get('/api/components/categories');
+    return response.data;
+  },
   getFilters: async (filters?: { type?: string }) => {
     const response = await api.get('/api/components/filters', { params: filters });
     return response.data as { locations: string[]; types: string[] };
@@ -398,6 +402,210 @@ export const emailVerificationAPI = {
     const response = await api.get('/api/email-verification/check-status', {
       params: { email },
     });
+    return response.data;
+  },
+};
+
+// Projects API
+export const projectsAPI = {
+  getAll: async (filters?: {
+    category?: string;
+    difficulty?: string;
+    search?: string;
+    authorId?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.difficulty) params.append('difficulty', filters.difficulty);
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.authorId) params.append('authorId', filters.authorId);
+    
+    const response = await api.get(`/api/projects?${params.toString()}`);
+    return response.data;
+  },
+
+  getById: async (id: number) => {
+    const response = await api.get(`/api/projects/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await api.post('/api/projects', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: any) => {
+    const response = await api.put(`/api/projects/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number) => {
+    const response = await api.delete(`/api/projects/${id}`);
+    return response.data;
+  },
+
+  like: async (id: number) => {
+    const response = await api.post(`/api/projects/${id}/like`);
+    return response.data;
+  },
+
+  markComplete: async (id: number, data: { images?: string[]; notes?: string; rating?: number }) => {
+    const response = await api.post(`/api/projects/${id}/complete`, data);
+    return response.data;
+  },
+
+  addBomItem: async (id: number, data: any) => {
+    const response = await api.post(`/api/projects/${id}/bom`, data);
+    return response.data;
+  },
+
+  removeBomItem: async (projectId: number, bomId: number) => {
+    const response = await api.delete(`/api/projects/${projectId}/bom/${bomId}`);
+    return response.data;
+  },
+};
+
+// Mentorship API
+export const mentorshipAPI = {
+  getAllRequests: async (filters?: {
+    status?: string;
+    mentorId?: string;
+    menteeId?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.mentorId) params.append('mentorId', filters.mentorId);
+    if (filters?.menteeId) params.append('menteeId', filters.menteeId);
+    
+    const response = await api.get(`/api/mentorship?${params.toString()}`);
+    return response.data;
+  },
+
+  getMentors: async () => {
+    const response = await api.get('/api/mentorship/mentors');
+    return response.data;
+  },
+
+  getRequestById: async (id: number) => {
+    const response = await api.get(`/api/mentorship/${id}`);
+    return response.data;
+  },
+
+  createRequest: async (data: {
+    mentorId?: number;
+    topic: string;
+    description: string;
+    goals?: string;
+  }) => {
+    const response = await api.post('/api/mentorship', data);
+    return response.data;
+  },
+
+  updateRequest: async (id: number, data: any) => {
+    const response = await api.put(`/api/mentorship/${id}`, data);
+    return response.data;
+  },
+
+  acceptRequest: async (id: number) => {
+    const response = await api.post(`/api/mentorship/${id}/accept`);
+    return response.data;
+  },
+
+  completeRequest: async (id: number) => {
+    const response = await api.post(`/api/mentorship/${id}/complete`);
+    return response.data;
+  },
+
+  registerAsMentor: async (data: {
+    mentorshipAreas: string[];
+    mentorBio: string;
+  }) => {
+    const response = await api.post('/api/mentorship/register-mentor', data);
+    return response.data;
+  },
+};
+
+// Group Buying API
+export const groupBuyingAPI = {
+  getAllCampaigns: async (filters?: {
+    status?: string;
+    category?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.category) params.append('category', filters.category);
+    
+    const response = await api.get(`/api/group-buying?${params.toString()}`);
+    return response.data;
+  },
+
+  getCampaignById: async (id: number) => {
+    const response = await api.get(`/api/group-buying/${id}`);
+    return response.data;
+  },
+
+  createCampaign: async (data: any) => {
+    const response = await api.post('/api/group-buying', data);
+    return response.data;
+  },
+
+  pledge: async (id: number, quantity: number) => {
+    const response = await api.post(`/api/group-buying/${id}/pledge`, { quantity });
+    return response.data;
+  },
+};
+
+// Affiliates API
+export const affiliatesAPI = {
+  getAllProducts: async (filters?: {
+    category?: string;
+    search?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.search) params.append('search', filters.search);
+    
+    const response = await api.get(`/api/affiliates/products?${params.toString()}`);
+    return response.data;
+  },
+
+  trackClick: async (productId: number) => {
+    const response = await api.post(`/api/affiliates/products/${productId}/click`);
+    return response.data;
+  },
+};
+
+// Forum API
+export const forumAPI = {
+  getCategories: async () => {
+    const response = await api.get('/api/forum/categories');
+    return response.data;
+  },
+
+  getThreads: async (categoryId?: number) => {
+    const url = categoryId 
+      ? `/api/forum/categories/${categoryId}/threads`
+      : '/api/forum/threads';
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  getThreadById: async (id: number) => {
+    const response = await api.get(`/api/forum/threads/${id}`);
+    return response.data;
+  },
+
+  createThread: async (data: {
+    categoryId: number;
+    title: string;
+    content: string;
+  }) => {
+    const response = await api.post('/api/forum/threads', data);
+    return response.data;
+  },
+
+  replyToThread: async (threadId: number, content: string) => {
+    const response = await api.post(`/api/forum/threads/${threadId}/posts`, { content });
     return response.data;
   },
 };

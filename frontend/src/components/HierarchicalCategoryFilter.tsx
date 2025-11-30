@@ -2,7 +2,19 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Check, X, Filter } from 'lucide-react';
-import { COMPONENT_CATEGORIES, CategoryDefinition, SubcategoryDefinition } from '@/config/componentCategories';
+import { componentsAPI } from '@/lib/api-services';
+
+export interface CategoryDefinition {
+  id: string;
+  name: string;
+  subcategories: SubcategoryDefinition[];
+}
+
+export interface SubcategoryDefinition {
+  id: string;
+  name: string;
+  applications?: string[];
+}
 
 interface HierarchicalCategoryFilterProps {
   selectedCategories: string[];
@@ -21,7 +33,25 @@ export default function HierarchicalCategoryFilter({
 }: HierarchicalCategoryFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryDefinition[]>([]);
+  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await componentsAPI.getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,7 +69,7 @@ export default function HierarchicalCategoryFilter({
     if (selectedCategories.includes(categoryId)) {
       // Remove category and its subcategories
       onCategoryChange(selectedCategories.filter(c => c !== categoryId));
-      const category = COMPONENT_CATEGORIES.find(c => c.id === categoryId);
+      const category = categories.find(c => c.id === categoryId);
       if (category) {
         const subcatIds = category.subcategories.map(s => s.id);
         onSubcategoryChange(selectedSubcategories.filter(s => !subcatIds.includes(s)));
@@ -71,12 +101,12 @@ export default function HierarchicalCategoryFilter({
   };
 
   const getCategoryName = (categoryId: string) => {
-    return COMPONENT_CATEGORIES.find(c => c.id === categoryId)?.name || categoryId;
+    return categories.find(c => c.id === categoryId)?.name || categoryId;
   };
 
   const getSubcategoryName = (fullId: string) => {
     const [catId, subId] = fullId.split(':');
-    const category = COMPONENT_CATEGORIES.find(c => c.id === catId);
+    const category = categories.find(c => c.id === catId);
     return category?.subcategories.find(s => s.id === subId)?.name || subId;
   };
 
@@ -116,62 +146,66 @@ export default function HierarchicalCategoryFilter({
 
           {/* Categories List */}
           <div className="max-h-72 overflow-y-auto">
-            {COMPONENT_CATEGORIES.map((category) => (
-              <div key={category.id} className="border-b border-gray-100 last:border-b-0">
-                {/* Category Header */}
-                <div className="flex items-center">
-                  <button
-                    onClick={() => setExpandedCategory(
-                      expandedCategory === category.id ? null : category.id
-                    )}
-                    className="p-2 hover:bg-gray-50"
-                  >
-                    {expandedCategory === category.id ? (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
-                  <label className="flex-1 flex items-center gap-2 py-2 pr-3 cursor-pointer hover:bg-gray-50">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category.id)}
-                      onChange={() => toggleCategory(category.id)}
-                      className="w-4 h-4 text-primary-600 rounded"
-                    />
-                    <span className="font-medium text-gray-900">{category.name}</span>
-                    <span className="text-xs text-gray-500">
-                      ({category.subcategories.length})
-                    </span>
-                  </label>
-                </div>
-
-                {/* Subcategories */}
-                {expandedCategory === category.id && (
-                  <div className="bg-gray-50 py-1">
-                    {category.subcategories.map((subcategory) => (
-                      <label
-                        key={subcategory.id}
-                        className="flex items-center gap-2 px-8 py-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSubcategorySelected(category.id, subcategory.id)}
-                          onChange={() => toggleSubcategory(category.id, subcategory.id)}
-                          className="w-4 h-4 text-primary-600 rounded"
-                        />
-                        <span className="text-sm text-gray-700">{subcategory.name}</span>
-                        {subcategory.applications && (
-                          <span className="text-xs text-gray-400">
-                            ({subcategory.applications.length})
-                          </span>
-                        )}
-                      </label>
-                    ))}
+            {loading ? (
+              <div className="p-4 text-center text-gray-500 text-sm">Loading categories...</div>
+            ) : (
+              categories.map((category) => (
+                <div key={category.id} className="border-b border-gray-100 last:border-b-0">
+                  {/* Category Header */}
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => setExpandedCategory(
+                        expandedCategory === category.id ? null : category.id
+                      )}
+                      className="p-2 hover:bg-gray-50"
+                    >
+                      {expandedCategory === category.id ? (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                    <label className="flex-1 flex items-center gap-2 py-2 pr-3 cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category.id)}
+                        onChange={() => toggleCategory(category.id)}
+                        className="w-4 h-4 text-primary-600 rounded"
+                      />
+                      <span className="font-medium text-gray-900">{category.name}</span>
+                      <span className="text-xs text-gray-500">
+                        ({category.subcategories.length})
+                      </span>
+                    </label>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Subcategories */}
+                  {expandedCategory === category.id && (
+                    <div className="bg-gray-50 py-1">
+                      {category.subcategories.map((subcategory) => (
+                        <label
+                          key={subcategory.id}
+                          className="flex items-center gap-2 px-8 py-2 cursor-pointer hover:bg-gray-100"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSubcategorySelected(category.id, subcategory.id)}
+                            onChange={() => toggleSubcategory(category.id, subcategory.id)}
+                            className="w-4 h-4 text-primary-600 rounded"
+                          />
+                          <span className="text-sm text-gray-700">{subcategory.name}</span>
+                          {subcategory.applications && (
+                            <span className="text-xs text-gray-400">
+                              ({subcategory.applications.length})
+                            </span>
+                          )}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
@@ -188,6 +222,7 @@ export default function HierarchicalCategoryFilter({
               <button
                 onClick={() => toggleCategory(catId)}
                 className="hover:bg-primary-200 rounded-full p-0.5"
+                aria-label={`Remove ${getCategoryName(catId)}`}
               >
                 <X className="w-3 h-3" />
               </button>
@@ -205,6 +240,7 @@ export default function HierarchicalCategoryFilter({
                   toggleSubcategory(catId, subId);
                 }}
                 className="hover:bg-blue-200 rounded-full p-0.5"
+                aria-label={`Remove ${getSubcategoryName(fullId)}`}
               >
                 <X className="w-3 h-3" />
               </button>
@@ -215,3 +251,4 @@ export default function HierarchicalCategoryFilter({
     </div>
   );
 }
+

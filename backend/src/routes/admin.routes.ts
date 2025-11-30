@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from '../config/database';
-import { users, profiles, components, services, communityPosts, orders, bookings, verificationDocuments, affiliateStores } from '../models/schema';
+import { users, profiles, components, services, communityPosts, verificationDocuments, affiliateStores } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
-import { eq, like, or, desc, sql, and, count } from 'drizzle-orm';
+import { eq, like, or, desc, and, count } from 'drizzle-orm';
 
 const router = Router();
 
