@@ -3,13 +3,61 @@ import { db } from '../config/database';
 import { carts, cartItems, components, affiliateStores } from '../models/schema';
 import { authenticate } from '../middleware/auth';
 import { eq, and } from 'drizzle-orm';
+import redisClient from '../config/redis';
 
 const router = Router();
+
+// Cart cache key helper
+const getCartCacheKey = (userId: number) => `cart:${userId}`;
+const CART_CACHE_TTL = 300; // 5 minutes cache TTL
+
+// Helper to invalidate cart cache
+async function invalidateCartCache(userId: number) {
+  try {
+    if (redisClient.isReady) {
+      await redisClient.del(getCartCacheKey(userId));
+    }
+  } catch (error) {
+    console.error('Failed to invalidate cart cache:', error);
+  }
+}
+
+// Helper to get cart from cache
+async function getCartFromCache(userId: number) {
+  try {
+    if (redisClient.isReady) {
+      const cached = await redisClient.get(getCartCacheKey(userId));
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to get cart from cache:', error);
+  }
+  return null;
+}
+
+// Helper to set cart in cache
+async function setCartInCache(userId: number, cartData: any) {
+  try {
+    if (redisClient.isReady) {
+      await redisClient.setEx(getCartCacheKey(userId), CART_CACHE_TTL, JSON.stringify(cartData));
+    }
+  } catch (error) {
+    console.error('Failed to set cart in cache:', error);
+  }
+}
 
 // Get user's cart with items
 router.get('/', authenticate, async (req: any, res: Response) => {
   try {
     const userId = req.user.id;
+
+    // Try to get from cache first
+    const cachedCart = await getCartFromCache(userId);
+    if (cachedCart) {
+      return res.json(cachedCart);
+    }
 
     // Get or create cart
     let [cart] = await db
@@ -85,6 +133,14 @@ router.get('/', authenticate, async (req: any, res: Response) => {
       totalItems: items.length,
       totalPrice: items.reduce((sum, item) => sum + (parseFloat(item.item.price) * item.item.quantity), 0),
     });
+
+    // Cache the cart data
+    await setCartInCache(userId, {
+      cart,
+      vendors: Object.values(groupedItems),
+      totalItems: items.length,
+      totalPrice: items.reduce((sum, item) => sum + (parseFloat(item.item.price) * item.item.quantity), 0),
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -151,6 +207,9 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
         .where(eq(cartItems.id, existingItem.id))
         .returning();
 
+      // Invalidate cache
+      await invalidateCartCache(userId);
+      
       return res.json(updated);
     }
 
@@ -170,6 +229,9 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
       })
       .returning();
 
+    // Invalidate cache
+    await invalidateCartCache(userId);
+    
     res.status(201).json(newItem);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -207,6 +269,9 @@ router.put('/items/:itemId', authenticate, async (req: any, res: Response) => {
       .where(eq(cartItems.id, itemId))
       .returning();
 
+    // Invalidate cache
+    await invalidateCartCache(userId);
+    
     res.json(updated);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -235,6 +300,9 @@ router.delete('/items/:itemId', authenticate, async (req: any, res: Response) =>
 
     await db.delete(cartItems).where(eq(cartItems.id, itemId));
 
+    // Invalidate cache
+    await invalidateCartCache(userId);
+    
     res.json({ message: 'Item removed from cart' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -255,6 +323,9 @@ router.delete('/', authenticate, async (req: any, res: Response) => {
       await db.delete(cartItems).where(eq(cartItems.cartId, cart.id));
     }
 
+    // Invalidate cache
+    await invalidateCartCache(userId);
+    
     res.json({ message: 'Cart cleared' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -311,6 +382,9 @@ router.post('/import-affiliate', authenticate, async (req: any, res: Response) =
       .values(cartItemsData)
       .returning();
 
+    // Invalidate cache
+    await invalidateCartCache(userId);
+    
     res.status(201).json({
       message: `${addedItems.length} items imported successfully`,
       items: addedItems,
