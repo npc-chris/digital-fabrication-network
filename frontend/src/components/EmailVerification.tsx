@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Mail, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { emailVerificationAPI } from '@/lib/api-services';
 
 interface EmailVerificationProps {
   email: string;
@@ -37,7 +37,7 @@ export default function EmailVerification({ email, onVerified, onCancel }: Email
     setSending(true);
     setError('');
     try {
-      await api.post('/api/email-verification/send-code', { email });
+      await emailVerificationAPI.sendCode(email);
       setCountdown(60); // 60 second cooldown
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to send verification code');
@@ -85,10 +85,7 @@ export default function EmailVerification({ email, onVerified, onCancel }: Email
     setLoading(true);
     setError('');
     try {
-      await api.post('/api/email-verification/verify-code', { 
-        email, 
-        code: codeString,
-      });
+      await emailVerificationAPI.verifyCode(email, codeString);
       setSuccess(true);
       setTimeout(() => {
         onVerified();
