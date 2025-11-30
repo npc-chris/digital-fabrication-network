@@ -1,7 +1,7 @@
 'use client';
 
 import { X, Send, User } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { communityAPI } from '@/lib/api-services';
 
 interface Post {
@@ -39,10 +39,11 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const hasIncrementedViewRef = useRef(false);
 
-  const loadReplies = useCallback(async () => {
+  const loadReplies = useCallback(async (incrementView: boolean = false) => {
     try {
-      const response = await communityAPI.getById(post.id);
+      const response = await communityAPI.getById(post.id, incrementView);
       setReplies(response.replies || []);
     } catch (err) {
       console.error('Failed to load replies:', err);
@@ -54,7 +55,9 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   useEffect(() => {
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-    loadReplies();
+    // Only increment view count on initial load (using ref to avoid dependency issues)
+    loadReplies(!hasIncrementedViewRef.current);
+    hasIncrementedViewRef.current = true;
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -68,9 +71,10 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
     setError('');
 
     try {
-      await communityAPI.createReply(post.id, newReply);
+      const newReplyData = await communityAPI.createReply(post.id, newReply);
       setNewReply('');
-      loadReplies(); // Reload replies
+      // Add the new reply directly to avoid refetching
+      setReplies(prev => [...prev, newReplyData]);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to submit reply. Please login and try again.');
     } finally {

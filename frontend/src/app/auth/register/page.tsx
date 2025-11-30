@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
+import EmailVerification from '@/components/EmailVerification';
+import { verifySession } from '@/lib/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,10 +13,22 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'explorer',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    verifySession().then(({ isAuthenticated }) => {
+      if (isAuthenticated) {
+        router.push('/dashboard');
+      } else {
+        setIsCheckingAuth(false);
+      }
+    });
+  }, [router]);
 
   // Password validation criteria
   const passwordValidation = useMemo(() => {
@@ -46,19 +60,23 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
+    // Show email verification step
+    setShowVerification(true);
+  };
 
+  const handleEmailVerified = async () => {
+    setLoading(true);
     try {
       const response = await api.post('/api/auth/register', {
         email: formData.email,
         password: formData.password,
-        role: formData.role,
       });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       router.push('/onboarding');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to register');
+      setShowVerification(false);
     } finally {
       setLoading(false);
     }
@@ -68,6 +86,33 @@ export default function RegisterPage() {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     window.location.href = `${backendUrl}/api/auth/google`;
   };
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show email verification screen
+  if (showVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
+          <EmailVerification
+            email={formData.email}
+            onVerified={handleEmailVerified}
+            onCancel={() => setShowVerification(false)}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -105,22 +150,6 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
-            </div>
-            
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                I am a...
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
-                <option value="explorer">Explorer (explorer/User)</option>
-                <option value="provider">Provider (Seller/Service Provider)</option>
-              </select>
             </div>
 
             <div>

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { User, Building2, MapPin, Phone, FileText, Wrench, Package } from 'lucide-react';
+import ImageUpload from '@/components/ImageUpload';
+import LocationAutocomplete from '@/components/LocationAutocomplete';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -268,12 +270,11 @@ export default function OnboardingPage() {
                       </div>
                     )}
                     <div className="flex-1">
-                      <input
-                        type="text"
-                        placeholder="Enter image URL or leave empty to use Google profile pic"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                      <ImageUpload
                         value={profileData.avatar}
-                        onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                        onChange={(url) => setProfileData({ ...profileData, avatar: url })}
+                        placeholder="Upload profile picture"
+                        showPreview={false}
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         {profileData.avatar ? 'Your profile picture will be updated' : 'If you signed in with Google, your Google profile picture will be used'}
@@ -312,14 +313,17 @@ export default function OnboardingPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     <Phone className="w-4 h-4 inline mr-1" />
-                    Phone Number
+                    Phone Number *
                   </label>
                   <input
                     type="tel"
+                    required
+                    placeholder="+234 xxx xxx xxxx"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     value={profileData.phone}
                     onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                   />
+                  <p className="text-xs text-gray-500 mt-1">Nigerian phone number required for account verification</p>
                 </div>
 
                 <div>
@@ -327,14 +331,14 @@ export default function OnboardingPage() {
                     <MapPin className="w-4 h-4 inline mr-1" />
                     Location *
                   </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g., Lagos, Nigeria"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  <LocationAutocomplete
                     value={profileData.location}
-                    onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                    onChange={(location) => setProfileData({ ...profileData, location })}
+                    placeholder="Search for your location in Nigeria"
+                    required
+                    restrictToNigeria={true}
                   />
+                  <p className="text-xs text-gray-500 mt-1">DFN is currently available only in Nigeria</p>
                 </div>
 
                 <div className="flex justify-between pt-4">

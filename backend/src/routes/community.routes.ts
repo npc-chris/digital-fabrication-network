@@ -78,20 +78,70 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single post with replies
+// Get single post with replies (includes user info for replies)
 router.get('/:id', async (req, res) => {
   try {
-    const [post] = await db.select().from(communityPosts).where(eq(communityPosts.id, parseInt(req.params.id)));
+    const postId = parseInt(req.params.id);
+    const incrementView = req.query.incrementView !== 'false'; // Default to true for backwards compat
+    
+    // Get post with author info
+    const [post] = await db.select({
+      id: communityPosts.id,
+      authorId: communityPosts.authorId,
+      title: communityPosts.title,
+      content: communityPosts.content,
+      category: communityPosts.category,
+      tags: communityPosts.tags,
+      images: communityPosts.images,
+      status: communityPosts.status,
+      viewCount: communityPosts.viewCount,
+      createdAt: communityPosts.createdAt,
+      updatedAt: communityPosts.updatedAt,
+      authorName: profiles.firstName,
+      authorLastName: profiles.lastName,
+      authorCompany: profiles.company,
+      authorAvatar: profiles.avatar,
+    })
+    .from(communityPosts)
+    .leftJoin(users, eq(communityPosts.authorId, users.id))
+    .leftJoin(profiles, eq(users.id, profiles.userId))
+    .where(eq(communityPosts.id, postId));
+    
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    const replies = await db.select().from(postReplies).where(eq(postReplies.postId, parseInt(req.params.id)));
+    // Get replies with user info
+    const repliesRaw = await db.select({
+      id: postReplies.id,
+      postId: postReplies.postId,
+      userId: postReplies.userId,
+      content: postReplies.content,
+      createdAt: postReplies.createdAt,
+      updatedAt: postReplies.updatedAt,
+      userName: profiles.firstName,
+      userLastName: profiles.lastName,
+      userAvatar: profiles.avatar,
+    })
+    .from(postReplies)
+    .leftJoin(users, eq(postReplies.userId, users.id))
+    .leftJoin(profiles, eq(users.id, profiles.userId))
+    .where(eq(postReplies.postId, postId));
+
+    // Format replies to include full user name
+    const replies = repliesRaw.map(reply => ({
+      ...reply,
+      userName: reply.userName && reply.userLastName 
+        ? `${reply.userName} ${reply.userLastName}`
+        : reply.userName || `User #${reply.userId}`,
+    }));
     
-    // Increment view count
-    await db.update(communityPosts)
-      .set({ viewCount: (post.viewCount || 0) + 1 })
-      .where(eq(communityPosts.id, parseInt(req.params.id)));
+    // Only increment view count if explicitly requested (prevents double counting)
+    if (incrementView) {
+      await db.update(communityPosts)
+        .set({ viewCount: (post.viewCount || 0) + 1 })
+        .where(eq(communityPosts.id, postId));
+    }
 
     res.json({ ...post, replies });
   } catch (error: any) {
@@ -115,12 +165,33 @@ router.post('/', authenticate, async (req: Request, res) => {
 // Create reply
 router.post('/:id/replies', authenticate, async (req: Request, res) => {
   try {
+    const postId = parseInt(req.params.id);
+    const userId = ((req as any).user).id;
+    
     const [reply] = await db.insert(postReplies).values({
-      postId: parseInt(req.params.id),
-      userId: ((req as any).user).id,
+      postId,
+      userId,
       content: req.body.content,
     }).returning();
-    res.status(201).json(reply);
+    
+    // Fetch user info to return with the reply
+    const [userProfile] = await db.select({
+      firstName: profiles.firstName,
+      lastName: profiles.lastName,
+      avatar: profiles.avatar,
+    })
+    .from(profiles)
+    .where(eq(profiles.userId, userId));
+    
+    const replyWithUser = {
+      ...reply,
+      userName: userProfile 
+        ? `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || `User #${userId}`
+        : `User #${userId}`,
+      userAvatar: userProfile?.avatar || null,
+    };
+    
+    res.status(201).json(replyWithUser);
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }

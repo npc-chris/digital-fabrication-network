@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, User, Bell, Shield, Save, Camera } from 'lucide-react';
 import api from '@/lib/api';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -177,15 +178,14 @@ export default function SettingsPage() {
                     <User className="w-10 h-10 text-primary-600" />
                   </div>
                 )}
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Enter image URL"
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+                <div className="flex-1">
+                  <ImageUpload
                     value={profileData.avatar}
-                    onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                    onChange={(url) => setProfileData({ ...profileData, avatar: url })}
+                    placeholder="Upload profile photo"
+                    showPreview={false}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Enter an image URL or use your Google profile photo</p>
+                  <p className="text-xs text-gray-500 mt-1">Upload an image or use your Google profile photo</p>
                 </div>
               </div>
             </div>

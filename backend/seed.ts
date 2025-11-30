@@ -18,14 +18,49 @@ async function seed() {
 
     // Hash password for test users
     const hashedPassword = await hash('password123', 10);
+    const adminPassword = await hash('admin123!@#', 10);
 
-    // 1. Create test users (explorers and providers)
-    console.log('Creating users...');
+    // 1. Create admin users first
+    console.log('Creating admin users...');
+    
+    const adminResult = await client.query(
+      `INSERT INTO users (email, password, role, is_verified, onboarding_completed) 
+       VALUES ($1, $2, 'admin', true, true) RETURNING id`,
+      ['admin@dfn.com', adminPassword]
+    );
+    const adminId = adminResult.rows[0].id;
+
+    await client.query(
+      `INSERT INTO profiles (user_id, first_name, last_name, location, bio) 
+       VALUES ($1, $2, $3, $4, $5)`,
+      [adminId, 'Admin', 'User', 'Lagos, Lagos, Nigeria', 'Platform administrator']
+    );
+
+    // Platform manager
+    const pmResult = await client.query(
+      `INSERT INTO users (email, password, role, is_verified, onboarding_completed) 
+       VALUES ($1, $2, 'platform_manager', true, true) RETURNING id`,
+      ['manager@dfn.com', adminPassword]
+    );
+    const pmId = pmResult.rows[0].id;
+
+    await client.query(
+      `INSERT INTO profiles (user_id, first_name, last_name, location, bio) 
+       VALUES ($1, $2, $3, $4, $5)`,
+      [pmId, 'Platform', 'Manager', 'Abuja, FCT, Nigeria', 'Platform manager']
+    );
+
+    console.log('✓ Created admin users');
+
+    // 2. Create test users (explorers and providers)
+    console.log('Creating regular users...');
     
     const explorerUsers = [
-      { email: 'explorer1@test.com', firstName: 'John', lastName: 'Smith', location: 'Lagos' },
-      { email: 'explorer2@test.com', firstName: 'Sarah', lastName: 'Johnson', location: 'Abuja' },
-      { email: 'explorer3@test.com', firstName: 'Michael', lastName: 'Brown', location: 'Port Harcourt' },
+      { email: 'explorer1@test.com', firstName: 'John', lastName: 'Smith', location: 'Lagos Island, Lagos, Nigeria', phone: '+234 801 234 5678' },
+      { email: 'explorer2@test.com', firstName: 'Sarah', lastName: 'Johnson', location: 'Abuja, FCT, Nigeria', phone: '+234 802 345 6789' },
+      { email: 'explorer3@test.com', firstName: 'Michael', lastName: 'Brown', location: 'Port Harcourt, Rivers, Nigeria', phone: '+234 803 456 7890' },
+      { email: 'explorer4@test.com', firstName: 'Amara', lastName: 'Okonkwo', location: 'Enugu, Enugu, Nigeria', phone: '+234 804 567 8901' },
+      { email: 'explorer5@test.com', firstName: 'Tunde', lastName: 'Adesanya', location: 'Ibadan, Oyo, Nigeria', phone: '+234 805 678 9012' },
     ];
 
     const providerUsers = [
@@ -34,8 +69,9 @@ async function seed() {
         firstName: 'David',
         lastName: 'Williams',
         company: 'TechParts Nigeria',
-        location: 'Lagos',
-        bio: 'Leading supplier of electronic components and parts in Nigeria. Over 10 years of experience.',
+        location: 'Ikeja, Lagos, Nigeria',
+        phone: '+234 806 789 0123',
+        bio: 'Leading supplier of electronic components and parts in Nigeria. Over 10 years of experience in the electronics industry.',
         role: 'provider',
       },
       {
@@ -43,8 +79,9 @@ async function seed() {
         firstName: 'Emily',
         lastName: 'Davis',
         company: '3D Print Hub',
-        location: 'Abuja',
-        bio: 'Professional 3D printing and rapid prototyping services. Fast turnaround times.',
+        location: 'Garki, FCT, Nigeria',
+        phone: '+234 807 890 1234',
+        bio: 'Professional 3D printing and rapid prototyping services. Fast turnaround times and high-quality prints.',
         role: 'provider',
       },
       {
@@ -52,8 +89,9 @@ async function seed() {
         firstName: 'James',
         lastName: 'Wilson',
         company: 'MakerSpace Pro',
-        location: 'Lagos',
-        bio: 'Full-service fabrication lab offering CNC machining, laser cutting, and PCB assembly.',
+        location: 'Victoria Island, Lagos, Nigeria',
+        phone: '+234 808 901 2345',
+        bio: 'Full-service fabrication lab offering CNC machining, laser cutting, and PCB assembly services.',
         role: 'provider',
       },
       {
@@ -61,13 +99,24 @@ async function seed() {
         firstName: 'Linda',
         lastName: 'Martinez',
         company: 'Electronics Supply Co',
-        location: 'Ibadan',
+        location: 'Ibadan, Oyo, Nigeria',
+        phone: '+234 809 012 3456',
         bio: 'Wholesale and retail electronics components. Specializing in Arduino, Raspberry Pi, and IoT parts.',
+        role: 'provider',
+      },
+      {
+        email: 'provider5@test.com',
+        firstName: 'Chinedu',
+        lastName: 'Okafor',
+        company: 'Nerdshed Electronics',
+        location: 'Yaba, Lagos, Nigeria',
+        phone: '+234 810 123 4567',
+        bio: 'Your one-stop shop for makers, engineers, and hobbyists. We stock everything from basic components to advanced development boards.',
         role: 'provider',
       },
     ];
 
-    const userIds = { explorers: [], providers: [] };
+    const userIds: { explorers: number[]; providers: number[] } = { explorers: [], providers: [] };
 
     for (const explorer of explorerUsers) {
       const userResult = await client.query(
@@ -79,9 +128,9 @@ async function seed() {
       userIds.explorers.push(userId);
 
       await client.query(
-        `INSERT INTO profiles (user_id, first_name, last_name, location) 
-         VALUES ($1, $2, $3, $4)`,
-        [userId, explorer.firstName, explorer.lastName, explorer.location]
+        `INSERT INTO profiles (user_id, first_name, last_name, location, phone) 
+         VALUES ($1, $2, $3, $4, $5)`,
+        [userId, explorer.firstName, explorer.lastName, explorer.location, explorer.phone]
       );
     }
 
@@ -95,9 +144,9 @@ async function seed() {
       userIds.providers.push(userId);
 
       await client.query(
-        `INSERT INTO profiles (user_id, first_name, last_name, company, location, bio, rating, review_count) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [userId, provider.firstName, provider.lastName, provider.company, provider.location, provider.bio, '4.50', 12]
+        `INSERT INTO profiles (user_id, first_name, last_name, company, location, phone, bio, rating, review_count) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [userId, provider.firstName, provider.lastName, provider.company, provider.location, provider.phone, provider.bio, '4.50', 12]
       );
     }
 
@@ -114,10 +163,10 @@ async function seed() {
         type: 'electrical',
         price: 25.99,
         availability: 50,
-        location: 'Lagos',
+        location: 'Ikeja, Lagos, Nigeria',
         rating: '4.8',
         reviewCount: 25,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-arduino.jpg']),
       },
       {
         providerId: userIds.providers[0],
@@ -126,10 +175,10 @@ async function seed() {
         type: 'electrical',
         price: 55.00,
         availability: 30,
-        location: 'Lagos',
+        location: 'Ikeja, Lagos, Nigeria',
         rating: '4.9',
         reviewCount: 18,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-rpi.jpg']),
       },
       {
         providerId: userIds.providers[3],
@@ -138,10 +187,10 @@ async function seed() {
         type: 'mechanical',
         price: 3.50,
         availability: 100,
-        location: 'Ibadan',
+        location: 'Ibadan, Oyo, Nigeria',
         rating: '4.5',
         reviewCount: 42,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-servo.jpg']),
       },
       {
         providerId: userIds.providers[3],
@@ -150,10 +199,10 @@ async function seed() {
         type: 'electrical',
         price: 5.99,
         availability: 75,
-        location: 'Ibadan',
+        location: 'Ibadan, Oyo, Nigeria',
         rating: '4.6',
         reviewCount: 35,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-breadboard.jpg']),
       },
       {
         providerId: userIds.providers[0],
@@ -162,10 +211,10 @@ async function seed() {
         type: 'materials',
         price: 22.00,
         availability: 40,
-        location: 'Lagos',
+        location: 'Ikeja, Lagos, Nigeria',
         rating: '4.7',
         reviewCount: 28,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-filament.jpg']),
       },
       {
         providerId: userIds.providers[3],
@@ -174,10 +223,34 @@ async function seed() {
         type: 'consumables',
         price: 8.50,
         availability: 60,
-        location: 'Ibadan',
+        location: 'Ibadan, Oyo, Nigeria',
         rating: '4.4',
         reviewCount: 50,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-wires.jpg']),
+      },
+      {
+        providerId: userIds.providers[4],
+        name: 'ESP32 Development Board',
+        description: 'ESP32 DevKitC with WiFi and Bluetooth. Dual-core processor, ideal for IoT projects.',
+        type: 'electrical',
+        price: 12.00,
+        availability: 45,
+        location: 'Yaba, Lagos, Nigeria',
+        rating: '4.7',
+        reviewCount: 38,
+        images: JSON.stringify(['/uploads/placeholder-esp32.jpg']),
+      },
+      {
+        providerId: userIds.providers[4],
+        name: 'Stepper Motor NEMA 17',
+        description: 'High-torque stepper motor for CNC machines, 3D printers, and robotics projects.',
+        type: 'mechanical',
+        price: 18.50,
+        availability: 25,
+        location: 'Yaba, Lagos, Nigeria',
+        rating: '4.6',
+        reviewCount: 22,
+        images: JSON.stringify(['/uploads/placeholder-stepper.jpg']),
       },
     ];
 
@@ -214,10 +287,10 @@ async function seed() {
         pricingModel: 'per_unit',
         pricePerUnit: 0.15,
         leadTime: 3,
-        location: 'Abuja',
+        location: 'Garki, FCT, Nigeria',
         rating: '4.9',
         reviewCount: 35,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-3dprint.jpg']),
       },
       {
         providerId: userIds.providers[2],
@@ -227,10 +300,10 @@ async function seed() {
         pricingModel: 'hourly',
         pricePerUnit: 75.00,
         leadTime: 5,
-        location: 'Lagos',
+        location: 'Victoria Island, Lagos, Nigeria',
         rating: '4.8',
         reviewCount: 22,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-cnc.jpg']),
       },
       {
         providerId: userIds.providers[2],
@@ -240,10 +313,10 @@ async function seed() {
         pricingModel: 'per_unit',
         pricePerUnit: 50.00,
         leadTime: 7,
-        location: 'Lagos',
+        location: 'Victoria Island, Lagos, Nigeria',
         rating: '4.7',
         reviewCount: 18,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-pcb.jpg']),
       },
       {
         providerId: userIds.providers[1],
@@ -253,10 +326,10 @@ async function seed() {
         pricingModel: 'per_unit',
         pricePerUnit: 30.00,
         leadTime: 2,
-        location: 'Abuja',
+        location: 'Garki, FCT, Nigeria',
         rating: '4.8',
         reviewCount: 28,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-laser.jpg']),
       },
       {
         providerId: userIds.providers[2],
@@ -266,10 +339,10 @@ async function seed() {
         pricingModel: 'hourly',
         pricePerUnit: 15.00,
         leadTime: 1,
-        location: 'Lagos',
+        location: 'Victoria Island, Lagos, Nigeria',
         rating: '4.6',
         reviewCount: 45,
-        images: JSON.stringify(['https://images.unsplash.com/photo-1581092918484-8313e1f6d5c7?w=400']),
+        images: JSON.stringify(['/uploads/placeholder-lab.jpg']),
       },
     ];
 

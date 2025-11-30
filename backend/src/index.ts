@@ -5,6 +5,7 @@ dotenv.config();
 
 import express from 'express';
 import { createServer } from 'http';
+import path from 'path';
 import cors from 'cors';
 import passport from './config/passport';
 import { initializeWebSocket } from './config/websocket';
@@ -28,6 +29,8 @@ import forumRoutes from './routes/forum.routes';
 import mentorshipRoutes from './routes/mentorship.routes';
 import groupbuyingRoutes from './routes/groupbuying.routes';
 import verificationRoutes from './routes/verification.routes';
+import adminRoutes from './routes/admin.routes';
+import emailVerificationRoutes from './routes/email-verification.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -42,6 +45,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+
+// Serve static files from uploads directory
+const uploadsDir = process.env.LOCAL_UPLOAD_DIR || path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsDir));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -69,6 +76,8 @@ app.use('/api/forum', forumRoutes);
 app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/group-buying', groupbuyingRoutes);
 app.use('/api/verification', verificationRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/email-verification', emailVerificationRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

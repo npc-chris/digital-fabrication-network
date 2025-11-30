@@ -290,8 +290,8 @@ export const communityAPI = {
     return response.data;
   },
   
-  getById: async (id: number) => {
-    const response = await api.get(`/api/community/${id}`);
+  getById: async (id: number, incrementView: boolean = true) => {
+    const response = await api.get(`/api/community/${id}?incrementView=${incrementView}`);
     return response.data;
   },
 
@@ -333,6 +333,71 @@ export const communityAPI = {
   
   updateStatus: async (postId: number, status: string) => {
     const response = await api.patch(`/api/community/${postId}/status`, { status });
+    return response.data;
+  },
+};
+
+// Cart API
+export const cartAPI = {
+  getCart: async () => {
+    const response = await api.get('/api/cart');
+    return response.data;
+  },
+  
+  addItem: async (data: {
+    componentId?: number;
+    affiliateStoreId?: number;
+    quantity: number;
+    price: string;
+    externalProductId?: string;
+    externalProductUrl?: string;
+    productName?: string;
+    productImage?: string;
+  }) => {
+    const response = await api.post('/api/cart/items', data);
+    return response.data;
+  },
+  
+  updateItemQuantity: async (itemId: number, quantity: number) => {
+    const response = await api.put(`/api/cart/items/${itemId}`, { quantity });
+    return response.data;
+  },
+  
+  removeItem: async (itemId: number) => {
+    const response = await api.delete(`/api/cart/items/${itemId}`);
+    return response.data;
+  },
+  
+  clearCart: async () => {
+    const response = await api.delete('/api/cart');
+    return response.data;
+  },
+  
+  importAffiliateCart: async (affiliateStoreId: number, items: any[]) => {
+    const response = await api.post('/api/cart/import-affiliate', {
+      affiliateStoreId,
+      items,
+    });
+    return response.data;
+  },
+};
+
+// Email Verification API
+export const emailVerificationAPI = {
+  sendCode: async (email: string) => {
+    const response = await api.post('/api/email-verification/send-code', { email });
+    return response.data;
+  },
+  
+  verifyCode: async (email: string, code: string) => {
+    const response = await api.post('/api/email-verification/verify-code', { email, code });
+    return response.data;
+  },
+  
+  checkStatus: async (email: string) => {
+    const response = await api.get('/api/email-verification/check-status', {
+      params: { email },
+    });
     return response.data;
   },
 };
