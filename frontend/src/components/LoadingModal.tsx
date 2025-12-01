@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import LoadingSpinner, { LoadingSpinnerSize } from './LoadingSpinner';
 
 interface LoadingModalProps {
@@ -35,13 +35,25 @@ export default function LoadingModal({
   showOverlay = true,
   className = '',
 }: LoadingModalProps) {
+  // Store original overflow value
+  const originalOverflow = useRef<string>('');
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
+      // Store the original overflow value before modifying
+      originalOverflow.current = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
+    } else {
+      // Restore the original overflow value when modal closes
+      document.body.style.overflow = originalOverflow.current;
     }
+
     return () => {
-      document.body.style.overflow = 'unset';
+      // Cleanup: restore original overflow on unmount
+      if (isOpen) {
+        document.body.style.overflow = originalOverflow.current;
+      }
     };
   }, [isOpen]);
 
