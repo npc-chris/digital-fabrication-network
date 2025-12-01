@@ -163,7 +163,7 @@ export default function CampaignDetailsPage() {
                   {pledging ? 'Processing...' : `Pledge $${(pledgeQuantity * campaign.campaign.unitPrice).toFixed(2)}`}
                 </button>
                 <p className="text-xs text-center text-gray-500">
-                  You won't be charged until the campaign ends successfully.
+                  You won&apos;t be charged until the campaign ends successfully.
                 </p>
               </div>
             </div>
