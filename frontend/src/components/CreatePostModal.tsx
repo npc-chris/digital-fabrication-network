@@ -73,9 +73,9 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Content + Footer wrapped in form */}
+        <form onSubmit={handleSubmit}>
+          <div className="p-6 space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
@@ -146,26 +146,26 @@ export default function CreatePostModal({ onClose, onSuccess }: CreatePostModalP
                 Add tags to help others find your post
               </p>
             </div>
-          </form>
-        </div>
+          </div>
 
-        {/* Footer Actions */}
-        <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !title.trim() || !content.trim()}
-            className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Creating...' : 'Create Post'}
-          </button>
-        </div>
+          {/* Footer Actions */}
+          <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !title.trim() || !content.trim()}
+              className="flex-1 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating...' : 'Create Post'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
