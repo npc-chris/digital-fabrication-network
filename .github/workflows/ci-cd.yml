@@ -2,14 +2,66 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+permissions:
+  contents: read
 
 jobs:
-  backend-test:
+  lint-commits:
+    name: Lint Commit Messages
     runs-on: ubuntu-latest
-    
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate PR title with commitlint
+        run: echo "${{ github.event.pull_request.title }}" | npx commitlint --verbose
+
+      - name: Validate PR commits with commitlint
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit all workspaces
+        run: npm audit --workspaces --audit-level=high
+
+  backend-test:
+    name: Backend – Lint, Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     services:
       postgres:
         image: postgres:14
@@ -23,78 +75,81 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: |
-        npm install
-        cd backend && npm install
-    
-    - name: Lint backend
-      run: cd backend && npm run lint
-    
-    - name: Build backend
-      run: cd backend && npm run build
-    
-    - name: Run backend tests
-      run: cd backend && npm test
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dfn_test
-        JWT_SECRET: test-secret
-        NODE_ENV: test
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint backend
+        run: npm run lint --workspace=backend
+
+      - name: Build backend
+        run: npm run build --workspace=backend
+
+      - name: Run backend tests
+        run: npm test --workspace=backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dfn_test
+          JWT_SECRET: test-secret
+          NODE_ENV: test
 
   frontend-test:
+    name: Frontend – Lint, Build & Test
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: |
-        npm install
-        cd frontend && npm install
-    
-    - name: Lint frontend
-      run: cd frontend && npm run lint
-    
-    - name: Build frontend
-      run: cd frontend && npm run build
-      env:
-        NEXT_PUBLIC_API_URL: http://localhost:4000
-    
-    - name: Run frontend tests
-      run: cd frontend && npm test
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint --workspace=frontend
+
+      - name: Build frontend
+        run: npm run build --workspace=frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+
+      - name: Run frontend tests
+        run: npm test --workspace=frontend
 
   deploy-backend:
-    needs: [backend-test]
+    name: Deploy Backend
+    needs: [backend-test, security-audit]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+    permissions: {}
+
     steps:
-    - name: Deploy to Railway
-      run: echo "Deploy backend to Railway (configure with Railway CLI)"
-      # Add Railway deployment steps here
+      - name: Deploy to Railway
+        run: echo "Deploy backend to Railway (configure with Railway CLI)"
+        # Add Railway deployment steps here
 
   deploy-frontend:
-    needs: [frontend-test]
+    name: Deploy Frontend
+    needs: [frontend-test, security-audit]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+    permissions: {}
+
     steps:
-    - name: Deploy to Vercel
-      run: echo "Deploy frontend to Vercel (auto-deploys via Vercel integration)"
-      # Vercel will auto-deploy when connected to the repository
+      - name: Deploy to Vercel
+        run: echo "Deploy frontend to Vercel (auto-deploys via Vercel integration)"
+        # Vercel will auto-deploy when connected to the repository

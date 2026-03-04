@@ -7,7 +7,7 @@
     "backend"
   ],
   "scripts": {
-    "clean": "rimraf ./frontend/.next",
+    "prepare": "husky install",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev:backend": "npm run dev --workspace=backend",
@@ -17,12 +17,11 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.0.3",
-    "concurrently": "^9.2.1",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4",
-    "rimraf": "^6.1.2"
+    "@commitlint/cli": "^18.6.1",
+    "@commitlint/config-conventional": "^18.6.3",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.1.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
   }
 }
