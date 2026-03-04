@@ -13,6 +13,7 @@ import RequestQuoteModal from '@/components/RequestQuoteModal';
 import CreatePostModal from '@/components/CreatePostModal';
 import ViewDiscussionModal from '@/components/ViewDiscussionModal';
 import HierarchicalCategoryFilter from '@/components/HierarchicalCategoryFilter';
+import LoadingScreen from '@/components/LoadingScreen';
 import { verifySession, getStoredUser } from '@/lib/auth';
 
 export default function Dashboard() {
@@ -382,14 +383,7 @@ export default function Dashboard() {
 
   // Show loading while verifying authentication
   if (!isAuthChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading dashboard..." fullScreen />;
   }
 
   return (
