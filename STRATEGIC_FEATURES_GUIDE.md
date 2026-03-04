@@ -1,7 +1,9 @@
 # STRATEGIC FEATURES IMPLEMENTATION GUIDE
+
 ## Digital Fabrication Network - Phase 2 Enhancement
 
 ## Overview
+
 This document outlines the implementation of strategic features that position DFN as the "Google of Hardware" - a discovery and aggregation layer rather than a direct competitor to existing stores.
 
 ---
@@ -9,9 +11,10 @@ This document outlines the implementation of strategic features that position DF
 ## 🎯 Core Strategic Positioning
 
 ### Philosophy: Aggregation, Not Competition
+
 - **DFN as Discovery Layer**: We help users find what they need, stores fulfill orders
 - **Partnership Model**: Stores benefit from our traffic through affiliate/referral programs
-- **Value Proposition**: 
+- **Value Proposition**:
   - **For Users**: "I want to build something, how do I start?" + "Who else is building?"
   - **For Stores**: Increased visibility, qualified traffic, partnership opportunities
 
@@ -20,15 +23,18 @@ This document outlines the implementation of strategic features that position DF
 ## ✅ Implemented Features
 
 ### 1. **Project Hub** 📦
+
 **Problem Solved**: Users don't know where to start or what components they need
 
 #### Database Tables
+
 - `projects` - Main project information
 - `project_boms` - Bill of Materials with component links
 - `project_likes` - User engagement
 - `project_completions` - Showcase builds
 
 #### API Endpoints
+
 - `GET /api/projects` - List projects with filters
 - `GET /api/projects/:id` - Get project with BOM
 - `POST /api/projects` - Create project
@@ -38,6 +44,7 @@ This document outlines the implementation of strategic features that position DF
 - `POST /api/projects/:id/bom` - Add BOM item
 
 #### Features
+
 - ✅ Project sharing with detailed descriptions
 - ✅ Bill of Materials with component linking
 - ✅ Difficulty levels (beginner, intermediate, advanced)
@@ -50,16 +57,30 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Alternative component suggestions
 
 #### Frontend
+
 - `/projects` - Browse projects page
 - `/projects/:id` - View project details
 - `/projects/create` - Create new project
 
 ---
 
-### 2. **Enhanced Search with Local-First Filter** 🔍
+### 4. **Role-Based Experience** 👥
+**Problem Solved**: Different user types (Explorers vs Providers) need different views
+
+#### Features
+- ✅ Smart Navbar with role detection
+- ✅ One-click toggle between "Explorer" (Buyer) and "Provider" (Seller) dashboards
+- ✅ Admin panel for platform oversight
+- ✅ Simplified onboarding flow for Explorers
+
+---
+
+### 5. **Enhanced Search with Local-First Filter** 🔍
+
 **Problem Solved**: Hard to find Nigerian/African suppliers; can't compare options
 
 #### Features
+
 - ✅ Local-first prioritization toggle
 - ✅ Supplier type filtering (local, african, international, affiliate)
 - ✅ Location-aware search
@@ -67,10 +88,12 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Component comparison tool
 
 #### API Endpoints
+
 - `GET /api/search?q=...&localFirst=true` - Smart search
 - `POST /api/search/compare` - Compare up to 5 components
 
 #### Comparison Metrics
+
 - Price range analysis
 - Average ratings
 - Local vs international suppliers
@@ -80,13 +103,16 @@ This document outlines the implementation of strategic features that position DF
 ---
 
 ### 3. **Cart System with Multi-Vendor Support** 🛒
+
 **Problem Solved**: Need to manage purchases from multiple sources
 
 #### Database Tables
+
 - `carts` - User shopping carts
 - `cart_items` - Items from various vendors
 
 #### Features
+
 - ✅ Multi-vendor cart grouping
 - ✅ Internal (DFN) and affiliate items
 - ✅ Vendor-wise subtotals
@@ -95,6 +121,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Visual vendor separation
 
 #### API Endpoints
+
 - `GET /api/cart` - Get user cart
 - `POST /api/cart/items` - Add item
 - `PUT /api/cart/items/:id` - Update quantity
@@ -104,13 +131,16 @@ This document outlines the implementation of strategic features that position DF
 ---
 
 ### 4. **Affiliate/Partner Integration** 🤝
+
 **Problem Solved**: Stores need customers, users need more options
 
 #### Database Tables
+
 - `affiliate_stores` - Partner store information
 - Components linked via `affiliateStoreId`
 
 #### Features
+
 - ✅ Store registration and approval workflow
 - ✅ API endpoint configuration for integration
 - ✅ Commission tracking
@@ -119,6 +149,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Store profiles with ratings
 
 #### API Endpoints
+
 - `GET /api/affiliates` - List affiliate stores
 - `POST /api/affiliates` - Register store
 - `GET /api/affiliates/:id` - Store details
@@ -127,6 +158,7 @@ This document outlines the implementation of strategic features that position DF
 - `GET /api/affiliates/my/store` - My store dashboard
 
 #### Integration Options
+
 1. **Manual Listing**: Affiliates manually add products
 2. **API Integration**: Automated product sync (endpoint mappings configured)
 3. **Redirect Model**: Users redirected to affiliate site with tracking
@@ -134,14 +166,17 @@ This document outlines the implementation of strategic features that position DF
 ---
 
 ### 5. **Forum & Collaboration Tools** 💬
+
 **Problem Solved**: Community needs space to discuss, collaborate, learn
 
 #### Database Tables
+
 - `forum_categories` - Discussion categories
 - `forum_threads` - Discussion topics
 - `forum_replies` - Thread responses
 
 #### Features
+
 - ✅ Categorized discussions
 - ✅ Thread pinning and locking
 - ✅ Nested replies
@@ -150,6 +185,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Tags for organization
 
 #### API Endpoints
+
 - `GET /api/forum/categories` - List categories
 - `GET /api/forum/threads` - List threads
 - `POST /api/forum/threads` - Create thread
@@ -159,13 +195,16 @@ This document outlines the implementation of strategic features that position DF
 ---
 
 ### 6. **Mentorship System** 👥
+
 **Problem Solved**: Beginners need guidance from experienced makers
 
 #### Database Tables
+
 - `mentorship_requests` - Mentorship matches
 - Profile fields: `isMentor`, `mentorshipAreas`, `mentorBio`
 
 #### Features
+
 - ✅ Mentor registration
 - ✅ Mentorship request creation
 - ✅ Open request browsing
@@ -174,6 +213,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Completion tracking
 
 #### API Endpoints
+
 - `GET /api/mentorship` - List requests
 - `GET /api/mentorship/mentors` - List mentors
 - `POST /api/mentorship` - Create request
@@ -183,13 +223,16 @@ This document outlines the implementation of strategic features that position DF
 ---
 
 ### 7. **Group Buying / Import Coordination** 📊
+
 **Problem Solved**: International components are expensive; shipping costs are high
 
 #### Database Tables
+
 - `group_buying_campaigns` - Group purchase campaigns
 - `group_buying_participants` - Campaign participants
 
 #### Features
+
 - ✅ Campaign creation with targets
 - ✅ Minimum/maximum quantity goals
 - ✅ Cost sharing (shipping + customs)
@@ -199,6 +242,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Participant management
 
 #### API Endpoints
+
 - `GET /api/group-buying` - List campaigns
 - `GET /api/group-buying/:id` - Campaign details
 - `POST /api/group-buying` - Create campaign
@@ -207,6 +251,7 @@ This document outlines the implementation of strategic features that position DF
 - `PUT /api/group-buying/:id/status` - Update status (organizer)
 
 #### Campaign Flow
+
 1. **Open**: Accepting participants
 2. **Funding**: Minimum reached, collecting payments
 3. **Ordered**: Order placed with supplier
@@ -216,19 +261,23 @@ This document outlines the implementation of strategic features that position DF
 ---
 
 ### 8. **Supplier Verification System** ✓
+
 **Problem Solved**: Users need trust indicators for suppliers
 
 #### Database Tables
+
 - `verification_documents` - Verification submissions
 - Profile fields: `verificationStatus`, `supplierType`, `verifiedAt`
 
 #### Verification Levels
+
 - **Unverified**: Default state
 - **Pending**: Documents submitted, under review
 - **Verified**: Basic verification complete
 - **Premium**: Enhanced verification with quality guarantees
 
 #### Features
+
 - ✅ Document submission (business license, tax ID, etc.)
 - ✅ Admin review workflow
 - ✅ Verification badges
@@ -236,6 +285,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Trust metrics
 
 #### API Endpoints
+
 - `POST /api/verification/submit` - Submit documents
 - `GET /api/verification/my-documents` - My submissions
 - `GET /api/verification/pending` - Admin: pending reviews
@@ -247,6 +297,7 @@ This document outlines the implementation of strategic features that position DF
 ## 📊 Enhanced Component Schema
 
 ### New Fields for Aggregation
+
 ```typescript
 {
   supplierType: 'local' | 'african' | 'international' | 'affiliate',
@@ -263,12 +314,14 @@ This document outlines the implementation of strategic features that position DF
 ## 🎨 Mobile Optimization Strategy
 
 ### Design Principles
+
 1. **Mobile-First**: Design for mobile, scale up
 2. **Touch-Friendly**: Minimum 44x44px touch targets
 3. **Performance**: Lazy loading, optimized images
 4. **Responsive Grid**: Tailwind's responsive classes throughout
 
 ### Implemented
+
 - ✅ Responsive layouts using Tailwind CSS
 - ✅ Mobile-friendly navigation
 - ✅ Touch-optimized buttons and controls
@@ -276,6 +329,7 @@ This document outlines the implementation of strategic features that position DF
 - ✅ Mobile-friendly forms
 
 ### Recommendations
+
 - Add PWA capabilities (service worker, offline support)
 - Implement mobile-specific gestures (swipe, pull-to-refresh)
 - Optimize images with next/image component
@@ -287,12 +341,15 @@ This document outlines the implementation of strategic features that position DF
 ## 🔄 API Endpoint Conversion Layer
 
 ### For Affiliate Integration
+
 The `affiliate_stores` table includes:
+
 - `apiEndpoint` - Base URL of affiliate API
 - `apiFormat` - rest, graphql, custom
 - `endpointMappings` - JSON mapping DFN endpoints to affiliate endpoints
 
 ### Example Mapping
+
 ```json
 {
   "getProducts": "/api/v1/products",
@@ -304,7 +361,9 @@ The `affiliate_stores` table includes:
 ```
 
 ### Implementation (Future)
+
 Create a service layer that:
+
 1. Reads affiliate's endpoint mappings
 2. Transforms DFN requests to affiliate format
 3. Handles authentication
@@ -315,6 +374,7 @@ Create a service layer that:
 ## 📈 Business Model
 
 ### Revenue Streams
+
 1. **Commission**: Percentage from affiliate sales
 2. **Premium Verification**: Enhanced supplier badges
 3. **Featured Listings**: Promoted components/services
@@ -322,7 +382,8 @@ Create a service layer that:
 5. **API Access**: For stores wanting deeper integration
 
 ### Partnership Benefits
-- **For Stores**: 
+
+- **For Stores**:
   - Increased visibility
   - Qualified traffic
   - Analytics and insights
@@ -339,6 +400,7 @@ Create a service layer that:
 ## 🚀 Deployment Checklist
 
 ### Backend
+
 - [x] Database migrations run successfully
 - [x] All new routes registered in index.ts
 - [x] Authentication middleware applied correctly
@@ -346,6 +408,7 @@ Create a service layer that:
 - [ ] API documentation updated
 
 ### Frontend
+
 - [x] New pages created (projects, cart, group-buying)
 - [x] TypeScript interfaces updated
 - [ ] Navigation menu updated with new pages
@@ -353,6 +416,7 @@ Create a service layer that:
 - [ ] Cross-browser testing
 
 ### Testing
+
 - [ ] Unit tests for new endpoints
 - [ ] Integration tests for workflows
 - [ ] Load testing for search/comparison
@@ -363,6 +427,7 @@ Create a service layer that:
 ## 📝 Next Steps
 
 ### High Priority
+
 1. **Complete Frontend Components**
    - Project detail view
    - Forum interface
@@ -380,6 +445,7 @@ Create a service layer that:
    - Touch gesture optimization
 
 ### Medium Priority
+
 1. **Affiliate API Integration Layer**
    - Build endpoint conversion service
    - Add OAuth support for partners
@@ -396,6 +462,7 @@ Create a service layer that:
    - Verification updates
 
 ### Low Priority
+
 1. **Advanced Features**
    - Video tutorials in projects
    - Live chat support
@@ -445,18 +512,21 @@ Create a service layer that:
 ## 🎉 Success Metrics
 
 ### User Engagement
+
 - Projects created per month
 - Forum activity (threads, replies)
 - Mentorship matches
 - Group buying participation
 
 ### Business Metrics
+
 - Affiliate partnerships signed
 - Commission revenue
 - Traffic to affiliate stores
 - User retention rate
 
 ### Community Health
+
 - Active users
 - Content creation rate
 - Response time in forum

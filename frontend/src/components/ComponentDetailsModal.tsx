@@ -63,8 +63,14 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <div>
@@ -129,9 +135,9 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
             <div>
               <p className="text-xs font-medium text-gray-500">Provider</p>
               <p>
-                {component.providerCompany || 
-                 `${component.providerName || ''} ${component.providerLastName || ''}`.trim() || 
-                 `Provider #${component.providerId}`}
+                {component.providerCompany ||
+                  `${component.providerName || ''} ${component.providerLastName || ''}`.trim() ||
+                  `Provider #${component.providerId}`}
               </p>
             </div>
           </div>
@@ -185,9 +191,9 @@ export default function ComponentDetailsModal({ component, onClose }: ComponentD
               <h3 className="text-base font-semibold mb-3 text-blue-800">Provider Contact Details</h3>
               <div className="space-y-2 text-sm">
                 <p className="font-medium">
-                  {component.providerCompany || 
-                   `${component.providerName || ''} ${component.providerLastName || ''}`.trim() || 
-                   'Provider'}
+                  {component.providerCompany ||
+                    `${component.providerName || ''} ${component.providerLastName || ''}`.trim() ||
+                    'Provider'}
                 </p>
                 {component.providerPhone && (
                   <div className="flex items-center gap-2 text-gray-700">

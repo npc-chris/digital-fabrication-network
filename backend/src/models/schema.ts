@@ -2,12 +2,13 @@ import { pgTable, serial, varchar, text, timestamp, integer, boolean, decimal, p
 
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['explorer', 'provider', 'admin', 'platform_manager']);
-export const orderStatusEnum = pgEnum('order_status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']);
+export const orderStatusEnum = pgEnum('order_status', ['pending', 'ordered', 'in_production', 'quality_check', 'out_for_delivery', 'completed', 'cancelled']);
+export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'successful', 'failed', 'escrowed', 'released', 'refunded']);
 export const bookingStatusEnum = pgEnum('booking_status', ['queued', 'in_progress', 'completed', 'pickup', 'delivery']);
 export const componentTypeEnum = pgEnum('component_type', [
-  'electrical', 
-  'mechanical', 
-  'materials', 
+  'electrical',
+  'mechanical',
+  'materials',
   'consumables',
   'sensors',
   'thermal',
@@ -94,11 +95,30 @@ export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
   explorerId: integer('explorer_id').notNull().references(() => users.id),
   providerId: integer('provider_id').notNull().references(() => users.id),
-  componentId: integer('component_id').notNull().references(() => components.id),
-  quantity: integer('quantity').notNull(),
+  componentId: integer('component_id').references(() => components.id), // Optional: link to component
+  serviceId: integer('service_id').references(() => services.id), // Optional: link to service
+  quoteId: integer('quote_id').references(() => quotes.id), // Optional: link to the originating quote
+  quantity: integer('quantity').notNull().default(1),
   totalPrice: decimal('total_price', { precision: 10, scale: 2 }).notNull(),
   status: orderStatusEnum('status').notNull().default('pending'),
+  paymentStatus: paymentStatusEnum('payment_status').notNull().default('pending'),
   notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Transactions table to track payments
+export const transactions = pgTable('transactions', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  orderId: integer('order_id').references(() => orders.id),
+  quoteId: integer('quote_id').references(() => quotes.id),
+  paymentProvider: varchar('payment_provider', { length: 50 }).notNull(), // 'paystack' or 'flutterwave'
+  reference: varchar('reference', { length: 100 }).notNull().unique(), // External provider reference
+  amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
+  currency: varchar('currency', { length: 10 }).default('NGN'),
+  status: paymentStatusEnum('status').notNull().default('pending'),
+  metadata: text('metadata'), // JSON string
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -118,6 +138,21 @@ export const services = pgTable('services', {
   location: varchar('location', { length: 255 }),
   rating: decimal('rating', { precision: 3, scale: 2 }).default('0'),
   reviewCount: integer('review_count').default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Machine Capabilities - specific technical specs for provider machines
+export const machineCapabilities = pgTable('machine_capabilities', {
+  id: serial('id').primaryKey(),
+  providerId: integer('provider_id').notNull().references(() => users.id),
+  serviceId: integer('service_id').references(() => services.id), // Link to a specific service if applicable
+  machineType: varchar('machine_type', { length: 100 }).notNull(), // e.g., 'FDM 3D Printer', 'CNC Router', 'Pick and Place'
+  minWallThickness: decimal('min_wall_thickness', { precision: 10, scale: 3 }), // in mm
+  maxVolume: varchar('max_volume', { length: 100 }), // e.g., '300x300x400 mm'
+  precision: decimal('precision', { precision: 10, scale: 4 }), // in mm
+  materialsSupported: text('materials_supported'), // JSON array
+  isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -218,6 +253,8 @@ export const quotes = pgTable('quotes', {
   estimatedPrice: decimal('estimated_price', { precision: 10, scale: 2 }),
   estimatedDuration: integer('estimated_duration'), // in days
   status: varchar('status', { length: 50 }).default('pending'), // pending, approved, rejected, expired
+  buildabilityScore: integer('buildability_score'), // 0-100 from hardware runner
+  riskBuffer: decimal('risk_buffer', { precision: 10, scale: 2 }).default('0'), // Added fee based on score
   notes: text('notes'),
   expiresAt: timestamp('expires_at'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -314,13 +351,14 @@ export const cartItems = pgTable('cart_items', {
   cartId: integer('cart_id').notNull().references(() => carts.id),
   componentId: integer('component_id').references(() => components.id),
   affiliateStoreId: integer('affiliate_store_id').references(() => affiliateStores.id),
+  campaignId: integer('campaign_id').references(() => groupBuyingCampaigns.id),
   quantity: integer('quantity').notNull().default(1),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   // For affiliate items
   externalProductId: varchar('external_product_id', { length: 255 }),
-  externalProductUrl: varchar('external_product_url', { length: 500 }),
+  externalProductUrl: text('external_product_url'),
   productName: varchar('product_name', { length: 255 }),
-  productImage: varchar('product_image', { length: 500 }),
+  productImage: text('product_image'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -387,7 +425,8 @@ export const groupBuyingCampaigns = pgTable('group_buying_campaigns', {
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description').notNull(),
   componentName: varchar('component_name', { length: 255 }).notNull(),
-  componentUrl: varchar('component_url', { length: 500 }),
+  componentUrl: text('component_url'),
+  images: text('images'), // JSON array of strings
   supplierName: varchar('supplier_name', { length: 255 }),
   supplierCountry: varchar('supplier_country', { length: 100 }),
   // Pricing
@@ -496,3 +535,65 @@ export const componentApplications = pgTable('component_applications', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// ===== PHASE 4: CORE ENGINE & VERSIONING =====
+
+// Project Assets - supports many-to-one versioning (Git-like)
+export const projectAssets = pgTable('project_assets', {
+  id: serial('id').primaryKey(),
+  projectId: integer('project_id').notNull().references(() => projects.id),
+  fileName: varchar('file_name', { length: 255 }).notNull(),
+  fileUrl: varchar('file_url', { length: 500 }).notNull(),
+  fileType: varchar('file_type', { length: 50 }).notNull(), // e.g., '.stl', '.step', '.brd'
+  hardwareFormat: varchar('hardware_format', { length: 50 }), // e.g., '3d_model', 'cad_design'
+  version: integer('version').notNull().default(1),
+  commitMessage: text('commit_message'),
+  parentAssetId: integer('parent_asset_id'), // Reference to previous version
+  metadata: text('metadata'), // JSON: { previewUrl: string, stats: any, etc. }
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Build Pipelines - definitions for hardware builds
+export const buildPipelines = pgTable('build_pipelines', {
+  id: serial('id').primaryKey(),
+  projectId: integer('project_id').notNull().references(() => projects.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  // definition: JSON array of steps: 
+  // [
+  //   { type: 'validate_pcb', params: {...} }, 
+  //   { type: 'generate_3d_preview', params: {...} },
+  //   { type: 'calculate_cost', params: {...} }
+  // ]
+  definition: text('definition').notNull(),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Pipeline Executions - real-time status of build runs
+export const pipelineExecutions = pgTable('pipeline_executions', {
+  id: serial('id').primaryKey(),
+  pipelineId: integer('pipeline_id').notNull().references(() => buildPipelines.id),
+  assetId: integer('asset_id').references(() => projectAssets.id),
+  triggerUserId: integer('trigger_user_id').references(() => users.id),
+  status: varchar('status', { length: 50 }).notNull().default('queued'), // queued, running, completed, failed
+  progress: integer('progress').default(0), // 0-100
+  results: text('results'), // JSON output of steps
+  startedAt: timestamp('started_at'),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Order Tracking - logistics and waybill management
+export const orderTracking = pgTable('order_tracking', {
+  id: serial('id').primaryKey(),
+  orderId: integer('order_id').notNull().references(() => orders.id),
+  status: varchar('status', { length: 50 }).notNull(), // ordered, in_production, quality_check, waybill_generated, dispatched, hub_arrival, out_for_delivery, delivered
+  location: varchar('location', { length: 255 }), // current city, hub, or warehouse
+  description: text('description'), // e.g. "Arrived at Lagos Mega Hub"
+  waybillId: varchar('waybill_id', { length: 100 }),
+  proofImage: varchar('proof_image', { length: 500 }), // Photo of waybill or package
+  estimatedDelivery: timestamp('estimated_delivery'),
+  createdAt: timestamp('created_at').defaultNow(),
+});

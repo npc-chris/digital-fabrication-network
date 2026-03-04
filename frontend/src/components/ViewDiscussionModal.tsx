@@ -86,7 +86,7 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
     const date = new Date(dateString);
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (seconds < 60) return `${seconds}s ago`;
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m ago`;
@@ -100,8 +100,14 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
   const tags = post.tags ? (typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags) : [];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="bg-white border-b px-6 py-4 flex justify-between items-start flex-shrink-0">
           <div className="flex-1 pr-4">
@@ -126,11 +132,10 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
           {/* Post Content */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
-              <span className={`px-3 py-1 rounded-full text-xs ${
-                post.status === 'open' ? 'bg-green-100 text-green-800' :
-                post.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
+              <span className={`px-3 py-1 rounded-full text-xs ${post.status === 'open' ? 'bg-green-100 text-green-800' :
+                  post.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+                }`}>
                 {post.status === 'in_progress' ? 'In Progress' : (post.status || 'open').charAt(0).toUpperCase() + (post.status || 'open').slice(1)}
               </span>
               {post.category && (
@@ -163,7 +168,7 @@ export default function ViewDiscussionModal({ post, onClose }: ViewDiscussionMod
           {/* Replies Section */}
           <div>
             <h3 className="font-semibold text-lg mb-4">Discussion ({replies.length})</h3>
-            
+
             {loading ? (
               <div className="text-center py-8 text-gray-500">Loading replies...</div>
             ) : replies.length === 0 ? (

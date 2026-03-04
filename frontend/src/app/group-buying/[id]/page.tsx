@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { groupBuyingAPI } from '@/lib/api-services';
 import { Users, Clock, Tag, CheckCircle, AlertCircle } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function CampaignDetailsPage() {
   const params = useParams();
@@ -50,8 +52,9 @@ export default function CampaignDetailsPage() {
   const isFunded = campaign.campaign.currentQuantity >= campaign.campaign.minQuantity;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Image and Details */}
           <div className="lg:col-span-2 space-y-8">
@@ -69,7 +72,7 @@ export default function CampaignDetailsPage() {
                   </div>
                 )}
               </div>
-              
+
               <div className="p-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">{campaign.campaign.title}</h1>
                 <div className="flex items-center space-x-6 text-gray-600 mb-8">
@@ -154,7 +157,7 @@ export default function CampaignDetailsPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <button
                   onClick={handlePledge}
                   disabled={pledging}
@@ -170,6 +173,7 @@ export default function CampaignDetailsPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

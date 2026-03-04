@@ -18,17 +18,17 @@ export const notificationsAPI = {
     const response = await api.get(`/api/notifications?${params.toString()}`);
     return response.data;
   },
-  
+
   markAsRead: async (id: number) => {
     const response = await api.patch(`/api/notifications/${id}/read`);
     return response.data;
   },
-  
+
   markAllAsRead: async () => {
     const response = await api.patch('/api/notifications/read-all');
     return response.data;
   },
-  
+
   delete: async (id: number) => {
     const response = await api.delete(`/api/notifications/${id}`);
     return response.data;
@@ -45,18 +45,18 @@ export const quotesAPI = {
     const response = await api.post('/api/quotes', data);
     return response.data;
   },
-  
+
   getAll: async (type?: 'requested' | 'received') => {
     const params = type ? `?type=${type}` : '';
     const response = await api.get(`/api/quotes${params}`);
     return response.data;
   },
-  
+
   getById: async (id: number) => {
     const response = await api.get(`/api/quotes/${id}`);
     return response.data;
   },
-  
+
   update: async (id: number, data: {
     estimatedPrice?: number;
     estimatedDuration?: number;
@@ -66,7 +66,7 @@ export const quotesAPI = {
     const response = await api.patch(`/api/quotes/${id}`, data);
     return response.data;
   },
-  
+
   updateStatus: async (id: number, status: 'approved' | 'rejected') => {
     const response = await api.patch(`/api/quotes/${id}/status`, { status });
     return response.data;
@@ -83,7 +83,7 @@ export const uploadAPI = {
     });
     return response.data;
   },
-  
+
   uploadMultiple: async (files: File[]) => {
     const formData = new FormData();
     files.forEach(file => formData.append('files', file));
@@ -92,14 +92,14 @@ export const uploadAPI = {
     });
     return response.data;
   },
-  
+
   getPresignedUrl: async (fileName: string, contentType: string) => {
     const response = await api.get('/api/upload/presigned-url', {
       params: { fileName, contentType },
     });
     return response.data;
   },
-  
+
   delete: async (fileUrl: string) => {
     const response = await api.delete('/api/upload', { data: { fileUrl } });
     return response.data;
@@ -120,6 +120,8 @@ export const componentsAPI = {
     type?: string | string[];
     location?: string | string[];
     search?: string;
+    page?: number;
+    limit?: number;
   }) => {
     const params = new URLSearchParams();
     if (filters?.type) {
@@ -131,25 +133,28 @@ export const componentsAPI = {
       locations.forEach(l => params.append('location', l));
     }
     if (filters?.search) params.append('search', filters.search);
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+
     const response = await api.get(`/api/components?${params.toString()}`);
-    return response.data;
+    return response.data; // Now returns { data: [], page, limit, hasMore }
   },
-  
+
   getById: async (id: number) => {
     const response = await api.get(`/api/components/${id}`);
     return response.data;
   },
-  
+
   create: async (data: any) => {
     const response = await api.post('/api/components', data);
     return response.data;
   },
-  
+
   update: async (id: number, data: any) => {
     const response = await api.put(`/api/components/${id}`, data);
     return response.data;
   },
-  
+
   delete: async (id: number) => {
     const response = await api.delete(`/api/components/${id}`);
     return response.data;
@@ -166,6 +171,8 @@ export const servicesAPI = {
     category?: string | string[];
     location?: string | string[];
     search?: string;
+    page?: number;
+    limit?: number;
   }) => {
     const params = new URLSearchParams();
     if (filters?.category) {
@@ -177,25 +184,28 @@ export const servicesAPI = {
       locations.forEach(l => params.append('location', l));
     }
     if (filters?.search) params.append('search', filters.search);
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+
     const response = await api.get(`/api/services?${params.toString()}`);
     return response.data;
   },
-  
+
   getById: async (id: number) => {
     const response = await api.get(`/api/services/${id}`);
     return response.data;
   },
-  
+
   create: async (data: any) => {
     const response = await api.post('/api/services', data);
     return response.data;
   },
-  
+
   update: async (id: number, data: any) => {
     const response = await api.put(`/api/services/${id}`, data);
     return response.data;
   },
-  
+
   delete: async (id: number) => {
     const response = await api.delete(`/api/services/${id}`);
     return response.data;
@@ -209,12 +219,12 @@ export const wishlistAPI = {
     const response = await api.get('/api/wishlist');
     return response.data;
   },
-  
+
   add: async (data: { componentId?: number; serviceId?: number }) => {
     const response = await api.post('/api/wishlist', data);
     return response.data;
   },
-  
+
   remove: async (id: number) => {
     const response = await api.delete(`/api/wishlist/${id}`);
     return response.data;
@@ -227,7 +237,7 @@ export const ordersAPI = {
     const response = await api.get('/api/orders');
     return response.data;
   },
-  
+
   create: async (data: {
     componentId: number;
     quantity: number;
@@ -236,7 +246,11 @@ export const ordersAPI = {
     const response = await api.post('/api/orders', data);
     return response.data;
   },
-  
+
+  getById: async (id: number) => {
+    const response = await api.get(`/api/orders/${id}`);
+    return response.data;
+  },
   updateStatus: async (id: number, status: string) => {
     const response = await api.patch(`/api/orders/${id}/status`, { status });
     return response.data;
@@ -249,7 +263,7 @@ export const bookingsAPI = {
     const response = await api.get('/api/bookings');
     return response.data;
   },
-  
+
   create: async (data: {
     serviceId: number;
     startDate: string;
@@ -259,7 +273,7 @@ export const bookingsAPI = {
     const response = await api.post('/api/bookings', data);
     return response.data;
   },
-  
+
   updateStatus: async (id: number, status: string) => {
     const response = await api.patch(`/api/bookings/${id}/status`, { status });
     return response.data;
@@ -272,11 +286,15 @@ export const communityAPI = {
     category?: string;
     status?: string;
     search?: string;
+    page?: number;
+    limit?: number;
   }) => {
     const params = new URLSearchParams();
     if (filters?.category && filters.category !== 'all') params.append('category', filters.category);
     if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
     if (filters?.search) params.append('search', filters.search);
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
     const response = await api.get(`/api/community?${params.toString()}`);
     return response.data;
   },
@@ -293,7 +311,7 @@ export const communityAPI = {
     const response = await api.get(`/api/community?${params.toString()}`);
     return response.data;
   },
-  
+
   getById: async (id: number, incrementView: boolean = true) => {
     const response = await api.get(`/api/community/${id}?incrementView=${incrementView}`);
     return response.data;
@@ -303,7 +321,7 @@ export const communityAPI = {
     const response = await api.get(`/api/community/posts/${id}`);
     return response.data;
   },
-  
+
   create: async (data: any) => {
     const response = await api.post('/api/community', data);
     return response.data;
@@ -324,7 +342,7 @@ export const communityAPI = {
     const response = await api.get(`/api/community/posts/${postId}/replies`);
     return response.data;
   },
-  
+
   createReply: async (postId: number, content: string) => {
     const response = await api.post(`/api/community/${postId}/replies`, { content });
     return response.data;
@@ -334,7 +352,7 @@ export const communityAPI = {
     const response = await api.post(`/api/community/posts/${postId}/replies`, { content });
     return response.data;
   },
-  
+
   updateStatus: async (postId: number, status: string) => {
     const response = await api.patch(`/api/community/${postId}/status`, { status });
     return response.data;
@@ -347,36 +365,37 @@ export const cartAPI = {
     const response = await api.get('/api/cart');
     return response.data;
   },
-  
-  addItem: async (data: {
+
+  addItem: async (item: {
     componentId?: number;
     affiliateStoreId?: number;
+    campaignId?: number;
     quantity: number;
-    price: string;
+    price: string | number;
     externalProductId?: string;
     externalProductUrl?: string;
     productName?: string;
     productImage?: string;
   }) => {
-    const response = await api.post('/api/cart/items', data);
+    const response = await api.post('/api/cart/items', item);
     return response.data;
   },
-  
+
   updateItemQuantity: async (itemId: number, quantity: number) => {
     const response = await api.put(`/api/cart/items/${itemId}`, { quantity });
     return response.data;
   },
-  
+
   removeItem: async (itemId: number) => {
     const response = await api.delete(`/api/cart/items/${itemId}`);
     return response.data;
   },
-  
+
   clearCart: async () => {
     const response = await api.delete('/api/cart');
     return response.data;
   },
-  
+
   importAffiliateCart: async (affiliateStoreId: number, items: any[]) => {
     const response = await api.post('/api/cart/import-affiliate', {
       affiliateStoreId,
@@ -392,12 +411,12 @@ export const emailVerificationAPI = {
     const response = await api.post('/api/email-verification/send-code', { email });
     return response.data;
   },
-  
+
   verifyCode: async (email: string, code: string) => {
     const response = await api.post('/api/email-verification/verify-code', { email, code });
     return response.data;
   },
-  
+
   checkStatus: async (email: string) => {
     const response = await api.get('/api/email-verification/check-status', {
       params: { email },
@@ -419,7 +438,7 @@ export const projectsAPI = {
     if (filters?.difficulty) params.append('difficulty', filters.difficulty);
     if (filters?.search) params.append('search', filters.search);
     if (filters?.authorId) params.append('authorId', filters.authorId);
-    
+
     const response = await api.get(`/api/projects?${params.toString()}`);
     return response.data;
   },
@@ -463,6 +482,39 @@ export const projectsAPI = {
     const response = await api.delete(`/api/projects/${projectId}/bom/${bomId}`);
     return response.data;
   },
+
+  addBomToCart: async (id: number) => {
+    const response = await api.post(`/api/projects/${id}/bom/add-to-cart`);
+    return response.data;
+  },
+};
+
+// Project Assets & Pipelines API
+export const projectAssetsAPI = {
+  getByProject: async (projectId: number) => {
+    const response = await api.get(`/api/projects/${projectId}/assets`);
+    return response.data;
+  },
+
+  getById: async (id: number) => {
+    const response = await api.get(`/api/project-assets/${id}`);
+    return response.data;
+  },
+
+  getPipelines: async (projectId: number) => {
+    const response = await api.get(`/api/projects/${projectId}/pipelines`);
+    return response.data;
+  },
+
+  getExecutions: async (pipelineId: number) => {
+    const response = await api.get(`/api/pipelines/${pipelineId}/executions`);
+    return response.data;
+  },
+
+  triggerExecution: async (pipelineId: number, assetId?: number) => {
+    const response = await api.post(`/api/pipelines/${pipelineId}/executions`, { assetId });
+    return response.data;
+  },
 };
 
 // Mentorship API
@@ -476,7 +528,7 @@ export const mentorshipAPI = {
     if (filters?.status) params.append('status', filters.status);
     if (filters?.mentorId) params.append('mentorId', filters.mentorId);
     if (filters?.menteeId) params.append('menteeId', filters.menteeId);
-    
+
     const response = await api.get(`/api/mentorship?${params.toString()}`);
     return response.data;
   },
@@ -523,6 +575,14 @@ export const mentorshipAPI = {
     const response = await api.post('/api/mentorship/register-mentor', data);
     return response.data;
   },
+  getDashboardStats: async () => {
+    const response = await api.get('/api/mentorship/dashboard/stats');
+    return response.data;
+  },
+  getDashboardMentees: async () => {
+    const response = await api.get('/api/mentorship/dashboard/mentees');
+    return response.data;
+  },
 };
 
 // Group Buying API
@@ -534,7 +594,7 @@ export const groupBuyingAPI = {
     const params = new URLSearchParams();
     if (filters?.status) params.append('status', filters.status);
     if (filters?.category) params.append('category', filters.category);
-    
+
     const response = await api.get(`/api/group-buying?${params.toString()}`);
     return response.data;
   },
@@ -564,13 +624,37 @@ export const affiliatesAPI = {
     const params = new URLSearchParams();
     if (filters?.category) params.append('category', filters.category);
     if (filters?.search) params.append('search', filters.search);
-    
+
     const response = await api.get(`/api/affiliates/products?${params.toString()}`);
     return response.data;
   },
 
   trackClick: async (productId: number) => {
     const response = await api.post(`/api/affiliates/products/${productId}/click`);
+    return response.data;
+  },
+  syncStoreProducts: async (storeId: number) => {
+    const response = await api.post(`/api/affiliates/${storeId}/sync`);
+    return response.data;
+  },
+};
+
+// Verification API
+export const verificationAPI = {
+  submit: async (data: { documentType: string; documentUrl: string }) => {
+    const response = await api.post('/api/verification/submit', data);
+    return response.data;
+  },
+  getStatus: async () => {
+    const response = await api.get('/api/verification/status');
+    return response.data;
+  },
+  getPending: async () => {
+    const response = await api.get('/api/verification/pending');
+    return response.data;
+  },
+  review: async (id: number, data: { status: string; reviewNotes?: string; verificationStatus?: string }) => {
+    const response = await api.post(`/api/verification/${id}/review`, data);
     return response.data;
   },
 };
@@ -583,7 +667,7 @@ export const forumAPI = {
   },
 
   getThreads: async (categoryId?: number) => {
-    const url = categoryId 
+    const url = categoryId
       ? `/api/forum/categories/${categoryId}/threads`
       : '/api/forum/threads';
     const response = await api.get(url);
@@ -606,6 +690,32 @@ export const forumAPI = {
 
   replyToThread: async (threadId: number, content: string) => {
     const response = await api.post(`/api/forum/threads/${threadId}/posts`, { content });
+    return response.data;
+  },
+
+  createCategory: async (data: {
+    name: string;
+    description: string;
+    icon?: string;
+    sortOrder?: number;
+  }) => {
+    const response = await api.post('/api/forum/categories', data);
+    return response.data;
+  },
+};
+
+// Payments API
+export const paymentsAPI = {
+  initialize: async (quoteId: number) => {
+    const response = await api.post(`/api/payments/initialize/${quoteId}`);
+    return response.data;
+  },
+  initializeCart: async () => {
+    const response = await api.post('/api/payments/checkout/cart');
+    return response.data;
+  },
+  verify: async (reference: string) => {
+    const response = await api.get(`/api/payments/verify/${reference}`);
     return response.data;
   },
 };

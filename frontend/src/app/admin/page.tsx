@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Users, Package, Wrench, MessageSquare, Shield, Search, 
+import {
+  Users, Package, Wrench, MessageSquare, Shield, Search,
   ChevronDown, CheckCircle, XCircle, Trash2, ArrowUpCircle,
   ArrowDownCircle, BarChart3, AlertTriangle, Eye, X
 } from 'lucide-react';
 import api from '@/lib/api';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 interface Stats {
   users: { total: number; explorers: number; providers: number };
@@ -47,21 +50,25 @@ interface ProviderRequest {
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'providers' | 'content'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'providers' | 'verifications' | 'content'>('overview');
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Users tab state
   const [userSearch, setUserSearch] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState('all');
   const [usersList, setUsersList] = useState<User[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersPagination, setUsersPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
-  
+
   // Provider requests state
   const [providerRequests, setProviderRequests] = useState<ProviderRequest[]>([]);
   const [providersLoading, setProvidersLoading] = useState(false);
+
+  // Verifications tab state
+  const [verificationsList, setVerificationsList] = useState<any[]>([]);
+  const [verificationsLoading, setVerificationsLoading] = useState(false);
 
   // Selected user for details
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -75,13 +82,13 @@ export default function AdminDashboard() {
           router.push('/auth/login');
           return;
         }
-        
+
         const parsedUser = JSON.parse(userData);
         if (parsedUser.role !== 'admin' && parsedUser.role !== 'platform_manager') {
           router.push('/dashboard');
           return;
         }
-        
+
         setUser(parsedUser);
         await loadStats();
       } catch (err: any) {
@@ -167,6 +174,33 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadVerifications = async () => {
+    setVerificationsLoading(true);
+    try {
+      const response = await api.get('/api/verification/pending');
+      setVerificationsList(response.data);
+    } catch (err: any) {
+      console.error('Failed to load verifications:', err);
+    } finally {
+      setVerificationsLoading(false);
+    }
+  };
+
+  const handleReviewVerification = async (docId: number, status: 'approved' | 'rejected', vStatus?: string) => {
+    const notes = status === 'rejected' ? prompt('Enter reason for rejection:') : '';
+    try {
+      await api.post(`/api/verification/${docId}/review`, {
+        status,
+        reviewNotes: notes,
+        verificationStatus: vStatus || 'verified'
+      });
+      loadVerifications();
+      loadStats();
+    } catch (err: any) {
+      alert('Failed to review verification');
+    }
+  };
+
   const handleUpgradeUser = async (userId: number) => {
     if (!confirm('Are you sure you want to upgrade this user to provider?')) return;
     try {
@@ -205,6 +239,8 @@ export default function AdminDashboard() {
       loadUsers();
     } else if (activeTab === 'providers') {
       loadProviderRequests();
+    } else if (activeTab === 'verifications') {
+      loadVerifications();
     }
   }, [activeTab]);
 
@@ -248,37 +284,47 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold text-red-600">DFN Admin</h1>
               <span className="ml-2 text-sm text-gray-600 hidden sm:block">Platform Management</span>
             </div>
-            
+
             <nav className="hidden md:flex space-x-2">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'overview' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-3 py-2 rounded-md ${activeTab === 'overview' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
               >
                 <BarChart3 className="w-5 h-5 mr-2" />
                 Overview
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'users' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-3 py-2 rounded-md ${activeTab === 'users' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
               >
                 <Users className="w-5 h-5 mr-2" />
                 Users
               </button>
               <button
                 onClick={() => setActiveTab('providers')}
-                className={`flex items-center px-3 py-2 rounded-md relative ${
-                  activeTab === 'providers' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-3 py-2 rounded-md relative ${activeTab === 'providers' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
               >
                 <Shield className="w-5 h-5 mr-2" />
                 Provider Requests
                 {stats && stats.pending.providerRequests > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {stats.pending.providerRequests}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('verifications')}
+                className={`flex items-center px-3 py-2 rounded-md relative ${activeTab === 'verifications' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+              >
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Verifications
+                {stats && stats.pending.verifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {stats.pending.verifications}
                   </span>
                 )}
               </button>
@@ -295,11 +341,12 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Breadcrumbs />
         {/* Overview Tab */}
         {activeTab === 'overview' && stats && (
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Platform Overview</h2>
-            
+
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow p-6">
@@ -312,7 +359,7 @@ export default function AdminDashboard() {
                   {stats.users.explorers} explorers, {stats.users.providers} providers
                 </p>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-600">Components</h4>
@@ -320,7 +367,7 @@ export default function AdminDashboard() {
                 </div>
                 <p className="text-3xl font-bold text-gray-900">{stats.content.components}</p>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-600">Services</h4>
@@ -328,7 +375,7 @@ export default function AdminDashboard() {
                 </div>
                 <p className="text-3xl font-bold text-gray-900">{stats.content.services}</p>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-600">Community Posts</h4>
@@ -362,7 +409,10 @@ export default function AdminDashboard() {
                       <p className="font-medium text-blue-800">Verification Documents</p>
                       <p className="text-2xl font-bold text-blue-900">{stats.pending.verifications}</p>
                     </div>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <button
+                      onClick={() => setActiveTab('verifications')}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
                       Review
                     </button>
                   </div>
@@ -376,7 +426,7 @@ export default function AdminDashboard() {
         {activeTab === 'users' && (
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">User Management</h2>
-            
+
             {/* Search and Filters */}
             <form onSubmit={handleUserSearch} className="bg-white rounded-lg shadow p-4 mb-6">
               <div className="flex flex-wrap gap-4">
@@ -396,6 +446,7 @@ export default function AdminDashboard() {
                   className="px-4 py-2 border border-gray-300 rounded-lg"
                   value={userRoleFilter}
                   onChange={(e) => setUserRoleFilter(e.target.value)}
+                  title="Filter by user role"
                 >
                   <option value="all">All Roles</option>
                   <option value="explorer">Explorers</option>
@@ -444,9 +495,8 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            u.role === 'provider' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
+                          <span className={`px-2 py-1 text-xs rounded-full ${u.role === 'provider' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                            }`}>
                             {u.role}
                           </span>
                         </td>
@@ -542,7 +592,7 @@ export default function AdminDashboard() {
         {activeTab === 'providers' && (
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Provider Upgrade Requests</h2>
-            
+
             {providersLoading ? (
               <div className="bg-white rounded-lg shadow p-8 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
@@ -588,6 +638,84 @@ export default function AdminDashboard() {
                         >
                           <XCircle className="w-4 h-4" />
                           Reject
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Verifications Tab */}
+        {activeTab === 'verifications' && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Verification Document Reviews</h2>
+
+            {verificationsLoading ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              </div>
+            ) : verificationsList.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+                No pending verification documents
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {verificationsList.map((item) => (
+                  <div key={item.document.id} className="bg-white rounded-lg shadow p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded uppercase">
+                            {item.document.documentType.replace('_', ' ')}
+                          </span>
+                          <span className="text-sm text-gray-500">Submitted by:</span>
+                          <span className="font-semibold">{item.profile?.firstName} {item.profile?.lastName}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4">{item.user.email}</p>
+
+                        <div className="mt-4">
+                          <a
+                            href={item.document.documentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm font-medium"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View Document
+                          </a>
+                        </div>
+
+                        <p className="text-xs text-gray-400 mt-4">
+                          Submitted: {new Date(item.document.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleReviewVerification(item.document.id, 'approved', 'verified')}
+                            className="flex items-center gap-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            Verify (Standard)
+                          </button>
+                          <button
+                            onClick={() => handleReviewVerification(item.document.id, 'approved', 'premium')}
+                            className="flex items-center gap-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
+                          >
+                            <ArrowUpCircle className="w-4 h-4" />
+                            Verify (Premium)
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => handleReviewVerification(item.document.id, 'rejected')}
+                          className="flex items-center justify-center gap-1 px-4 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 text-sm"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Reject Document
                         </button>
                       </div>
                     </div>
@@ -646,7 +774,7 @@ export default function AdminDashboard() {
                       <p>{selectedUser.profile?.phone || 'N/A'}</p>
                     </div>
                   </div>
-                  
+
                   <div className="border-t pt-4">
                     <h3 className="font-semibold mb-2">Activity Stats</h3>
                     <div className="grid grid-cols-3 gap-4">

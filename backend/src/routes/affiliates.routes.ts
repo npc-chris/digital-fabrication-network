@@ -3,6 +3,7 @@ import { db } from '../config/database';
 import { affiliateStores, users, profiles, components } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
 import { eq, desc, like, and, or } from 'drizzle-orm';
+import { affiliateService } from '../services/affiliate.service';
 
 const router = Router();
 
@@ -278,6 +279,33 @@ router.get('/my/store', authenticate, async (req: any, res: Response) => {
         totalProducts: products.length,
       }
     });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Sync store products from external API
+router.post('/:id/sync', authenticate, async (req: any, res: Response) => {
+  try {
+    const storeId = parseInt(req.params.id);
+    const userId = req.user.id;
+
+    // Check ownership
+    const [existing] = await db
+      .select()
+      .from(affiliateStores)
+      .where(eq(affiliateStores.id, storeId));
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    if (existing.userId !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    const result = await affiliateService.syncStoreProducts(storeId);
+    res.json(result);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

@@ -36,7 +36,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
 
     try {
       const newAttachments: { name: string; url: string }[] = [];
-      
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         // Validate file size (max 10MB)
@@ -44,7 +44,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
           setError(`File "${file.name}" is too large. Maximum size is 10MB.`);
           continue;
         }
-        
+
         // Mock upload - in production, this would upload to the server
         // For now, we'll create a data URL for demonstration
         const result = await new Promise<string>((resolve) => {
@@ -52,7 +52,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
           reader.onloadend = () => resolve(reader.result as string);
           reader.readAsDataURL(file);
         });
-        
+
         newAttachments.push({
           name: file.name,
           url: result,
@@ -114,8 +114,14 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
   const equipmentSpecs = service.equipmentSpecs ? JSON.parse(service.equipmentSpecs) : {};
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <div>
@@ -165,7 +171,7 @@ export default function RequestQuoteModal({ service, onClose, onSuccess }: Reque
                 <p className="text-xs text-gray-500">Rate</p>
                 <p className="font-semibold text-primary-600">${service.pricePerUnit}/
                   {service.pricingModel === 'hourly' ? 'hr' :
-                   service.pricingModel === 'project' ? 'proj' : 'unit'}
+                    service.pricingModel === 'project' ? 'proj' : 'unit'}
                 </p>
               </div>
               <div>

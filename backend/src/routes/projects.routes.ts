@@ -1,8 +1,10 @@
 import { Router, Response } from 'express';
 import { db } from '../config/database';
-import { projects, projectBoms, projectLikes, projectCompletions, components, users, profiles } from '../models/schema';
+import { projects, projectBoms, projectLikes, projectCompletions, components, users, profiles, carts, cartItems, projectAssets, pipelineExecutions } from '../models/schema';
 import { authenticate } from '../middleware/auth';
 import { eq, desc, and, sql, like, or } from 'drizzle-orm';
+import runnerService from '../services/runner.service';
+import storageService from '../services/storage.service';
 
 const router = Router();
 
@@ -10,9 +12,9 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const { category, difficulty, search, visibility = 'public', authorId } = req.query;
-    
+
     const conditions = [];
-    
+
     if (visibility && typeof visibility === 'string') {
       conditions.push(eq(projects.visibility, visibility as 'public' | 'unlisted' | 'private'));
     }
@@ -417,6 +419,170 @@ router.post('/', authenticate, async (req: any, res: Response) => {
     res.json({ message: 'BOM item deleted successfully' });
   } catch (error: unknown) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// Bulk add BOM components to cart
+router.post('/:id/bom/add-to-cart', authenticate, async (req: any, res: Response) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const userId = req.user.id;
+
+    // Get BOM items with component details
+    const bomItems = await db
+      .select({
+        bom: projectBoms,
+        component: components,
+      })
+      .from(projectBoms)
+      .innerJoin(components, eq(projectBoms.componentId, components.id))
+      .where(eq(projectBoms.projectId, projectId));
+
+    if (bomItems.length === 0) {
+      return res.status(400).json({ error: 'No linkable components found in BOM' });
+    }
+
+    // Get or create cart
+    let [cart] = await db
+      .select()
+      .from(carts)
+      .where(eq(carts.userId, userId));
+
+    if (!cart) {
+      [cart] = await db
+        .insert(carts)
+        .values({ userId })
+        .returning();
+    }
+
+    // Prepare cart items
+    const itemsToAdd = bomItems.map(item => ({
+      cartId: cart.id,
+      componentId: item.bom.componentId,
+      quantity: item.bom.quantity || 1,
+      price: item.component.price,
+    }));
+
+    // In a production app, we'd handle duplicates or use a more efficient upsert
+    // for simplicity here, we just insert them. 
+    // Actually, let's just insert one by one or use a more robust logic if possible.
+    // Given cart logic usually prevents duplicates, let's keep it simple.
+
+    // Using a loop to handle existing items might be better or just let the cart API handle it.
+    // But since this is a bulk operation, we can do it here.
+
+    for (const item of itemsToAdd) {
+      // Check if exists
+      const [existing] = await db
+        .select()
+        .from(cartItems)
+        .where(and(
+          eq(cartItems.cartId, cart.id),
+          eq(cartItems.componentId, item.componentId!)
+        ));
+
+      if (existing) {
+        await db
+          .update(cartItems)
+          .set({
+            quantity: existing.quantity + item.quantity,
+            updatedAt: new Date()
+          })
+          .where(eq(cartItems.id, existing.id));
+      } else {
+        await db.insert(cartItems).values(item);
+      }
+    }
+
+    res.json({ message: `Successfully added ${bomItems.length} items to cart` });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== PROJECT ASSETS & VERSIONING =====
+
+// Get all assets for a project
+router.get('/:id/assets', authenticate, async (req: any, res: Response) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const assets = await db
+      .select()
+      .from(projectAssets)
+      .where(eq(projectAssets.projectId, projectId))
+      .orderBy(desc(projectAssets.version), desc(projectAssets.createdAt));
+
+    res.json(assets);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Upload/Create new asset version
+router.post('/:id/assets', authenticate, async (req: any, res: Response) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const { fileName, fileUrl, commitMessage, parentAssetId } = req.body;
+
+    if (!fileName || !fileUrl) {
+      return res.status(400).json({ error: 'fileName and fileUrl are required' });
+    }
+
+    // 1. Identify format
+    const fileExt = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
+    const hardwareFormat = storageService.identifyHardwareFormat(fileName, '');
+
+    // 2. Determine version (simple increment for now)
+    const existingAssets = await db
+      .select()
+      .from(projectAssets)
+      .where(and(eq(projectAssets.projectId, projectId), eq(projectAssets.fileName, fileName)))
+      .orderBy(desc(projectAssets.version));
+
+    const nextVersion = existingAssets.length > 0 ? existingAssets[0].version + 1 : 1;
+
+    // 3. Create asset
+    const [newAsset] = await db
+      .insert(projectAssets)
+      .values({
+        projectId,
+        fileName,
+        fileUrl,
+        fileType: fileExt,
+        hardwareFormat,
+        version: nextVersion,
+        commitMessage: commitMessage || `Update ${fileName}`,
+        parentAssetId: parentAssetId || (existingAssets.length > 0 ? existingAssets[0].id : null),
+        metadata: JSON.stringify({ originalName: fileName }),
+      })
+      .returning();
+
+    // 4. Trigger runner service (fire and forget for now, or we could await if we wanted)
+    // The runner will update pipeline_executions
+    runnerService.triggerPipeline(newAsset.id, userId).catch(err => {
+      console.error('Failed to trigger pipeline:', err);
+    });
+
+    res.status(201).json(newAsset);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get pipeline executions for an asset
+router.get('/assets/:assetId/executions', authenticate, async (req: any, res: Response) => {
+  try {
+    const assetId = parseInt(req.params.assetId);
+    const executions = await db
+      .select()
+      .from(pipelineExecutions)
+      .where(eq(pipelineExecutions.assetId, assetId))
+      .orderBy(desc(pipelineExecutions.createdAt));
+
+    res.json(executions);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 });
 

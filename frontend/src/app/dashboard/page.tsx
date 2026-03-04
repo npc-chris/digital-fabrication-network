@@ -4,11 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
 import Link from 'next/link';
-import { Package, Wrench, Users, Menu, X, Search, Bell, ChevronDown, FilterIcon, Plus, Store } from 'lucide-react';
+import { Package, Wrench, Users, FilterIcon, Plus, X, ChevronDown } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import ComponentDetailsModal from '@/components/ComponentDetailsModal';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
-import NotificationsDropdown from '@/components/NotificationsDropdown';
-import UserDropdown from '@/components/UserDropdown';
 import CreatePostModal from '@/components/CreatePostModal';
 import ViewDiscussionModal from '@/components/ViewDiscussionModal';
 import HierarchicalCategoryFilter from '@/components/HierarchicalCategoryFilter';
@@ -16,7 +17,6 @@ import { verifySession, getStoredUser } from '@/lib/auth';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'components' | 'services' | 'community'>('components');
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
   const [user, setUser] = useState<any>(null);
@@ -58,6 +58,15 @@ export default function Dashboard() {
   const [communityPosts, setCommunityPosts] = useState<any[]>([]);
   const [communityLoading, setCommunityLoading] = useState<boolean>(false);
 
+  // Pagination State
+  const [componentsPage, setComponentsPage] = useState(1);
+  const [componentsHasMore, setComponentsHasMore] = useState(false);
+  const [servicesPage, setServicesPage] = useState(1);
+  const [servicesHasMore, setServicesHasMore] = useState(false);
+  const [communityPage, setCommunityPage] = useState(1);
+  const [communityHasMore, setCommunityHasMore] = useState(false);
+  const LIMIT = 12; // Items per page
+
   // Modal state
   const [selectedComponent, setSelectedComponent] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
@@ -68,19 +77,19 @@ export default function Dashboard() {
   useEffect(() => {
     const checkSession = async () => {
       const result = await verifySession();
-      
+
       if (result.isAuthenticated && result.user) {
         setUser(result.user);
       } else {
         // Allow public dashboard view without login
         setUser(null);
       }
-      
+
       setIsAuthChecked(true);
     };
-    
+
     checkSession();
-    
+
     // Check if welcome banner was dismissed in this session
     const bannerDismissed = sessionStorage.getItem('welcomeBannerDismissed');
     if (bannerDismissed === 'true') {
@@ -99,7 +108,7 @@ export default function Dashboard() {
       window.location.href = '/auth/register';
       return;
     }
-    
+
     if (user.role === 'provider') {
       // Already a provider, go to provider dashboard
       window.location.href = '/dashboard/provider';
@@ -111,7 +120,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (activeTab === 'components') {
-      fetchComponents();
+      setComponentsPage(1); // Reset page on filter change
+      fetchComponents(true);
       fetchComponentFilters();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,7 +129,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (activeTab === 'services') {
-      fetchServices();
+      setServicesPage(1); // Reset page on filter change
+      fetchServices(true);
       fetchServiceFilters();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,7 +138,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (activeTab === 'community') {
-      fetchCommunityPosts();
+      setCommunityPage(1);
+      fetchCommunityPosts(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [communityCategory, communityStatus, communitySearch, activeTab]);
@@ -153,22 +165,45 @@ export default function Dashboard() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchComponents = async () => {
+  const fetchComponents = async (reset: boolean = false) => {
     setComponentsLoading(true);
     try {
-      const filters: any = {};
+      const filters: any = {
+        page: reset ? 1 : componentsPage,
+        limit: LIMIT
+      };
       if (componentCategories.length > 0) filters.category = componentCategories;
       if (componentSubcategories.length > 0) filters.subcategory = componentSubcategories;
       if (componentTypes.length > 0) filters.type = componentTypes;
       if (componentLocations.length > 0) filters.location = componentLocations;
       if (componentSearch) filters.search = componentSearch;
-      const data = await componentsAPI.getAll(filters);
-      setComponentsList(data);
+
+      const response = await componentsAPI.getAll(filters);
+
+      // Handle both new paginated response and old array response for safety
+      const newItems = Array.isArray(response) ? response : response.data || [];
+      const hasMore = Array.isArray(response) ? false : !!response.hasMore;
+
+      if (reset) {
+        setComponentsList(newItems);
+      } else {
+        setComponentsList(prev => [...prev, ...newItems]);
+      }
+
+      setComponentsHasMore(hasMore);
+      if (!reset) setComponentsPage(prev => prev + 1);
+
     } catch (e) {
-      setComponentsList([]);
+      console.error(e);
+      if (reset) setComponentsList([]);
     } finally {
       setComponentsLoading(false);
     }
+  };
+
+  const loadMoreComponents = () => {
+    setComponentsPage(prev => prev + 1);
+    fetchComponents(false); // Fetch next page
   };
 
   const fetchComponentFilters = async () => {
@@ -186,20 +221,42 @@ export default function Dashboard() {
     }
   };
 
-  const fetchServices = async () => {
+  const fetchServices = async (reset: boolean = false) => {
     setServicesLoading(true);
     try {
-      const filters: any = {};
+      const filters: any = {
+        page: reset ? 1 : servicesPage,
+        limit: LIMIT
+      };
       if (serviceCategories.length > 0) filters.category = serviceCategories;
       if (serviceLocations.length > 0) filters.location = serviceLocations;
       if (serviceSearch) filters.search = serviceSearch;
-      const data = await servicesAPI.getAll(filters);
-      setServicesList(data);
+
+      const response = await servicesAPI.getAll(filters);
+
+      const newItems = Array.isArray(response) ? response : response.data || [];
+      const hasMore = Array.isArray(response) ? false : !!response.hasMore;
+
+      if (reset) {
+        setServicesList(newItems);
+      } else {
+        setServicesList(prev => [...prev, ...newItems]);
+      }
+
+      setServicesHasMore(hasMore);
+      if (!reset) setServicesPage(prev => prev + 1);
+
     } catch (e) {
-      setServicesList([]);
+      console.error(e);
+      if (reset) setServicesList([]);
     } finally {
       setServicesLoading(false);
     }
+  };
+
+  const loadMoreServices = () => {
+    setServicesPage(prev => prev + 1);
+    fetchServices(false);
   };
 
   const fetchServiceFilters = async () => {
@@ -271,27 +328,45 @@ export default function Dashboard() {
     setServiceLocations(prev => prev.filter(l => l !== location));
   };
 
-  const fetchCommunityPosts = async () => {
+  const fetchCommunityPosts = async (isInitial = true) => {
+    const pageToFetch = isInitial ? 1 : communityPage + 1;
     setCommunityLoading(true);
     try {
-      const filters: any = {};
+      const filters: any = {
+        page: pageToFetch,
+        limit: LIMIT
+      };
       if (communityCategory && communityCategory !== 'all') filters.category = communityCategory;
       if (communityStatus && communityStatus !== 'all') filters.status = communityStatus;
       if (communitySearch) filters.search = communitySearch;
-      const data = await communityAPI.getPosts(filters);
-      setCommunityPosts(data);
+
+      const response = await communityAPI.getAll(filters);
+      const newPosts = response.data || [];
+
+      if (isInitial) {
+        setCommunityPosts(newPosts);
+      } else {
+        setCommunityPosts(prev => [...prev, ...newPosts]);
+      }
+
+      setCommunityPage(pageToFetch);
+      setCommunityHasMore(response.hasMore);
     } catch (e) {
-      setCommunityPosts([]);
+      if (isInitial) setCommunityPosts([]);
     } finally {
       setCommunityLoading(false);
     }
+  };
+
+  const loadMoreCommunity = () => {
+    fetchCommunityPosts(false);
   };
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (seconds < 60) return `${seconds} seconds ago`;
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
@@ -318,133 +393,51 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
-              <span className="ml-2 text-sm text-gray-600 hidden sm:block">Digital Fabrication Network</span>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-2">
-              <button
-                onClick={() => setActiveTab('components')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'components' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Package className="w-5 h-5 mr-2" />
-                Components & Parts
-              </button>
-              <button
-                onClick={() => setActiveTab('services')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'services' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Wrench className="w-5 h-5 mr-2" />
-                Services
-              </button>
-              <button
-                onClick={() => setActiveTab('community')}
-                className={`flex items-center px-3 py-2 rounded-md ${
-                  activeTab === 'community' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Users className="w-5 h-5 mr-2" />
-                Community
-              </button>
-              <Link
-                href="/affiliates"
-                className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                <Store className="w-5 h-5 mr-2" />
-                Affiliates
-              </Link>
-            </nav>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <Navbar />
 
-            {/* Right side icons */}
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-full hover:bg-gray-100" aria-label="Open search">
-                <Search className="w-5 h-5 text-gray-600" />
-              </button>
-              <NotificationsDropdown />
-              {user ? (
-                <div className="hidden md:block">
-                  <UserDropdown user={user} />
-                </div>
-              ) : (
-                <>
-                  <Link href="/auth/login" className="hidden md:block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-                    Sign In
-                  </Link>
-                  <Link href="/auth/register" className="hidden md:block px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
-                    Sign Up
-                  </Link>
-                </>
-              )}
-              
-              {/* Mobile menu button */}
-              <button 
-                className="md:hidden p-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle mobile menu"
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+      {/* Dashboard Sub-Navigation */}
+      <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-4 overflow-x-auto py-3 no-scrollbar">
+            <button
+              onClick={() => setActiveTab('components')}
+              className={`flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'components'
+                ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-500/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Components & Parts
+            </button>
+            <button
+              onClick={() => setActiveTab('services')}
+              className={`flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'services'
+                ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-500/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+            >
+              <Wrench className="w-4 h-4 mr-2" />
+              Services
+            </button>
+            <button
+              onClick={() => setActiveTab('community')}
+              className={`flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'community'
+                ? 'bg-primary-100 text-primary-700 ring-1 ring-primary-500/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Community
+            </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <button
-                onClick={() => { setActiveTab('components'); setMobileMenuOpen(false); }}
-                className={`flex items-center w-full px-3 py-2 rounded-md ${
-                  activeTab === 'components' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Package className="w-5 h-5 mr-2" />
-                Components & Parts
-              </button>
-              <button
-                onClick={() => { setActiveTab('services'); setMobileMenuOpen(false); }}
-                className={`flex items-center w-full px-3 py-2 rounded-md ${
-                  activeTab === 'services' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Wrench className="w-5 h-5 mr-2" />
-                Services
-              </button>
-              <button
-                onClick={() => { setActiveTab('community'); setMobileMenuOpen(false); }}
-                className={`flex items-center w-full px-3 py-2 rounded-md ${
-                  activeTab === 'community' ? 'bg-primary-100 text-primary-700' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Users className="w-5 h-5 mr-2" />
-                Community
-              </button>
-              <Link
-                href="/affiliates"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                <Store className="w-5 h-5 mr-2" />
-                Affiliates
-              </Link>
-            </div>
-          </div>
-        )}
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <Breadcrumbs />
+
         {/* Hero Section */}
         {showWelcomeBanner && (
           <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-8 mb-8 text-white relative">
@@ -465,14 +458,14 @@ export default function Dashboard() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Components & Parts Marketplace</h3>
-              <button 
+              <button
                 onClick={handleProviderAction}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
                 Post Component or Part
               </button>
             </div>
-            
+
             {/* Enhanced Filter UI with Dropdowns and Chips */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               {/* Filter Buttons Row */}
@@ -503,7 +496,7 @@ export default function Dashboard() {
                     )}
                     <ChevronDown className="w-4 h-4" />
                   </button>
-                  
+
                   {showTypeDropdown && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-2 max-h-64 overflow-y-auto">
@@ -540,7 +533,7 @@ export default function Dashboard() {
                     )}
                     <ChevronDown className="w-4 h-4" />
                   </button>
-                  
+
                   {showLocationDropdown && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-2 max-h-64 overflow-y-auto">
@@ -623,43 +616,57 @@ export default function Dashboard() {
             </div>
 
             {/* Components & Parts Grid */}
-            {componentsLoading ? (
-              <div className="text-center py-12 text-gray-500">Loading...</div>
+            {componentsLoading && componentsList.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">Loading components...</div>
             ) : componentsList.length === 0 ? (
               <div className="text-center py-12 text-gray-500">No components or parts found.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {componentsList.map((item, i) => (
-                  <div key={item.id || i} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                    <div className="h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                      {item.images && Array.isArray(JSON.parse(item.images)) && JSON.parse(item.images)[0] ? (
-                        <img src={JSON.parse(item.images)[0]} alt={item.name} className="h-full w-full object-cover rounded-t-lg" />
-                      ) : (
-                        <span className="text-gray-400">No Image</span>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-lg mb-2">{item.name}</h4>
-                      <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-primary-600 font-bold">${item.price}</span>
-                        <span className="text-sm text-gray-500">{item.availability > 0 ? 'In Stock' : 'Out of Stock'}</span>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {componentsList.map((item, i) => (
+                    <div key={`${item.id}-${i}`} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
+                      <div className="h-48 bg-gray-200 flex items-center justify-center">
+                        {item.images && Array.isArray(JSON.parse(item.images)) && JSON.parse(item.images)[0] ? (
+                          <img src={JSON.parse(item.images)[0]} alt={item.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-gray-400">No Image</span>
+                        )}
                       </div>
-                      <div className="text-xs text-gray-500 mb-1">Type: <span className="capitalize">{item.type}</span></div>
-                      <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
-                      <div className="text-xs text-gray-500 mb-2">
-                        Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `provider #${item.providerId}`}
+                      <div className="p-4">
+                        <h4 className="font-semibold text-lg mb-2 text-gray-900">{item.name}</h4>
+                        {item.description && <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>}
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-primary-600 font-bold">${item.price}</span>
+                          <span className="text-sm text-gray-500">{item.availability > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mb-1">Type: <span className="capitalize">{item.type}</span></div>
+                        <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
+                        <div className="text-xs text-gray-500 mb-2">
+                          Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `Provider #${item.providerId}`}
+                        </div>
+                        <button
+                          onClick={() => setSelectedComponent(item)}
+                          className="mt-2 w-full py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
+                        >
+                          View Details
+                        </button>
                       </div>
-                      <button 
-                        onClick={() => setSelectedComponent(item)}
-                        className="mt-2 w-full py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                      >
-                        View Details
-                      </button>
                     </div>
+                  ))}
+                </div>
+
+                {componentsHasMore && (
+                  <div className="flex justify-center pb-8">
+                    <button
+                      onClick={loadMoreComponents}
+                      disabled={componentsLoading}
+                      className="px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      {componentsLoading ? 'Loading more...' : 'Load More Components'}
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -668,14 +675,14 @@ export default function Dashboard() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Services & Fabrication</h3>
-              <button 
+              <button
                 onClick={handleProviderAction}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
                 Offer Service
               </button>
             </div>
-            
+
             {/* Enhanced Filter UI with Dropdowns and Chips */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               {/* Filter Buttons Row */}
@@ -694,7 +701,7 @@ export default function Dashboard() {
                     )}
                     <ChevronDown className="w-4 h-4" />
                   </button>
-                  
+
                   {showServiceCategoryDropdown && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-2 max-h-64 overflow-y-auto">
@@ -731,7 +738,7 @@ export default function Dashboard() {
                     )}
                     <ChevronDown className="w-4 h-4" />
                   </button>
-                  
+
                   {showServiceLocationDropdown && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-2 max-h-64 overflow-y-auto">
@@ -814,48 +821,62 @@ export default function Dashboard() {
             </div>
 
             {/* Services Grid */}
-            {servicesLoading ? (
-              <div className="text-center py-12 text-gray-500">Loading...</div>
+            {servicesLoading && servicesList.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">Loading services...</div>
             ) : servicesList.length === 0 ? (
               <div className="text-center py-12 text-gray-500">No services found.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {servicesList.map((item, i) => (
-                  <div key={item.id || i} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                    <div className="h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                      {item.images && Array.isArray(JSON.parse(item.images)) && JSON.parse(item.images)[0] ? (
-                        <img src={JSON.parse(item.images)[0]} alt={item.name} className="h-full w-full object-cover rounded-t-lg" />
-                      ) : (
-                        <span className="text-gray-400">No Image</span>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-lg mb-2">{item.name}</h4>
-                      <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-500">
-                          {item.pricingModel === 'hourly' ? `From $${item.pricePerUnit}/hour` : 
-                           item.pricingModel === 'project' ? `From $${item.pricePerUnit}/project` : 
-                           item.pricingModel === 'per_unit' ? `From $${item.pricePerUnit}/unit` : ''}
-                        </span>
-                        <span className="text-sm text-gray-500">⭐ {item.rating || 'N/A'}</span>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {servicesList.map((item, i) => (
+                    <div key={`${item.id}-${i}`} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
+                      <div className="h-48 bg-gray-200 flex items-center justify-center">
+                        {item.images && Array.isArray(JSON.parse(item.images)) && JSON.parse(item.images)[0] ? (
+                          <img src={JSON.parse(item.images)[0]} alt={item.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-gray-400">No Image</span>
+                        )}
                       </div>
-                      <div className="text-xs text-gray-500 mb-1">Category: {item.category}</div>
-                      <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
-                      <div className="text-xs text-gray-500 mb-2">
-                        Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `Provider #${item.providerId}`}
+                      <div className="p-4">
+                        <h4 className="font-semibold text-lg mb-2 text-gray-900">{item.name}</h4>
+                        {item.description && <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.description}</p>}
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-gray-500">
+                            {item.pricingModel === 'hourly' ? `From $${item.pricePerUnit}/hour` :
+                              item.pricingModel === 'project' ? `From $${item.pricePerUnit}/project` :
+                                item.pricingModel === 'per_unit' ? `From $${item.pricePerUnit}/unit` : ''}
+                          </span>
+                          <span className="text-sm text-gray-500">⭐ {item.rating || 'N/A'}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mb-1">Category: {item.category}</div>
+                        <div className="text-xs text-gray-500 mb-1">Location: {item.location}</div>
+                        <div className="text-xs text-gray-500 mb-2">
+                          Provider: {item.providerCompany || `${item.providerName || ''} ${item.providerLastName || ''}`.trim() || `Provider #${item.providerId}`}
+                        </div>
+                        <div className="text-xs text-gray-500 mb-3">Lead time: {item.leadTime ? `${item.leadTime} days` : 'N/A'}</div>
+                        <button
+                          onClick={() => setSelectedService(item)}
+                          className="w-full py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
+                        >
+                          Request Quote
+                        </button>
                       </div>
-                      <div className="text-xs text-gray-500 mb-3">Lead time: {item.leadTime ? `${item.leadTime} days` : 'N/A'}</div>
-                      <button 
-                        onClick={() => setSelectedService(item)}
-                        className="w-full py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                      >
-                        Request Quote
-                      </button>
                     </div>
+                  ))}
+                </div>
+
+                {servicesHasMore && (
+                  <div className="flex justify-center pb-8">
+                    <button
+                      onClick={loadMoreServices}
+                      disabled={servicesLoading}
+                      className="px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      {servicesLoading ? 'Loading more...' : 'Load More Services'}
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -864,7 +885,7 @@ export default function Dashboard() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-gray-900">Community & Innovation Board</h3>
-              <button 
+              <button
                 onClick={() => setShowCreatePostModal(true)}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 flex items-center gap-2"
               >
@@ -872,12 +893,12 @@ export default function Dashboard() {
                 Create Post
               </button>
             </div>
-            
+
             {/* Filters */}
             <div className="bg-white rounded-lg shadow p-4 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <select 
-                  className="border rounded-md px-3 py-2" 
+                <select
+                  className="border rounded-md px-3 py-2"
                   aria-label="Community category filter"
                   value={communityCategory}
                   onChange={e => setCommunityCategory(e.target.value)}
@@ -888,8 +909,8 @@ export default function Dashboard() {
                   <option value="challenge">Challenge</option>
                   <option value="partnership">Partnership</option>
                 </select>
-                <select 
-                  className="border rounded-md px-3 py-2" 
+                <select
+                  className="border rounded-md px-3 py-2"
                   aria-label="Community status filter"
                   value={communityStatus}
                   onChange={e => setCommunityStatus(e.target.value)}
@@ -899,9 +920,9 @@ export default function Dashboard() {
                   <option value="in_progress">In Progress</option>
                   <option value="closed">Closed</option>
                 </select>
-                <input 
-                  type="text" 
-                  placeholder="Search posts..." 
+                <input
+                  type="text"
+                  placeholder="Search posts..."
                   className="border rounded-md px-3 py-2 md:col-span-2"
                   value={communitySearch}
                   onChange={e => setCommunitySearch(e.target.value)}
@@ -920,18 +941,17 @@ export default function Dashboard() {
                   <div key={post.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-lg mb-1">{post.title}</h4>
+                        <h4 className="font-semibold text-lg mb-1 text-gray-900">{post.title}</h4>
                         <p className="text-sm text-gray-500">
                           Posted by {post.authorCompany || `${post.authorName || ''} ${post.authorLastName || ''}`.trim() || `User #${post.authorId}`}
                           {' • '}
                           {formatTimeAgo(post.createdAt)}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs ${
-                        post.status === 'open' ? 'bg-green-100 text-green-800' :
+                      <span className={`px-3 py-1 rounded-full text-xs ${post.status === 'open' ? 'bg-green-100 text-green-800' :
                         post.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                          'bg-gray-100 text-gray-800'
+                        }`}>
                         {post.status === 'in_progress' ? 'In Progress' : post.status.charAt(0).toUpperCase() + post.status.slice(1)}
                       </span>
                     </div>
@@ -948,7 +968,7 @@ export default function Dashboard() {
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span>👁 {post.viewCount || 0} views</span>
                       <span>💬 {post.replyCount || 0} replies</span>
-                      <button 
+                      <button
                         onClick={() => setSelectedPost(post)}
                         className="text-primary-600 hover:text-primary-700 font-medium"
                       >
@@ -957,6 +977,17 @@ export default function Dashboard() {
                     </div>
                   </div>
                 ))}
+                {communityHasMore && (
+                  <div className="flex justify-center pt-8">
+                    <button
+                      onClick={loadMoreCommunity}
+                      disabled={communityLoading}
+                      className="px-6 py-3 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {communityLoading ? 'Loading more...' : 'Load More Posts'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -964,45 +995,7 @@ export default function Dashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h5 className="font-semibold mb-4">About DFN</h5>
-              <p className="text-sm text-gray-600">
-                Connecting the digital fabrication ecosystem to accelerate innovation.
-              </p>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">For Explorers</h5>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="#">Find Components & Parts</Link></li>
-                <li><Link href="#">Book Services</Link></li>
-                <li><Link href="#">Request Help</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">For Providers</h5>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="#">List Components & Parts</Link></li>
-                <li><Link href="#">Offer Services</Link></li>
-                <li><Link href="#">Manage Orders</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-4">Support</h5>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="#">Help Center</Link></li>
-                <li><Link href="#">Contact Us</Link></li>
-                <li><Link href="#">Terms of Service</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-gray-600">
-            © 2026 Digital Fabrication Network. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Modals */}
       {selectedComponent && (
@@ -1020,7 +1013,7 @@ export default function Dashboard() {
           }}
         />
       )}
-      
+
       {/* Provider Upgrade Modal */}
       {showProviderUpgradeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1040,8 +1033,8 @@ export default function Dashboard() {
             </p>
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
               <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Provider account upgrades require manual verification by our admin team. 
-                You can access the provider dashboard to prepare your listings, but they won&apos;t be publicly visible 
+                <strong>Note:</strong> Provider account upgrades require manual verification by our admin team.
+                You can access the provider dashboard to prepare your listings, but they won&apos;t be publicly visible
                 until your account is upgraded.
               </p>
             </div>
@@ -1062,7 +1055,7 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      
+
       {/* Create Post Modal */}
       {showCreatePostModal && (
         <CreatePostModal
@@ -1073,12 +1066,17 @@ export default function Dashboard() {
           }}
         />
       )}
-      
+
       {/* View Discussion Modal */}
       {selectedPost && (
         <ViewDiscussionModal
           post={selectedPost}
-          onClose={() => setSelectedPost(null)}
+          onClose={() => {
+            setSelectedPost(null);
+            // Refresh counts - we keep the current page but refresh everything up to it
+            // Simple approach: refresh everything for now
+            fetchCommunityPosts(true);
+          }}
         />
       )}
     </div>

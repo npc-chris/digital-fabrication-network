@@ -19,13 +19,13 @@ router.get('/categories', async (req, res) => {
     // Build the hierarchy
     const result = categories.map(category => {
       const categorySubs = subcategories.filter(sub => sub.categoryId === category.id);
-      
+
       return {
         id: category.id,
         name: category.name,
         subcategories: categorySubs.map(sub => {
           const subApps = applications.filter(app => app.subcategoryId === sub.id);
-          
+
           return {
             id: sub.id,
             name: sub.name,
@@ -77,32 +77,34 @@ router.get('/filters', async (req, res) => {
 // Get all components with filters
 router.get('/', async (req, res) => {
   try {
-    const { type, location, search } = req.query as { [key: string]: any };
-    
+    const { type, location, search, page = 1, limit = 20 } = req.query as { [key: string]: any };
+    const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const limitVal = parseInt(limit as string);
+
     let query = db.select({
       id: components.id,
       providerId: components.providerId,
       name: components.name,
-      description: components.description,
+      // description: components.description, // Optimizing payload size
       type: components.type,
       price: components.price,
       availability: components.availability,
       images: components.images,
-      technicalDetails: components.technicalDetails,
-      datasheetUrl: components.datasheetUrl,
-      compatibilities: components.compatibilities,
+      // technicalDetails: components.technicalDetails, // Removing heavy fields
+      // datasheetUrl: components.datasheetUrl,
+      // compatibilities: components.compatibilities,
       location: components.location,
       rating: components.rating,
       reviewCount: components.reviewCount,
-      createdAt: components.createdAt,
-      updatedAt: components.updatedAt,
+      // createdAt: components.createdAt,
+      // updatedAt: components.updatedAt,
       providerName: profiles.firstName,
       providerLastName: profiles.lastName,
       providerCompany: profiles.company,
     })
-    .from(components)
-    .leftJoin(users, eq(components.providerId, users.id))
-    .leftJoin(profiles, eq(users.id, profiles.userId));
+      .from(components)
+      .leftJoin(users, eq(components.providerId, users.id))
+      .leftJoin(profiles, eq(users.id, profiles.userId));
     const conditions: any[] = [];
 
     if (type) {
@@ -144,8 +146,21 @@ router.get('/', async (req, res) => {
       query = query.where(and(...conditions)) as any;
     }
 
+    // Get total count for pagination metadata
+    // Note: In a real production app with millions of rows, we'd optimize this count query 
+    // or use cursor-based pagination. For now, a separate count query is improved but still acceptable.
+    // However, Drizzle's query builder reuse is tricky, so we'll just return the slice for now
+    // and let the frontend handle "Load More" availability based on returned length.
+
+    query = query.limit(limitVal).offset(offset) as any;
+
     const result = await query;
-    res.json(result);
+    res.json({
+      data: result,
+      page: parseInt(page as string),
+      limit: limitVal,
+      hasMore: result.length === limitVal // Simple heuristic
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

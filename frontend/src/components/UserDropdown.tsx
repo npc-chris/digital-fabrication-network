@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Settings, ShoppingCart, LogOut, ChevronDown } from 'lucide-react';
+import { User, Settings, ShoppingCart, LogOut, ChevronDown, FolderOpen, Package, ShieldCheck, GraduationCap } from 'lucide-react';
 import api from '@/lib/api';
 import LogoutConfirmModal from './LogoutConfirmModal';
 
@@ -44,18 +44,14 @@ export default function UserDropdown({ user }: UserDropdownProps) {
   const handleLogoutConfirm = async () => {
     setLoggingOut(true);
     try {
-      // Call logout API (optional, for tracking)
       await api.post('/api/auth/logout').catch((err) => {
-        // Logout API failure is not critical - proceed with local logout
         console.debug('Logout API call failed (non-critical):', err.message);
       });
     } finally {
-      // Clear local storage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setLoggingOut(false);
       setShowLogoutModal(false);
-      // Redirect to home
       router.push('/');
     }
   };
@@ -101,39 +97,58 @@ export default function UserDropdown({ user }: UserDropdownProps) {
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+          <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
             {/* User info header */}
             <div className="px-4 py-3 border-b border-gray-100">
               <p className="text-sm font-medium text-gray-900">{getDisplayName()}</p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
               {user.role && (
-                <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
-                  user.role === 'provider' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                }`}>
+                <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${user.role === 'provider' ? 'bg-green-100 text-green-700' :
+                    user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+                      'bg-blue-100 text-blue-700'
+                  }`}>
                   {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </span>
               )}
             </div>
 
-            {/* Menu items */}
+            {/* Core menu items */}
             <div className="py-1">
-              <Link
-                href="/settings"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                <Settings className="w-4 h-4 mr-3 text-gray-500" />
-                Settings
+              <Link href="/projects" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <FolderOpen className="w-4 h-4 mr-3 text-gray-500" />
+                My Projects
               </Link>
-              <Link
-                href="/cart"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
+              <Link href="/cart" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <ShoppingCart className="w-4 h-4 mr-3 text-gray-500" />
                 Cart
               </Link>
+              <Link href="/mentorship/requests" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <GraduationCap className="w-4 h-4 mr-3 text-gray-500" />
+                Mentorships
+              </Link>
+              <Link href="/settings" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <Settings className="w-4 h-4 mr-3 text-gray-500" />
+                Settings
+              </Link>
             </div>
+
+            {/* Provider/Admin links */}
+            {(user.role === 'provider' || user.role === 'admin') && (
+              <div className="border-t border-gray-100 py-1">
+                <Link href="/dashboard/provider" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <Package className="w-4 h-4 mr-3 text-gray-500" />
+                  Provider Dashboard
+                </Link>
+              </div>
+            )}
+            {user.role === 'admin' && (
+              <div className="border-t border-gray-100 py-1">
+                <Link href="/admin" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">
+                  <ShieldCheck className="w-4 h-4 mr-3" />
+                  Admin Panel
+                </Link>
+              </div>
+            )}
 
             {/* Logout */}
             <div className="border-t border-gray-100 py-1">

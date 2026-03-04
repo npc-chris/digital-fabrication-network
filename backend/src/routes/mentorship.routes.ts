@@ -50,8 +50,7 @@ router.get('/', async (req, res) => {
 // Get available mentors
 router.get('/mentors', async (req, res) => {
   try {
-    // const { area } = req.query as any;
-
+    const { area } = req.query as any;
     const conditions = [eq(profiles.isMentor, true)];
 
     const mentors = await db
@@ -67,7 +66,17 @@ router.get('/mentors', async (req, res) => {
       .where(and(...conditions))
       .orderBy(desc(profiles.rating));
 
-    res.json(mentors);
+    // Filter by area in-memory if provided (since mentorshipAreas is a JSON string)
+    const filteredMentors = area
+      ? mentors.filter(m => {
+        try {
+          const areas = JSON.parse(m.profile.mentorshipAreas || '[]');
+          return areas.some((a: string) => a.toLowerCase().includes(area.toLowerCase()));
+        } catch (e) { return false; }
+      })
+      : mentors;
+
+    res.json(filteredMentors);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -274,6 +283,67 @@ router.post('/register-mentor', authenticate, async (req: any, res: Response) =>
       .returning();
 
     res.json(updated);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get mentor dashboard stats
+router.get('/dashboard/stats', authenticate, async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+
+    // Check if user is a mentor
+    const [profile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.userId, userId));
+
+    if (!profile || !profile.isMentor) {
+      return res.status(403).json({ error: 'User is not a mentor' });
+    }
+
+    const requests = await db
+      .select()
+      .from(mentorshipRequests)
+      .where(eq(mentorshipRequests.mentorId, userId));
+
+    const stats = {
+      totalMentees: new Set(requests.map(r => r.menteeId)).size,
+      activeSessions: requests.filter(r => r.status === 'active' || r.status === 'matched').length,
+      completedSessions: requests.filter(r => r.status === 'completed').length,
+      pendingRequests: requests.filter(r => r.status === 'open' && r.mentorId === userId).length,
+    };
+
+    res.json(stats);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get mentor's mentees
+router.get('/dashboard/mentees', authenticate, async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+
+    const mentees = await db
+      .select({
+        request: mentorshipRequests,
+        mentee: {
+          id: users.id,
+          email: users.email,
+          firstName: profiles.firstName,
+          lastName: profiles.lastName,
+          avatar: profiles.avatar,
+        }
+      })
+      .from(mentorshipRequests)
+      .innerJoin(users, eq(mentorshipRequests.menteeId, users.id))
+      .innerJoin(profiles, eq(users.id, profiles.userId))
+      .where(eq(mentorshipRequests.mentorId, userId))
+      .orderBy(desc(mentorshipRequests.createdAt));
+
+    res.json(mentees);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

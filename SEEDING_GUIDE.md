@@ -18,6 +18,7 @@ npm run migrate
 ```
 
 Or manually run the SQL migration:
+
 ```bash
 psql -d your_database_name -f drizzle/0001_add_onboarding_fields.sql
 ```
@@ -34,20 +35,22 @@ npm run seed
 The seed script creates:
 
 ### Users
+
 - **3 Explorers** (users looking for components/services)
-  - explorer1@test.com
-  - explorer2@test.com
-  - explorer3@test.com
+  - <explorer1@test.com>
+  - <explorer2@test.com>
+  - <explorer3@test.com>
 
 - **4 Providers** (sellers/service providers)
-  - provider1@test.com - TechParts Nigeria
-  - provider2@test.com - 3D Print Hub
-  - provider3@test.com - MakerSpace Pro
-  - provider4@test.com - Electronics Supply Co
+  - <provider1@test.com> - TechParts Nigeria
+  - <provider2@test.com> - 3D Print Hub
+  - <provider3@test.com> - MakerSpace Pro
+  - <provider4@test.com> - Electronics Supply Co
 
 **All test accounts use password:** `password123`
 
 ### Components & Parts (6 items)
+
 - Arduino Uno R3
 - Raspberry Pi 4 Model B
 - Servo Motor SG90
@@ -56,6 +59,7 @@ The seed script creates:
 - Jumper Wire Set
 
 ### Services (5 offerings)
+
 - FDM 3D Printing Service
 - CNC Milling Service
 - PCB Assembly Service
@@ -63,12 +67,14 @@ The seed script creates:
 - Electronics Lab Access
 
 ### Community Posts (6 posts)
+
 - Fabrication requests
 - Innovation announcements
 - Technical questions
 - Partnership opportunities
 
 ### Notifications (2 sample notifications)
+
 - New replies
 - New orders
 
@@ -80,11 +86,13 @@ After seeding:
    - Email: `explorer1@test.com`
    - Password: `password123`
    - You can browse components, services, and community posts
+   - **Note**: This user will see the "Explorer" dashboard by default.
 
 2. **Login as Provider:**
    - Email: `provider1@test.com`
    - Password: `password123`
-   - Access the provider dashboard to manage listings
+   - Access the **Provider Dashboard** button in the Navbar to manage listings
+   - Can switch back to see what Explorers see.
 
 3. **Browse without logging in:**
    - Visit `http://localhost:3000/dashboard`
@@ -117,14 +125,17 @@ npm run seed
 ## Troubleshooting
 
 **Error: "relation does not exist"**
+
 - Make sure migrations are run before seeding
 - Check database connection string in `.env`
 
 **Error: "duplicate key value"**
+
 - Database already has data
 - Either reset the database or modify seed script to handle existing data
 
 **Cannot connect to database**
+
 - Verify PostgreSQL is running
 - Check DATABASE_URL in `.env` file
 - Ensure database exists

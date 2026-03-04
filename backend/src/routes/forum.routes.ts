@@ -20,9 +20,12 @@ router.get('/categories', async (req, res) => {
   }
 });
 
-// Create forum category (admin only - TODO: add admin check)
+// Create forum category (admin only)
 router.post('/categories', authenticate, async (req: any, res: Response) => {
   try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can create categories' });
+    }
     const { name, description, icon, sortOrder } = req.body;
 
     const [category] = await db
@@ -262,7 +265,7 @@ router.post('/threads/:id/replies', authenticate, async (req: any, res: Response
         parentReplyId: parentReplyId || null,
       })
       .returning();
-    
+
     const newReply = replyResult[0];
 
     // Update thread reply count and last reply time

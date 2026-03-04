@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import { db } from '../config/database';
-import { carts, cartItems, components, affiliateStores } from '../models/schema';
+import { carts, cartItems, components, affiliateStores, groupBuyingCampaigns } from '../models/schema';
 import { authenticate } from '../middleware/auth';
 import { eq, and } from 'drizzle-orm';
 import redisClient from '../config/redis';
@@ -78,10 +78,12 @@ router.get('/', authenticate, async (req: any, res: Response) => {
         item: cartItems,
         component: components,
         affiliateStore: affiliateStores,
+        campaign: groupBuyingCampaigns,
       })
       .from(cartItems)
       .leftJoin(components, eq(cartItems.componentId, components.id))
       .leftJoin(affiliateStores, eq(cartItems.affiliateStoreId, affiliateStores.id))
+      .leftJoin(groupBuyingCampaigns, eq(cartItems.campaignId, groupBuyingCampaigns.id))
       .where(eq(cartItems.cartId, cart.id));
 
     // Group items by vendor
@@ -105,6 +107,10 @@ router.get('/', authenticate, async (req: any, res: Response) => {
         vendorKey = `affiliate_${item.affiliateStore.id}`;
         vendorName = item.affiliateStore.storeName;
         vendorType = 'affiliate';
+      } else if (item.campaign) {
+        vendorKey = `campaign_${item.campaign.id}`;
+        vendorName = 'Group Buy';
+        vendorType = 'campaign';
       } else {
         vendorKey = 'unknown';
         vendorName = 'Unknown';
@@ -153,6 +159,7 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
     const {
       componentId,
       affiliateStoreId,
+      campaignId,
       quantity,
       price,
       externalProductId,
@@ -161,9 +168,9 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
       productImage,
     } = req.body;
 
-    // Validate that either componentId or affiliateStoreId is provided
-    if (!componentId && !affiliateStoreId) {
-      return res.status(400).json({ error: 'Either componentId or affiliateStoreId is required' });
+    // Validate that at least one ID is provided
+    if (!componentId && !affiliateStoreId && !campaignId) {
+      return res.status(400).json({ error: 'Either componentId, affiliateStoreId, or campaignId is required' });
     }
 
     // Get or create cart
@@ -187,6 +194,9 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
     if (affiliateStoreId) {
       conditions.push(eq(cartItems.affiliateStoreId, affiliateStoreId));
     }
+    if (campaignId) {
+      conditions.push(eq(cartItems.campaignId, campaignId));
+    }
     if (externalProductId) {
       conditions.push(eq(cartItems.externalProductId, externalProductId));
     }
@@ -209,7 +219,7 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
 
       // Invalidate cache
       await invalidateCartCache(userId);
-      
+
       return res.json(updated);
     }
 
@@ -220,6 +230,7 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
         cartId: cart.id,
         componentId: componentId || null,
         affiliateStoreId: affiliateStoreId || null,
+        campaignId: campaignId || null,
         quantity: quantity || 1,
         price,
         externalProductId: externalProductId || null,
@@ -231,7 +242,7 @@ router.post('/items', authenticate, async (req: any, res: Response) => {
 
     // Invalidate cache
     await invalidateCartCache(userId);
-    
+
     res.status(201).json(newItem);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -271,7 +282,7 @@ router.put('/items/:itemId', authenticate, async (req: any, res: Response) => {
 
     // Invalidate cache
     await invalidateCartCache(userId);
-    
+
     res.json(updated);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -302,7 +313,7 @@ router.delete('/items/:itemId', authenticate, async (req: any, res: Response) =>
 
     // Invalidate cache
     await invalidateCartCache(userId);
-    
+
     res.json({ message: 'Item removed from cart' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -325,7 +336,7 @@ router.delete('/', authenticate, async (req: any, res: Response) => {
 
     // Invalidate cache
     await invalidateCartCache(userId);
-    
+
     res.json({ message: 'Cart cleared' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -384,7 +395,7 @@ router.post('/import-affiliate', authenticate, async (req: any, res: Response) =
 
     // Invalidate cache
     await invalidateCartCache(userId);
-    
+
     res.status(201).json({
       message: `${addedItems.length} items imported successfully`,
       items: addedItems,

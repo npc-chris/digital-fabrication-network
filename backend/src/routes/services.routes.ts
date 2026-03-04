@@ -41,31 +41,33 @@ router.get('/filters', async (req, res) => {
 // Get all services with filters
 router.get('/', async (req, res) => {
   try {
-    const { category, location, search } = req.query as { [key: string]: any };
-    
+    const { category, location, search, page = 1, limit = 20 } = req.query as { [key: string]: any };
+    const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const limitVal = parseInt(limit as string);
+
     let query = db.select({
       id: services.id,
       providerId: services.providerId,
       name: services.name,
-      description: services.description,
+      // description: services.description,
       category: services.category,
-      equipmentSpecs: services.equipmentSpecs,
+      // equipmentSpecs: services.equipmentSpecs,
       pricingModel: services.pricingModel,
       pricePerUnit: services.pricePerUnit,
-      leadTime: services.leadTime,
+      // leadTime: services.leadTime,
       images: services.images,
       location: services.location,
       rating: services.rating,
       reviewCount: services.reviewCount,
-      createdAt: services.createdAt,
-      updatedAt: services.updatedAt,
+      // createdAt: services.createdAt,
+      // updatedAt: services.updatedAt,
       providerName: profiles.firstName,
       providerLastName: profiles.lastName,
       providerCompany: profiles.company,
     })
-    .from(services)
-    .leftJoin(users, eq(services.providerId, users.id))
-    .leftJoin(profiles, eq(users.id, profiles.userId));
+      .from(services)
+      .leftJoin(users, eq(services.providerId, users.id))
+      .leftJoin(profiles, eq(users.id, profiles.userId));
     const conditions: any[] = [];
 
     if (category) {
@@ -107,8 +109,15 @@ router.get('/', async (req, res) => {
       query = query.where(and(...conditions)) as any;
     }
 
+    query = query.limit(limitVal).offset(offset) as any;
+
     const result = await query;
-    res.json(result);
+    res.json({
+      data: result,
+      page: parseInt(page as string),
+      limit: limitVal,
+      hasMore: result.length === limitVal
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

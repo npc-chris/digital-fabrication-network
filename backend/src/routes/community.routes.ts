@@ -3,16 +3,21 @@ import { Router } from 'express';
 import { db } from '../config/database';
 import { communityPosts, postReplies, users, profiles } from '../models/schema';
 import { authenticate } from '../middleware/auth';
-import { eq, like, or, desc, and } from 'drizzle-orm';
+import { eq, like, or, desc, and, sql } from 'drizzle-orm';
 
 const router = Router();
 
-// Get all community posts with filters
+// Get all community posts with filters and pagination
 router.get('/', async (req, res) => {
   try {
-    const { category, search, status } = req.query;
-    
-    let query = db.select({
+    const category = req.query.category as string;
+    const search = req.query.search as string;
+    const status = req.query.status as string;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
+
+    let baseQuery = db.select({
       id: communityPosts.id,
       authorId: communityPosts.authorId,
       title: communityPosts.title,
@@ -29,18 +34,17 @@ router.get('/', async (req, res) => {
       authorCompany: profiles.company,
       authorAvatar: profiles.avatar,
     })
-    .from(communityPosts)
-    .leftJoin(users, eq(communityPosts.authorId, users.id))
-    .leftJoin(profiles, eq(users.id, profiles.userId))
-    .orderBy(desc(communityPosts.createdAt));
+      .from(communityPosts)
+      .leftJoin(users, eq(communityPosts.authorId, users.id))
+      .leftJoin(profiles, eq(users.id, profiles.userId));
 
     const conditions = [];
 
     if (category && category !== 'all') {
-      conditions.push(eq(communityPosts.category, category as string));
+      conditions.push(eq(communityPosts.category, category));
     }
     if (status && status !== 'all') {
-      conditions.push(eq(communityPosts.status, status as string));
+      conditions.push(eq(communityPosts.status, status));
     }
     if (search) {
       conditions.push(
@@ -52,27 +56,43 @@ router.get('/', async (req, res) => {
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
+      baseQuery = baseQuery.where(and(...conditions)) as any;
     }
 
-    const posts = await query;
+    // Clone query for count
+    const totalQuery = db.select({ count: sql<number>`count(*)` })
+      .from(communityPosts)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const [{ count: total }] = await totalQuery;
+
+    const posts = await baseQuery
+      .orderBy(desc(communityPosts.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     // Get reply counts for each post
     const postsWithCounts = await Promise.all(
       posts.map(async (post) => {
         const replies = await db
-          .select()
+          .select({ count: sql<number>`count(*)` })
           .from(postReplies)
           .where(eq(postReplies.postId, post.id));
-        
+
         return {
           ...post,
-          replyCount: replies.length,
+          replyCount: replies[0]?.count || 0,
         };
       })
     );
 
-    res.json(postsWithCounts);
+    res.json({
+      data: postsWithCounts,
+      page,
+      limit,
+      total: Number(total),
+      hasMore: total > page * limit
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -83,7 +103,7 @@ router.get('/:id', async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
     const incrementView = req.query.incrementView !== 'false'; // Default to true for backwards compat
-    
+
     // Get post with author info
     const [post] = await db.select({
       id: communityPosts.id,
@@ -102,11 +122,11 @@ router.get('/:id', async (req, res) => {
       authorCompany: profiles.company,
       authorAvatar: profiles.avatar,
     })
-    .from(communityPosts)
-    .leftJoin(users, eq(communityPosts.authorId, users.id))
-    .leftJoin(profiles, eq(users.id, profiles.userId))
-    .where(eq(communityPosts.id, postId));
-    
+      .from(communityPosts)
+      .leftJoin(users, eq(communityPosts.authorId, users.id))
+      .leftJoin(profiles, eq(users.id, profiles.userId))
+      .where(eq(communityPosts.id, postId));
+
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -123,23 +143,23 @@ router.get('/:id', async (req, res) => {
       userLastName: profiles.lastName,
       userAvatar: profiles.avatar,
     })
-    .from(postReplies)
-    .leftJoin(users, eq(postReplies.userId, users.id))
-    .leftJoin(profiles, eq(users.id, profiles.userId))
-    .where(eq(postReplies.postId, postId));
+      .from(postReplies)
+      .leftJoin(users, eq(postReplies.userId, users.id))
+      .leftJoin(profiles, eq(users.id, profiles.userId))
+      .where(eq(postReplies.postId, postId));
 
     // Format replies to include full user name
     const replies = repliesRaw.map(reply => ({
       ...reply,
-      userName: reply.userName && reply.userLastName 
+      userName: reply.userName && reply.userLastName
         ? `${reply.userName} ${reply.userLastName}`
         : reply.userName || `User #${reply.userId}`,
     }));
-    
+
     // Only increment view count if explicitly requested (prevents double counting)
     if (incrementView) {
       await db.update(communityPosts)
-        .set({ viewCount: (post.viewCount || 0) + 1 })
+        .set({ viewCount: sql`${communityPosts.viewCount} + 1` })
         .where(eq(communityPosts.id, postId));
     }
 
@@ -167,30 +187,30 @@ router.post('/:id/replies', authenticate, async (req: Request, res) => {
   try {
     const postId = parseInt(req.params.id);
     const userId = ((req as any).user).id;
-    
+
     const [reply] = await db.insert(postReplies).values({
       postId,
       userId,
       content: req.body.content,
     }).returning();
-    
+
     // Fetch user info to return with the reply
     const [userProfile] = await db.select({
       firstName: profiles.firstName,
       lastName: profiles.lastName,
       avatar: profiles.avatar,
     })
-    .from(profiles)
-    .where(eq(profiles.userId, userId));
-    
+      .from(profiles)
+      .where(eq(profiles.userId, userId));
+
     const replyWithUser = {
       ...reply,
-      userName: userProfile 
+      userName: userProfile
         ? `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || `User #${userId}`
         : `User #${userId}`,
       userAvatar: userProfile?.avatar || null,
     };
-    
+
     res.status(201).json(replyWithUser);
   } catch (error: any) {
     res.status(400).json({ error: error.message });

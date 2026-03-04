@@ -75,7 +75,19 @@ By default, the app uses local storage (`USE_S3=false`). To use AWS S3:
 
 **Variables:**
 - `USE_S3=true`
-- `AWS_REGION` (e.g., `us-east-1`)
+- `AWS_REGION` (e.g., `us-east-1` or `nyc3`)
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_S3_BUCKET`
+- `AWS_ENDPOINT` (Optional: e.g. `https://nyc3.digitaloceanspaces.com` or `http://localhost:9000`)
+- `AWS_FORCE_PATH_STYLE` (Optional: Set to `true` for providers like MinIO)
+
+### DigitalOcean Spaces Example
+- AWS_REGION=nyc3
+- AWS_ENDPOINT=https://nyc3.digitaloceanspaces.com
+- AWS_FORCE_PATH_STYLE=false
+
+### MinIO Example
+- AWS_ENDPOINT=http://localhost:9000
+- AWS_FORCE_PATH_STYLE=true
+

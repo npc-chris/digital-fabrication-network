@@ -3,6 +3,7 @@ import { db } from '../config/database';
 import { quotes, services, notifications } from '../models/schema';
 import { eq, and, or, desc } from 'drizzle-orm';
 import { authenticate } from '../middleware/auth';
+import { FinOpsService } from '../services/finops.service';
 
 const router = Router();
 
@@ -159,7 +160,14 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
     }
 
     const updateData: any = { updatedAt: new Date() };
-    if (estimatedPrice !== undefined) updateData.estimatedPrice = estimatedPrice;
+    if (estimatedPrice !== undefined) {
+      updateData.estimatedPrice = estimatedPrice;
+      // If score is already present, calculate buffer
+      if (quote.buildabilityScore !== null) {
+        const buffer = FinOpsService.calculateRiskBuffer(quote.buildabilityScore, parseFloat(estimatedPrice));
+        updateData.riskBuffer = buffer.toString();
+      }
+    }
     if (estimatedDuration !== undefined) updateData.estimatedDuration = estimatedDuration;
     if (notes !== undefined) updateData.notes = notes;
     if (status !== undefined) updateData.status = status;

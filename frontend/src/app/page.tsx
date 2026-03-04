@@ -49,14 +49,14 @@ export default function LandingPage() {
               </div>
             </Link>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link 
-                href="/auth/login" 
+              <Link
+                href="/auth/login"
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
               >
                 Sign In
               </Link>
-              <Link 
-                href="/auth/register" 
+              <Link
+                href="/auth/register"
                 className="px-4 sm:px-6 py-2 text-sm font-medium bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 shadow-md hover:shadow-lg transition-all"
               >
                 Get Started
@@ -84,21 +84,21 @@ export default function LandingPage() {
               The premier platform connecting workshops, fabrication plants, component providers, and product designers to accelerate hardware innovation.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
-              <Link 
-                href="/auth/register" 
+              <Link
+                href="/auth/register"
                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-lg hover:from-primary-700 hover:to-primary-800 shadow-xl hover:shadow-2xl transition-all flex items-center justify-center group"
               >
                 Start Building Today
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link 
-                href="/about" 
+              <Link
+                href="/about"
                 className="w-full sm:w-auto px-8 py-4 bg-white text-gray-900 font-semibold rounded-lg border-2 border-gray-200 hover:border-primary-600 hover:text-primary-600 shadow-md hover:shadow-lg transition-all"
               >
                 Learn More
               </Link>
             </div>
-            
+
             {/* Trust Indicators */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t border-gray-200">
               <div className="text-center">
@@ -255,8 +255,8 @@ export default function LandingPage() {
           <p className="text-xl mb-10 text-primary-100 leading-relaxed">
             Join thousands of makers, engineers, and fabrication professionals accelerating hardware innovation worldwide.
           </p>
-          <Link 
-            href="/auth/register" 
+          <Link
+            href="/auth/register"
             className="inline-flex items-center px-10 py-5 bg-white text-primary-600 font-bold rounded-xl hover:bg-gray-100 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all text-lg group"
           >
             Create Your Free Account
@@ -282,24 +282,30 @@ export default function LandingPage() {
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4 text-lg">Product</h4>
+              <h4 className="text-white font-semibold mb-4 text-lg">Platform</h4>
               <ul className="space-y-3 text-sm">
+                <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
+                <li><Link href="/projects" className="hover:text-white transition-colors">Projects Hub</Link></li>
+                <li><Link href="/forum" className="hover:text-white transition-colors">Community Forum</Link></li>
+                <li><Link href="/mentorship" className="hover:text-white transition-colors">Mentorship</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4 text-lg">Services</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link href="/group-buying" className="hover:text-white transition-colors">Group Buying</Link></li>
+                <li><Link href="/affiliates" className="hover:text-white transition-colors">Partner Store</Link></li>
                 <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
                 <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4 text-lg">Resources</h4>
+              <h4 className="text-white font-semibold mb-4 text-lg">Account</h4>
               <ul className="space-y-3 text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Support</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4 text-lg">Legal</h4>
-              <ul className="space-y-3 text-sm">
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/auth/register" className="hover:text-white transition-colors">Create Account</Link></li>
+                <li><Link href="/auth/login" className="hover:text-white transition-colors">Sign In</Link></li>
+                <li><Link href="/settings" className="hover:text-white transition-colors">Settings</Link></li>
+                <li><Link href="/cart" className="hover:text-white transition-colors">My Cart</Link></li>
               </ul>
             </div>
           </div>

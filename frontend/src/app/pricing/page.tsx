@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function PricingPage() {
   const plans = [
@@ -62,7 +63,7 @@ export default function PricingPage() {
       <header className="bg-white shadow-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/landing" className="flex items-center">
+            <Link href="/" className="flex items-center">
               <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
               <span className="ml-2 text-sm text-gray-600 hidden sm:block">Digital Fabrication Network</span>
             </Link>
@@ -77,6 +78,10 @@ export default function PricingPage() {
           </div>
         </nav>
       </header>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero */}
       <section className="py-16 bg-white">

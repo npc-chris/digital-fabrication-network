@@ -1,37 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { Users, Target, Zap } from 'lucide-react';
+import { Users, Target, Zap, ShieldCheck, Award, Globe, Cpu } from 'lucide-react';
+
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/landing" className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
-              <span className="ml-2 text-sm text-gray-600 hidden sm:block">Digital Fabrication Network</span>
-            </Link>
-            <div className="flex space-x-4">
-              <Link href="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-                Sign In
-              </Link>
-              <Link href="/auth/register" className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </header>
+      <Navbar />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero */}
       <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-5xl font-bold mb-6">About Digital Fabrication Network</h2>
           <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            We&apos;re on a mission to democratize hardware innovation by connecting makers, workshops, and fabrication professionals worldwide.
+            We&apos;re on a mission to democratize hardware innovation by connecting makers, workshops, and fabrication professionals across Africa.
           </p>
         </div>
       </section>
@@ -88,7 +78,7 @@ export default function AboutPage() {
               We knew there had to be a better way. That&apos;s why we built DFN—a unified platform where hardware innovators can find everything they need in one place, from the smallest resistor to the most advanced fabrication services.
             </p>
             <p className="text-gray-600">
-              Today, DFN serves thousands of users worldwide, enabling faster prototyping, efficient production, and seamless collaboration in the hardware innovation ecosystem.
+              Today, DFN serves a growing community across Africa, enabling faster prototyping, efficient production, and seamless collaboration in the hardware innovation ecosystem.
             </p>
           </div>
         </div>
@@ -127,12 +117,54 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Explore the Platform */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl font-bold text-center mb-4">Explore the Platform</h2>
+          <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+            DFN brings together everything you need for hardware innovation. Here&apos;s what you can do:
+          </p>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Link href="/dashboard" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+              <Cpu className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-bold mb-2">Components & Services</h3>
+              <p className="text-gray-600 text-sm">Browse, compare, and order fabrication components, parts, and professional services.</p>
+            </Link>
+            <Link href="/projects" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+              <Award className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-bold mb-2">Open Hardware Hub</h3>
+              <p className="text-gray-600 text-sm">Discover open-source hardware projects, share your own builds, and collaborate with other makers.</p>
+            </Link>
+            <Link href="/mentorship" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+              <Users className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-bold mb-2">Mentorship Network</h3>
+              <p className="text-gray-600 text-sm">Connect with verified fabrication experts for guidance on specific hardware challenges.</p>
+            </Link>
+            <Link href="/group-buying" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+              <Globe className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-bold mb-2">Group Buying</h3>
+              <p className="text-gray-600 text-sm">Pool orders with other makers to unlock bulk pricing on premium components and materials.</p>
+            </Link>
+            <Link href="/forum" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+              <ShieldCheck className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-bold mb-2">Community Forum</h3>
+              <p className="text-gray-600 text-sm">Ask questions, share knowledge, and collaborate in topic-based discussion channels.</p>
+            </Link>
+            <Link href="/affiliates" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+              <Target className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-lg font-bold mb-2">Partner Store</h3>
+              <p className="text-gray-600 text-sm">Curated deals on tools, components, and materials from our verified manufacturing partners.</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 bg-primary-600 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">Join Us in Building the Future</h2>
           <p className="text-xl mb-8 text-primary-100">
-            Be part of a global community accelerating hardware innovation.
+            Be part of a growing community accelerating hardware innovation across Africa.
           </p>
           <Link href="/auth/register" className="inline-block px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100">
             Get Started Today
@@ -140,12 +172,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">&copy; 2026 Digital Fabrication Network. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
