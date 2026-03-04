@@ -26,7 +26,6 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'application/zip',
       'application/x-zip-compressed',
-      'application/octet-stream', // Common for many hardware formats
     ];
 
     // Hardware extensions to explicitly allow regardless of MIME type
