@@ -70,7 +70,7 @@ npm run dev
 
 ## Commit Message Guidelines
 
-This project follows [Conventional Commits](https://www.conventionalcommits.org/). All commit messages are enforced via [commitlint](https://commitlint.js.org/) in the pre-commit hook.
+This project follows [Conventional Commits](https://www.conventionalcommits.org/). All commit messages are enforced via [commitlint](https://commitlint.js.org/) using a Husky `commit-msg` hook.
 
 ### Format
 
