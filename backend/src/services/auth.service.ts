@@ -5,22 +5,33 @@ import { users, profiles } from '../models/schema';
 import { eq } from 'drizzle-orm';
 
 export class AuthService {
-  async register(email: string, password: string, role: string = 'buyer') {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    const [user] = await db.insert(users).values({
-      email,
-      password: hashedPassword,
-      role: role as any,
-    }).returning();
+  async register(email: string, password: string, role: string = 'explorer') {
+    try {
+      // Check if user already exists
+      const existingUser = await db.select().from(users).where(eq(users.email, email));
+      if (existingUser.length > 0) {
+        throw new Error('Email already registered');
+      }
 
-    // Create profile
-    await db.insert(profiles).values({
-      userId: user.id,
-    });
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const [user] = await db.insert(users).values({
+        email,
+        password: hashedPassword,
+        role: role as any,
+      }).returning();
 
-    const token = this.generateToken(user);
-    return { user, token };
+      // Create profile
+      await db.insert(profiles).values({
+        userId: user.id,
+      });
+
+      const token = this.generateToken(user);
+      return { user, token };
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
   }
 
   async login(email: string, password: string) {

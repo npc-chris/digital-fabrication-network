@@ -1,7 +1,7 @@
 # Digital Fabrication Network - Implementation Summary
 
 ## Overview
-Successfully implemented a complete full-stack Digital Fabrication Network MVP application from scratch. The platform connects workshops, fabrication plants, research centres, component sellers/resellers, and product designers/contractors to accelerate hardware/engineering product development.
+Successfully implemented a complete full-stack Digital Fabrication Network MVP application from scratch. The platform connects workshops, fabrication plants, research centres, component providers/reproviders, and product designers/contractors to accelerate hardware/engineering product development.
 
 ## Implementation Status: ✅ COMPLETE
 
@@ -16,7 +16,7 @@ Successfully implemented a complete full-stack Digital Fabrication Network MVP a
 
 #### 2. Backend API (Express + TypeScript)
 **Database Schema (Drizzle ORM + PostgreSQL)**
-- Users table with role-based access (buyer, seller, service_provider, researcher)
+- Users table with role-based access (explorer, provider, provider, explorer)
 - Profiles table for extended user information
 - Components table for marketplace listings
 - Services table for fabrication service offerings
@@ -31,7 +31,7 @@ Successfully implemented a complete full-stack Digital Fabrication Network MVP a
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User authentication
 - `GET /api/components` - List components with filters
-- `POST /api/components` - Create component (sellers only)
+- `POST /api/components` - Create component (providers only)
 - `GET /api/services` - List services with filters
 - `POST /api/services` - Create service (service providers only)
 - `POST /api/orders` - Place order

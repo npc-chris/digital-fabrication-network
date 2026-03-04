@@ -1,7 +1,12 @@
+import dotenv from 'dotenv';
+
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
 import express from 'express';
 import { createServer } from 'http';
+import path from 'path';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import passport from './config/passport';
 import { initializeWebSocket } from './config/websocket';
 import authRoutes from './routes/auth.routes';
@@ -15,22 +20,39 @@ import searchRoutes from './routes/search.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import quotesRoutes from './routes/quotes.routes';
 import uploadRoutes from './routes/upload.routes';
+import profilesRoutes from './routes/profiles.routes';
+import providerRoutes from './routes/provider.routes';
+// New strategic feature routes
+import projectsRoutes from './routes/projects.routes';
+import cartRoutes from './routes/cart.routes';
+import affiliatesRoutes from './routes/affiliates.routes';
+import forumRoutes from './routes/forum.routes';
+import mentorshipRoutes from './routes/mentorship.routes';
+import groupbuyingRoutes from './routes/groupbuying.routes';
+import verificationRoutes from './routes/verification.routes';
+import adminRoutes from './routes/admin.routes';
+import emailVerificationRoutes from './routes/email-verification.routes';
+import paymentRoutes from './routes/payment.routes';
+import logisticsRoutes from './routes/logistics.routes';
 import { connectRedis } from './config/redis';
-
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 4000;
 
 // Initialize WebSocket
-initializeWebSocket(httpServer);
+const io = initializeWebSocket(httpServer);
+app.set('io', io);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+
+// Serve static files from uploads directory
+const uploadsDir = process.env.LOCAL_UPLOAD_DIR || path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsDir));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -39,6 +61,7 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/profiles', profilesRoutes);
 app.use('/api/components', componentsRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/orders', ordersRoutes);
@@ -49,6 +72,19 @@ app.use('/api/search', searchRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/upload', uploadRoutes);
+// New strategic feature routes
+app.use('/api/projects', projectsRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/affiliates', affiliatesRoutes);
+app.use('/api/forum', forumRoutes);
+app.use('/api/mentorship', mentorshipRoutes);
+app.use('/api/group-buying', groupbuyingRoutes);
+app.use('/api/verification', verificationRoutes);
+app.use('/api/providers', providerRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/email-verification', emailVerificationRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/logistics', logisticsRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

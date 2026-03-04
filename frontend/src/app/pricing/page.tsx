@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function PricingPage() {
   const plans = [
@@ -11,7 +12,7 @@ export default function PricingPage() {
       period: 'forever',
       description: 'Perfect for getting started',
       features: [
-        'Browse components marketplace',
+        'Browse components & parts marketplace',
         'View service providers',
         'Access community board',
         'Basic search functionality',
@@ -27,7 +28,7 @@ export default function PricingPage() {
       description: 'For active makers and designers',
       features: [
         'All Free features',
-        'Post unlimited components',
+        'Post unlimited components & parts',
         'Offer services',
         'Advanced search & filters',
         'Unlimited saved items',
@@ -62,7 +63,7 @@ export default function PricingPage() {
       <header className="bg-white shadow-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/landing" className="flex items-center">
+            <Link href="/" className="flex items-center">
               <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
               <span className="ml-2 text-sm text-gray-600 hidden sm:block">Digital Fabrication Network</span>
             </Link>
@@ -77,6 +78,10 @@ export default function PricingPage() {
           </div>
         </nav>
       </header>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs />
+      </div>
 
       {/* Hero */}
       <section className="py-16 bg-white">
@@ -103,7 +108,7 @@ export default function PricingPage() {
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start">
                   <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>Browse components & services</span>
+                  <span>Browse components & parts & services</span>
                 </li>
                 <li className="flex items-start">
                   <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -218,7 +223,7 @@ export default function PricingPage() {
           <div className="bg-gray-50 rounded-lg p-8">
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-xl font-semibold mb-4">For Buyers</h3>
+                <h3 className="text-xl font-semibold mb-4">For explorers</h3>
                 <ul className="space-y-3">
                   <li className="flex justify-between">
                     <span>Component Orders</span>
@@ -235,7 +240,7 @@ export default function PricingPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-4">For Sellers & Providers</h3>
+                <h3 className="text-xl font-semibold mb-4">For service providers & Sellers</h3>
                 <ul className="space-y-3">
                   <li className="flex justify-between">
                     <span>Component Sales</span>
@@ -284,7 +289,7 @@ export default function PricingPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm">&copy; 2024 Digital Fabrication Network. All rights reserved.</p>
+          <p className="text-sm">&copy; 2026 Digital Fabrication Network. All rights reserved.</p>
         </div>
       </footer>
     </div>

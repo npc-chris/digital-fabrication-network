@@ -1,10 +1,21 @@
 # Digital Fabrication Network
 
-A full-stack platform connecting workshops, fabrication plants, research centres, component sellers/resellers, and product designers/contractors to accelerate hardware/engineering product development and innovation.
+## Status
+![Status](https://img.shields.io/badge/Status-Beta_Audit_Passed-success)
+![Version](https://img.shields.io/badge/Version-1.0.0--pre-blue)
+
+A full-stack platform connecting workshops, fabrication plants, research centres, component providers/reproviders, and product designers/contractors to accelerate hardware/engineering product development and innovation.
+
+## 🚀 Pre-Production Audit (Feb 2026)
+This project has passed the pre-production audit.
+- **Role-Based Dashboards**: Intelligent navigation for Explorers, Providers, and Admins.
+- **Search & Discovery**: Local-first component and service search.
+- **Community**: Validated specific discussion board features.
 
 ## Features
 
 ### 🔧 Components & Parts Marketplace
+
 - Browse and purchase components, raw materials, and custom parts
 - Filter by type (electrical, mechanical, materials, consumables)
 - View detailed technical specifications and datasheets
@@ -12,6 +23,7 @@ A full-stack platform connecting workshops, fabrication plants, research centres
 - Wishlist/favorites functionality
 
 ### ⚙️ Services & Fabrication
+
 - Discover design labs, workshops, and fabrication services
 - Book services (3D printing, CNC machining, PCB assembly, etc.)
 - View equipment specifications and pricing models
@@ -19,6 +31,7 @@ A full-stack platform connecting workshops, fabrication plants, research centres
 - Service provider dashboard for managing bookings
 
 ### 👥 Community & Innovation Board
+
 - Post fabrication requests and engineering challenges
 - Collaborate on projects and form teams
 - Direct messaging between users
@@ -28,6 +41,7 @@ A full-stack platform connecting workshops, fabrication plants, research centres
 ## Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
@@ -36,6 +50,7 @@ A full-stack platform connecting workshops, fabrication plants, research centres
 - **Icons**: Lucide React
 
 ### Backend
+
 - **Runtime**: Node.js
 - **Framework**: Express
 - **Language**: TypeScript
@@ -73,6 +88,7 @@ digital-fabrication-network/
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - PostgreSQL 14+
 - Redis (optional, for caching)
@@ -80,26 +96,30 @@ digital-fabrication-network/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd digital-fabrication-network
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
-   
+
    Backend (.env):
+
    ```bash
    cd backend
    cp .env.example .env
    # Edit .env with your database and API credentials
    ```
-   
+
    Frontend (.env.local):
+
    ```bash
    cd frontend
    cp .env.example .env.local
@@ -107,19 +127,22 @@ digital-fabrication-network/
    ```
 
 4. **Set up the database**
+
    ```bash
    cd backend
    npm run migrate
    ```
 
 5. **Run the development servers**
-   
+
    From the root directory:
+
    ```bash
    npm run dev
    ```
-   
+
    Or run separately:
+
    ```bash
    # Terminal 1 - Backend
    npm run dev:backend
@@ -129,24 +152,27 @@ digital-fabrication-network/
    ```
 
 6. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:4000
-   - API Health Check: http://localhost:4000/health
+   - Frontend: <http://localhost:3000>
+   - Backend API: <http://localhost:4000>
+   - API Health Check: <http://localhost:4000/health>
 
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 
 ### Components
+
 - `GET /api/components` - List all components (with filters)
 - `GET /api/components/:id` - Get component details
-- `POST /api/components` - Create component (sellers only)
+- `POST /api/components` - Create component (providers only)
 - `PUT /api/components/:id` - Update component
 - `DELETE /api/components/:id` - Delete component
 
 ### Services
+
 - `GET /api/services` - List all services (with filters)
 - `GET /api/services/:id` - Get service details
 - `POST /api/services` - Create service (service providers only)
@@ -154,16 +180,19 @@ digital-fabrication-network/
 - `DELETE /api/services/:id` - Delete service
 
 ### Orders
+
 - `GET /api/orders` - Get user orders
 - `POST /api/orders` - Create order
 - `PATCH /api/orders/:id/status` - Update order status
 
 ### Bookings
+
 - `GET /api/bookings` - Get user bookings
 - `POST /api/bookings` - Create booking
 - `PATCH /api/bookings/:id/status` - Update booking status
 
 ### Community
+
 - `GET /api/community` - List community posts (with filters)
 - `GET /api/community/:id` - Get post with replies
 - `POST /api/community` - Create post
@@ -171,6 +200,7 @@ digital-fabrication-network/
 - `PATCH /api/community/:id/status` - Update post status
 
 ### Wishlist
+
 - `GET /api/wishlist` - Get user wishlist
 - `POST /api/wishlist` - Add to wishlist
 - `DELETE /api/wishlist/:id` - Remove from wishlist
@@ -178,7 +208,8 @@ digital-fabrication-network/
 ## Database Schema
 
 ### Core Entities
-- **Users**: User accounts with roles (buyer, seller, service_provider, researcher)
+
+- **Users**: User accounts with roles (explorer, provider, provider, explorer)
 - **Profiles**: Extended user profile information
 - **Components**: Marketplace listings for parts and materials
 - **Services**: Service offerings from providers
@@ -193,21 +224,25 @@ digital-fabrication-network/
 ## Development
 
 ### Running Tests
+
 ```bash
 npm run test
 ```
 
 ### Linting
+
 ```bash
 npm run lint
 ```
 
 ### Formatting
+
 ```bash
 npm run format
 ```
 
 ### Building for Production
+
 ```bash
 npm run build
 ```
@@ -215,11 +250,13 @@ npm run build
 ## Deployment
 
 ### Frontend (Vercel)
+
 1. Connect your repository to Vercel
 2. Set environment variables
 3. Deploy automatically on push to main
 
 ### Backend (Railway)
+
 1. Connect your repository to Railway
 2. Set environment variables
 3. Deploy automatically on push to main
@@ -238,4 +275,4 @@ This project is licensed under the MIT License.
 
 ## Support
 
-For support, email support@digitalfabricationnetwork.com or open an issue in the repository.
+For support, email <support@digitalfabricationnetwork.com> or open an issue in the repository.
