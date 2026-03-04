@@ -13,7 +13,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Allow images, PDFs, and common document types
+    // Standard MIME types
     const allowedMimes = [
       'image/jpeg',
       'image/png',
@@ -24,12 +24,22 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/zip',
+      'application/x-zip-compressed',
     ];
 
-    if (allowedMimes.includes(file.mimetype)) {
+    // Hardware extensions to explicitly allow regardless of MIME type
+    const allowedExtensions = [
+      '.stl', '.step', '.stp', '.brd', '.gcode',
+      '.gerber', '.pcb', '.sch', '.dxf', '.obj', '.glb'
+    ];
+
+    const fileExt = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
+
+    if (allowedMimes.includes(file.mimetype) || allowedExtensions.includes(fileExt)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type'));
+      cb(new Error(`File type not allowed: ${file.mimetype} (${fileExt})`));
     }
   },
 });
@@ -51,12 +61,18 @@ router.post('/', authenticate, upload.single('file'), async (req: Request, res: 
       req.file.mimetype
     );
 
+    const hardwareFormat = storageService.identifyHardwareFormat(
+      req.file.originalname,
+      req.file.mimetype
+    );
+
     res.json({
       success: true,
       url: fileUrl,
       fileName: req.file.originalname,
       size: req.file.size,
       mimeType: req.file.mimetype,
+      hardwareFormat,
     });
   } catch (error: any) {
     console.error('Upload error:', error);
@@ -87,6 +103,7 @@ router.post('/multiple', authenticate, upload.array('files', 5), async (req: Req
       fileName: file.originalname,
       size: file.size,
       mimeType: file.mimetype,
+      hardwareFormat: storageService.identifyHardwareFormat(file.originalname, file.mimetype),
     }));
 
     res.json({

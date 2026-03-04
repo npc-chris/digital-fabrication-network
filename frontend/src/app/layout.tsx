@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Digital Fabrication Network',
-  description: 'A digital network of workshops, fabrication plants, research centres, component sellers and product designers',
+  description: 'A digital network of workshops, fabrication plants, research centres, component providers and product designers',
 }
 
 export default function RootLayout({

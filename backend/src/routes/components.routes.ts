@@ -1,24 +1,137 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import { db } from '../config/database';
-import { components } from '../models/schema';
+import { components, users, profiles, componentCategories, componentSubcategories, componentApplications } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
-import { eq, like, and, or } from 'drizzle-orm';
+import { eq, like, and, or, inArray } from 'drizzle-orm';
 
 const router = Router();
+
+// Get component categories hierarchy
+router.get('/categories', async (req, res) => {
+  try {
+    // Fetch all data in parallel
+    const [categories, subcategories, applications] = await Promise.all([
+      db.select().from(componentCategories),
+      db.select().from(componentSubcategories),
+      db.select().from(componentApplications),
+    ]);
+
+    // Build the hierarchy
+    const result = categories.map(category => {
+      const categorySubs = subcategories.filter(sub => sub.categoryId === category.id);
+
+      return {
+        id: category.id,
+        name: category.name,
+        subcategories: categorySubs.map(sub => {
+          const subApps = applications.filter(app => app.subcategoryId === sub.id);
+
+          return {
+            id: sub.id,
+            name: sub.name,
+            applications: subApps.map(app => app.name)
+          };
+        })
+      };
+    });
+
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get distinct filter options
+router.get('/filters', async (req, res) => {
+  try {
+    const { type } = req.query;
+
+    // Distinct locations, optionally filtered by type
+    let locationsQuery = db
+      .select({ value: components.location })
+      .from(components);
+
+    if (type) {
+      locationsQuery = (locationsQuery.where(eq(components.type, type as any)) as any);
+    }
+
+    // Use GROUP BY to emulate DISTINCT
+    const locationsRaw = await (locationsQuery as any).groupBy(components.location);
+    const locations = (locationsRaw || [])
+      .map((r: any) => r.value)
+      .filter((v: any) => v && typeof v === 'string');
+
+    // Distinct types present in DB
+    const typesRaw = await (db
+      .select({ value: components.type })
+      .from(components) as any)
+      .groupBy(components.type);
+    const types = (typesRaw || []).map((r: any) => r.value).filter((v: any) => !!v);
+
+    res.json({ locations, types });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Get all components with filters
 router.get('/', async (req, res) => {
   try {
-    const { type, location, search } = req.query;
-    
-    let query = db.select().from(components);
-    const conditions = [];
+    const { type, location, search, page = 1, limit = 20 } = req.query as { [key: string]: any };
+    const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const limitVal = parseInt(limit as string);
+
+    let query = db.select({
+      id: components.id,
+      providerId: components.providerId,
+      name: components.name,
+      // description: components.description, // Optimizing payload size
+      type: components.type,
+      price: components.price,
+      availability: components.availability,
+      images: components.images,
+      // technicalDetails: components.technicalDetails, // Removing heavy fields
+      // datasheetUrl: components.datasheetUrl,
+      // compatibilities: components.compatibilities,
+      location: components.location,
+      rating: components.rating,
+      reviewCount: components.reviewCount,
+      // createdAt: components.createdAt,
+      // updatedAt: components.updatedAt,
+      providerName: profiles.firstName,
+      providerLastName: profiles.lastName,
+      providerCompany: profiles.company,
+    })
+      .from(components)
+      .leftJoin(users, eq(components.providerId, users.id))
+      .leftJoin(profiles, eq(users.id, profiles.userId));
+    const conditions: any[] = [];
 
     if (type) {
-      conditions.push(eq(components.type, type as any));
+      let types: string[] = [];
+      if (Array.isArray(type)) {
+        types = type as string[];
+      } else if (typeof type === 'string') {
+        types = type.split(',').map((t) => t.trim()).filter(Boolean);
+      }
+      if (types.length === 1) {
+        conditions.push(eq(components.type, types[0] as any));
+      } else if (types.length > 1) {
+        conditions.push(inArray(components.type, types as any));
+      }
     }
     if (location) {
-      conditions.push(like(components.location, `%${location}%`));
+      let locations: string[] = [];
+      if (Array.isArray(location)) {
+        locations = location as string[];
+      } else if (typeof location === 'string') {
+        locations = location.split(',').map((l) => l.trim()).filter(Boolean);
+      }
+      if (locations.length === 1) {
+        conditions.push(like(components.location, `%${locations[0]}%`));
+      } else if (locations.length > 1) {
+        conditions.push(or(...locations.map(l => like(components.location, `%${l}%`))));
+      }
     }
     if (search) {
       conditions.push(
@@ -33,8 +146,21 @@ router.get('/', async (req, res) => {
       query = query.where(and(...conditions)) as any;
     }
 
+    // Get total count for pagination metadata
+    // Note: In a real production app with millions of rows, we'd optimize this count query 
+    // or use cursor-based pagination. For now, a separate count query is improved but still acceptable.
+    // However, Drizzle's query builder reuse is tricky, so we'll just return the slice for now
+    // and let the frontend handle "Load More" availability based on returned length.
+
+    query = query.limit(limitVal).offset(offset) as any;
+
     const result = await query;
-    res.json(result);
+    res.json({
+      data: result,
+      page: parseInt(page as string),
+      limit: limitVal,
+      hasMore: result.length === limitVal // Simple heuristic
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -53,11 +179,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create component (sellers only)
-router.post('/', authenticate, authorize('seller'), async (req: Request, res) => {
+// Create component (providers only)
+router.post('/', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     const [component] = await db.insert(components).values({
-      sellerId: ((req as any).user).id,
+      providerId: ((req as any).user).id,
       ...req.body,
     }).returning();
     res.status(201).json(component);
@@ -67,7 +193,7 @@ router.post('/', authenticate, authorize('seller'), async (req: Request, res) =>
 });
 
 // Update component
-router.put('/:id', authenticate, authorize('seller'), async (req: Request, res) => {
+router.put('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     const [component] = await db.update(components)
       .set({ ...req.body, updatedAt: new Date() })
@@ -80,7 +206,7 @@ router.put('/:id', authenticate, authorize('seller'), async (req: Request, res) 
 });
 
 // Delete component
-router.delete('/:id', authenticate, authorize('seller'), async (req: Request, res) => {
+router.delete('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
     await db.delete(components).where(eq(components.id, parseInt(req.params.id)));
     res.status(204).send();
