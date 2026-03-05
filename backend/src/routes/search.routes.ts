@@ -15,14 +15,22 @@ const router = Router();
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const query = (req.query.q as string) || '';
-    const type = req.query.type as string;
-    const localFirst = req.query.localFirst === 'true';
-    const userLocation = req.query.location as string;
+    const rawQuery = req.query.q;
+
+    if (typeof rawQuery !== 'string') {
+      return res.status(400).json({ error: 'Invalid search query parameter' });
+    }
+
+    const query = rawQuery.trim();
 
     if (!query || query.length < 2) {
       return res.status(400).json({ error: 'Search query must be at least 2 characters' });
     }
+
+    const type = typeof req.query.type === 'string' ? req.query.type : undefined;
+    const localFirst = typeof req.query.localFirst === 'string' && req.query.localFirst === 'true';
+    const userLocation =
+      typeof req.query.location === 'string' ? req.query.location : undefined;
 
     const searchPattern = `%${query}%`;
     const results: any = {
