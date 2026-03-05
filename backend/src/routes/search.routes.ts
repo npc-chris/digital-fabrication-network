@@ -27,10 +27,10 @@ router.get('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Search query must be at least 2 characters' });
     }
 
-    const type = typeof req.query.type === 'string' ? (req.query.type as string) : undefined;
+    const type = typeof req.query.type === 'string' ? req.query.type : undefined;
     const localFirst = typeof req.query.localFirst === 'string' && req.query.localFirst === 'true';
     const userLocation =
-      typeof req.query.location === 'string' ? (req.query.location as string) : undefined;
+      typeof req.query.location === 'string' ? req.query.location : undefined;
 
     const searchPattern = `%${query}%`;
     const results: any = {
