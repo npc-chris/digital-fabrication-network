@@ -12,6 +12,14 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    # Add grouped updates to reduce PR noise
+    groups:
+      npm-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -24,3 +32,8 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    # Group GitHub Action updates together
+    groups:
+      actions-updates:
+        patterns:
+          - "*"
