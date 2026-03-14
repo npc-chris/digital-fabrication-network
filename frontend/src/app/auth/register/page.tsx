@@ -83,7 +83,7 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignup = () => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || '';
     window.location.href = `${backendUrl}/api/auth/google`;
   };
 

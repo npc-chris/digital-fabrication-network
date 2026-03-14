@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 export const initializeWebSocket = (server: HTTPServer) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      origin: process.env.FRONTEND_URL || false,
       methods: ['GET', 'POST'],
     },
   });

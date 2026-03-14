@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 
+const FRONTEND_URL = process.env.FRONTEND_URL || '';
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.zoho.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
@@ -42,7 +44,7 @@ export class EmailService {
           <li>Connect with other makers and engineers</li>
         </ul>
         <p>Get started by completing your profile and exploring the platform.</p>
-        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}" 
+        <a href="${FRONTEND_URL}" 
            style="display: inline-block; padding: 10px 20px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">
           Go to Dashboard
         </a>
@@ -101,7 +103,7 @@ export class EmailService {
           <p><strong>Service:</strong> ${quoteDetails.serviceName}</p>
           <p><strong>Description:</strong> ${quoteDetails.description}</p>
         </div>
-        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/quotes/${quoteId}" 
+        <a href="${FRONTEND_URL}/quotes/${quoteId}" 
            style="display: inline-block; padding: 10px 20px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">
           View Quote Request
         </a>
@@ -113,7 +115,7 @@ export class EmailService {
   }
 
   async sendPasswordReset(email: string, resetToken: string) {
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+    const resetUrl = `${FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4F46E5;">Password Reset Request</h1>

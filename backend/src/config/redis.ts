@@ -1,7 +1,13 @@
 import { createClient } from 'redis';
 
+const redisUrl = process.env.REDIS_URL;
+
+if (!redisUrl) {
+  throw new Error('REDIS_URL is required');
+}
+
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
+  url: redisUrl,
 });
 
 redisClient.on('error', (err) => console.error('Redis Client Error', err));

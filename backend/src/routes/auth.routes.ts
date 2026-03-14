@@ -95,8 +95,14 @@ router.get('/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/auth/login' }),
   (req, res) => {
     const result = req.user as any;
+    const frontendUrl = process.env.FRONTEND_URL;
+
+    if (!frontendUrl) {
+      return res.status(500).json({ error: 'FRONTEND_URL is not configured' });
+    }
+
     // Redirect to frontend with token
-    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?token=${result.token}`;
+    const redirectUrl = `${frontendUrl}/auth/callback?token=${result.token}`;
     res.redirect(redirectUrl);
   }
 );

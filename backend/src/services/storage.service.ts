@@ -9,7 +9,7 @@ const BUCKET_NAME = process.env.AWS_S3_BUCKET || 'dfn-uploads';
 const AWS_ENDPOINT = process.env.AWS_ENDPOINT;
 const AWS_FORCE_PATH_STYLE = process.env.AWS_FORCE_PATH_STYLE === 'true';
 const LOCAL_UPLOAD_DIR = process.env.LOCAL_UPLOAD_DIR || path.join(process.cwd(), 'uploads');
-const BASE_URL = process.env.BASE_URL || 'http://localhost:4000';
+const BASE_URL = process.env.BASE_URL || '';
 
 const s3Client = USE_S3 ? new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
