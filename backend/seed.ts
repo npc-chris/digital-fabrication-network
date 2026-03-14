@@ -5,8 +5,21 @@ import { COMPONENT_CATEGORIES } from './src/config/componentCategories';
 
 dotenv.config();
 
+const connectionString = process.env.SEED_DB_URL;
+const requiresSsl =
+  process.env.DB_SSL === 'true' ||
+  process.env.NODE_ENV === 'production' ||
+  (connectionString?.includes('sslmode=require') ?? false) ||
+  (connectionString?.includes('neon.tech') ?? false);
+
+if (!connectionString) {
+  console.error('❌ SEED_DB_URL environment variable is not set');
+  process.exit(1);
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
+  ssl: requiresSsl ? { rejectUnauthorized: false } : false,
 });
 
 async function seed() {

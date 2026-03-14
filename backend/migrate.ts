@@ -23,10 +23,16 @@ async function runMigrations() {
   }
 
   console.log('🚀 Starting database migration...');
+
+  const requiresSsl =
+    process.env.DB_SSL === 'true' ||
+    process.env.NODE_ENV === 'production' ||
+    connectionString.includes('sslmode=require') ||
+    connectionString.includes('neon.tech');
   
   const pool = new Pool({
     connectionString,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: requiresSsl ? { rejectUnauthorized: false } : false,
   });
 
   const db = drizzle(pool, { schema });
