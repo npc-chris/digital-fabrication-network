@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import React from 'react';
 
 export default function Footer() {
@@ -7,7 +8,14 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                     <div className="col-span-2 md:col-span-1">
-                        <h5 className="font-bold text-primary-600 text-lg mb-2">DFN</h5>
+                        {/* TODO: replace with final logo.png once branding is ready */}
+                        <Image
+                            src="/logo.png"
+                            alt="Digital Fabrication Network"
+                            width={120}
+                            height={36}
+                            className="mb-2"
+                        />
                         <p className="text-sm text-gray-600">
                             Connecting the digital fabrication ecosystem to accelerate hardware innovation across Africa.
                         </p>

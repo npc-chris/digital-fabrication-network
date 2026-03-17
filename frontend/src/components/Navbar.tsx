@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, Search, Store, LayoutDashboard, MessageSquare, Users, ShoppingBag, ShoppingCart, Cpu, FolderOpen } from 'lucide-react';
@@ -53,8 +54,14 @@ export default function Navbar() {
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link href="/" className="flex items-center">
-                            <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
-                            <span className="ml-2 text-sm text-gray-600 hidden lg:block">Digital Fabrication Network</span>
+                            {/* TODO: replace with final logo.png once branding is ready */}
+                            <Image
+                                src="/logo.png"
+                                alt="Digital Fabrication Network"
+                                width={120}
+                                height={36}
+                                priority
+                            />
                         </Link>
                     </div>
 
