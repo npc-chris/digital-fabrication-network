@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, Wrench, Users, ShoppingCart, Calendar, Bell, Search, X, Menu, BarChart3, Plus, Truck } from 'lucide-react';
+import { Package, Wrench, Users, ShoppingCart, Calendar, Bell, Search, X, Menu, BarChart3, Plus, Truck, Clock, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
 import AddComponentModal from '@/components/AddComponentModal';
 import AddServiceModal from '@/components/AddServiceModal';
@@ -37,10 +37,11 @@ export default function ProviderDashboard() {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
 
-      // Redirect if not a provider
+      // Redirect if not a provider (not even pending)
       if (parsedUser.role !== 'provider') {
         router.push('/dashboard');
       }
+      // Note: users with role='provider' and providerApproved=false are shown a pending state below
     } else {
       router.push('/auth/login');
     }
@@ -79,8 +80,41 @@ export default function ProviderDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+      {/* Pending Approval State */}
+      {user && user.role === 'provider' && !user.providerApproved && (
+        <div className="min-h-screen flex flex-col items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-8 text-center">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Clock className="w-10 h-10 text-yellow-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Awaiting Admin Approval</h2>
+            <p className="text-gray-600 mb-6">
+              Your provider upgrade request has been received and is currently under review by our admin team. You will receive full provider access once your account is approved.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 text-left">
+              <p className="text-sm text-blue-800 font-medium mb-2">While you wait, you can:</p>
+              <ul className="space-y-1 text-sm text-blue-700 list-disc list-inside">
+                <li>Complete your profile to speed up the review</li>
+                <li>Browse components and services on the marketplace</li>
+                <li>Connect with the community in the forum</li>
+              </ul>
+            </div>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Explorer Dashboard
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Full Provider Dashboard (approved providers only) */}
+      {user && user.providerApproved && (
+        <>
+        {/* Header */}
+        <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -446,6 +480,8 @@ export default function ProviderDashboard() {
         />
       )}
       <Footer />
+        </>
+      )}
     </div>
   );
 }

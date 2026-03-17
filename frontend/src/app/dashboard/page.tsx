@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { componentsAPI, servicesAPI, communityAPI } from '@/lib/api-services';
 import Link from 'next/link';
-import { Package, Wrench, Users, FilterIcon, Plus, X, ChevronDown } from 'lucide-react';
+import { Package, Wrench, Users, FilterIcon, Plus, X, ChevronDown, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import api from '@/lib/api';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -21,6 +22,8 @@ export default function Dashboard() {
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showProviderUpgradeModal, setShowProviderUpgradeModal] = useState(false);
+  const [upgradeStep, setUpgradeStep] = useState<'info' | 'submitting' | 'success' | 'pending'>('info');
+  const [upgradeError, setUpgradeError] = useState<string>('');
   const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   // Components & Parts filter state
@@ -109,13 +112,42 @@ export default function Dashboard() {
       return;
     }
 
-    if (user.role === 'provider') {
-      // Already a provider, go to provider dashboard
+    if (user.role === 'provider' && user.providerApproved) {
+      // Already an approved provider, go to provider dashboard
       window.location.href = '/dashboard/provider';
+    } else if (user.role === 'provider' && !user.providerApproved) {
+      // Pending approval state
+      setUpgradeStep('pending');
+      setShowProviderUpgradeModal(true);
     } else {
-      // Explorer trying to access provider features
+      // Explorer - show upgrade flow
+      setUpgradeStep('info');
+      setUpgradeError('');
       setShowProviderUpgradeModal(true);
     }
+  };
+
+  const handleSubmitUpgradeRequest = async () => {
+    setUpgradeStep('submitting');
+    setUpgradeError('');
+    try {
+      const response = await api.post('/api/auth/request-provider-upgrade');
+      // Update user in localStorage with new role/providerApproved state
+      const updatedUser = response.data.user;
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setUpgradeStep('success');
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'Failed to submit upgrade request. Please try again.';
+      setUpgradeError(message);
+      setUpgradeStep('info');
+    }
+  };
+
+  const handleCloseUpgradeModal = () => {
+    setShowProviderUpgradeModal(false);
+    setUpgradeStep('info');
+    setUpgradeError('');
   };
 
   useEffect(() => {
@@ -1018,40 +1050,138 @@ export default function Dashboard() {
       {showProviderUpgradeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Upgrade to Provider Account</h3>
-              <button
-                onClick={() => setShowProviderUpgradeModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-                aria-label="Close modal"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <p className="text-gray-600 mb-4">
-              To post components or offer services, you need to upgrade your account to a Provider account.
-            </p>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
-              <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Provider account upgrades require manual verification by our admin team.
-                You can access the provider dashboard to prepare your listings, but they won&apos;t be publicly visible
-                until your account is upgraded.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowProviderUpgradeModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => window.location.href = '/dashboard/provider'}
-                className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-              >
-                Continue to Provider Dashboard
-              </button>
-            </div>
+
+            {/* Info Step */}
+            {upgradeStep === 'info' && (
+              <>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">Become a Provider</h3>
+                  <button
+                    onClick={handleCloseUpgradeModal}
+                    className="text-gray-400 hover:text-gray-600"
+                    aria-label="Close modal"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  Upgrade your Explorer account to a Provider account to post components, offer fabrication services, and connect with buyers.
+                </p>
+                <ul className="space-y-2 mb-4">
+                  {[
+                    'List components and parts for sale',
+                    'Offer fabrication and manufacturing services',
+                    'Receive orders and manage your inventory',
+                    'Access provider analytics and insights',
+                  ].map((benefit) => (
+                    <li key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                      {benefit}
+                    </li>
+                  ))}
+                </ul>
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+                  <div className="flex items-start gap-2">
+                    <Clock className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                    <p className="text-sm text-blue-800">
+                      <strong>Admin approval required.</strong> After submitting your request, our admin team will review and approve your account. You will gain full provider access once approved.
+                    </p>
+                  </div>
+                </div>
+                {upgradeError && (
+                  <p className="text-sm text-red-600 mb-3">{upgradeError}</p>
+                )}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCloseUpgradeModal}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitUpgradeRequest}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  >
+                    Request Upgrade
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Submitting Step */}
+            {upgradeStep === 'submitting' && (
+              <div className="flex flex-col items-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mb-4"></div>
+                <p className="text-gray-600">Submitting your upgrade request...</p>
+              </div>
+            )}
+
+            {/* Success Step */}
+            {upgradeStep === 'success' && (
+              <>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">Request Submitted!</h3>
+                  <button
+                    onClick={handleCloseUpgradeModal}
+                    className="text-gray-400 hover:text-gray-600"
+                    aria-label="Close modal"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="flex flex-col items-center py-4 mb-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <p className="text-gray-700 text-center">
+                    Your provider upgrade request has been submitted. Our admin team will review it and notify you once your account is approved.
+                  </p>
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+                  <p className="text-sm text-yellow-800">
+                    <strong>What's next?</strong> While your request is under review, you can explore the marketplace as usual. You will receive full provider access as soon as an admin approves your account.
+                  </p>
+                </div>
+                <button
+                  onClick={handleCloseUpgradeModal}
+                  className="w-full px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                >
+                  Got it
+                </button>
+              </>
+            )}
+
+            {/* Already Pending Step */}
+            {upgradeStep === 'pending' && (
+              <>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">Upgrade Pending Review</h3>
+                  <button
+                    onClick={handleCloseUpgradeModal}
+                    className="text-gray-400 hover:text-gray-600"
+                    aria-label="Close modal"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="flex flex-col items-center py-4 mb-4">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                    <Clock className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <p className="text-gray-700 text-center">
+                    Your provider upgrade request is currently under review by our admin team. You'll receive full provider access once it's approved.
+                  </p>
+                </div>
+                <button
+                  onClick={handleCloseUpgradeModal}
+                  className="w-full px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                >
+                  OK
+                </button>
+              </>
+            )}
+
           </div>
         </div>
       )}

@@ -42,6 +42,9 @@ const registerRateLimit = authRateLimiter(5, 15 * 60 * 1000);
 // Moderate rate limit for login (10 attempts per 15 minutes)
 const loginRateLimit = authRateLimiter(10, 15 * 60 * 1000);
 
+// Strict rate limit for provider upgrade requests (3 attempts per hour)
+const upgradeRateLimit = authRateLimiter(3, 60 * 60 * 1000);
+
 router.post('/register',
   registerRateLimit,
   body('email').isEmail().withMessage('Please provide a valid email address'),
@@ -178,6 +181,37 @@ router.post('/complete-onboarding', authenticate, async (req, res) => {
     res.json({ user: safeUser, profile: profile || null, message: 'Onboarding completed successfully' });
   } catch (error: any) {
     console.error('Complete onboarding error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Request upgrade from explorer to provider
+router.post('/request-provider-upgrade', upgradeRateLimit, authenticate, async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const [currentUser] = await db.select().from(users).where(eq(users.id, userId));
+    if (!currentUser) return res.status(404).json({ error: 'User not found' });
+
+    if (currentUser.role === 'provider' && currentUser.providerApproved) {
+      return res.status(400).json({ error: 'Account is already an approved provider' });
+    }
+
+    if (currentUser.role === 'provider' && !currentUser.providerApproved) {
+      return res.status(400).json({ error: 'Upgrade request is already pending admin approval' });
+    }
+
+    // Set role to provider with providerApproved=false (pending admin approval)
+    const [updated] = await db.update(users)
+      .set({ role: 'provider' as any, providerApproved: false, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+
+    const { password, ...safeUser } = updated as any;
+
+    res.json({ user: safeUser, message: 'Provider upgrade request submitted successfully. An admin will review your request.' });
+  } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
 });
