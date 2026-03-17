@@ -12,9 +12,9 @@ const router = Router();
 // Rate limiting for auth routes to prevent brute force attacks
 const authRateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
-const authRateLimiter = (maxRequests: number, windowMs: number) => {
+const authRateLimiter = (prefix: string, maxRequests: number, windowMs: number) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const key = req.ip || 'unknown';
+    const key = `${prefix}:${req.ip || 'unknown'}`;
     const now = Date.now();
     
     const record = authRateLimitStore.get(key);
@@ -37,13 +37,13 @@ const authRateLimiter = (maxRequests: number, windowMs: number) => {
 };
 
 // Strict rate limit for registration (5 attempts per 15 minutes)
-const registerRateLimit = authRateLimiter(5, 15 * 60 * 1000);
+const registerRateLimit = authRateLimiter('register', 5, 15 * 60 * 1000);
 
 // Moderate rate limit for login (10 attempts per 15 minutes)
-const loginRateLimit = authRateLimiter(10, 15 * 60 * 1000);
+const loginRateLimit = authRateLimiter('login', 10, 15 * 60 * 1000);
 
 // Strict rate limit for provider upgrade requests (3 attempts per hour)
-const upgradeRateLimit = authRateLimiter(3, 60 * 60 * 1000);
+const upgradeRateLimit = authRateLimiter('upgrade', 3, 60 * 60 * 1000);
 
 router.post('/register',
   registerRateLimit,
@@ -125,7 +125,19 @@ router.get('/me', authenticate, async (req, res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...safeUser } = user as any;
 
-    res.json({ user: safeUser, profile: profile || null });
+    // Return a refreshed token if the user's role or providerApproved status has changed
+    // from what is embedded in their current JWT (e.g. after admin approval)
+    const tokenUser = req.user;
+    const needsTokenRefresh =
+      user.role !== tokenUser?.role ||
+      (user.providerApproved ?? false) !== (tokenUser?.providerApproved ?? false);
+
+    const responseData: Record<string, unknown> = { user: safeUser, profile: profile || null };
+    if (needsTokenRefresh) {
+      responseData.token = authService.generateToken(user);
+    }
+
+    res.json(responseData);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -210,7 +222,10 @@ router.post('/request-provider-upgrade', upgradeRateLimit, authenticate, async (
 
     const { password, ...safeUser } = updated as any;
 
-    res.json({ user: safeUser, message: 'Provider upgrade request submitted successfully. An admin will review your request.' });
+    // Issue a new token so the updated role is reflected immediately
+    const token = authService.generateToken(updated);
+
+    res.json({ user: safeUser, token, message: 'Provider upgrade request submitted successfully. An admin will review your request.' });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

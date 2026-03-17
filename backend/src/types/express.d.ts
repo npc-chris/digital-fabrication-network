@@ -6,6 +6,7 @@ declare global {
       id: number;
       email: string;
       role: string;
+      providerApproved?: boolean;
     }
 
     interface Request {

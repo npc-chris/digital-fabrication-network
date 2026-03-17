@@ -132,8 +132,9 @@ export default function Dashboard() {
     setUpgradeError('');
     try {
       const response = await api.post('/api/auth/request-provider-upgrade');
-      // Update user in localStorage with new role/providerApproved state
-      const updatedUser = response.data.user;
+      const { user: updatedUser, token: newToken } = response.data;
+      // Persist the refreshed token (new role embedded) alongside updated user
+      if (newToken) localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setUser(updatedUser);
       setUpgradeStep('success');
