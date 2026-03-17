@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, Search, Store, LayoutDashboard, ShoppingCart } from 'lucide-react';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
@@ -53,8 +54,7 @@ export default function Navbar() {
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link href="/" className="flex items-center">
-                            <h1 className="text-2xl font-bold text-primary-600">DFN</h1>
-                            <span className="ml-2 text-sm text-gray-600 hidden lg:block">Digital Fabrication Network</span>
+                            <Logo priority />
                         </Link>
                     </div>
 

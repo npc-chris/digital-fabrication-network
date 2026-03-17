@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 import { Package, Wrench, Users, ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from 'lucide-react';
 import { verifySession } from '@/lib/auth';
 
@@ -40,13 +41,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-800 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                <span className="text-white font-bold text-lg">D</span>
-              </div>
-              <div className="hidden sm:block">
-                <span className="text-xl font-bold text-gray-900">DFN</span>
-                <p className="text-xs text-gray-600">Digital Fabrication Network</p>
-              </div>
+              <Logo priority />
             </Link>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
@@ -272,10 +267,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-800 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">D</span>
-                </div>
-                <span className="text-white font-bold text-xl">DFN</span>
+                <Logo />
               </div>
               <p className="text-sm leading-relaxed">
                 Digital Fabrication Network - Connecting the hardware innovation ecosystem worldwide.
