@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, Search, Store, LayoutDashboard, MessageSquare, Users, ShoppingBag, ShoppingCart, Cpu, FolderOpen } from 'lucide-react';
+import { Menu, X, Search, Store, LayoutDashboard, ShoppingCart } from 'lucide-react';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 import UserDropdown from '@/components/UserDropdown';
 import { verifySession } from '@/lib/auth';
@@ -63,22 +63,6 @@ export default function Navbar() {
                         <Link href="/dashboard" className={navLinkClass('/dashboard')}>
                             <LayoutDashboard className="w-4 h-4 mr-1.5" />
                             Dashboard
-                        </Link>
-                        <Link href="/projects" className={navLinkClass('/projects')}>
-                            <FolderOpen className="w-4 h-4 mr-1.5" />
-                            Projects
-                        </Link>
-                        <Link href="/forum" className={navLinkClass('/forum')}>
-                            <MessageSquare className="w-4 h-4 mr-1.5" />
-                            Forum
-                        </Link>
-                        <Link href="/mentorship" className={navLinkClass('/mentorship')}>
-                            <Users className="w-4 h-4 mr-1.5" />
-                            Mentorship
-                        </Link>
-                        <Link href="/group-buying" className={navLinkClass('/group-buying')}>
-                            <ShoppingBag className="w-4 h-4 mr-1.5" />
-                            Deals
                         </Link>
                         <Link href="/affiliates" className={navLinkClass('/affiliates')}>
                             <Store className="w-4 h-4 mr-1.5" />
@@ -155,18 +139,6 @@ export default function Navbar() {
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
                             Dashboard
-                        </Link>
-                        <Link href="/projects" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                            Projects
-                        </Link>
-                        <Link href="/forum" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                            Forum
-                        </Link>
-                        <Link href="/mentorship" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                            Mentorship
-                        </Link>
-                        <Link href="/group-buying" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                            Group Buying
                         </Link>
                         <Link href="/affiliates" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
                             Partner Store
