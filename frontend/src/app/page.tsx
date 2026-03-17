@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 import { Package, Wrench, Users, ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from 'lucide-react';
 import { verifySession } from '@/lib/auth';
 
@@ -41,14 +41,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-3 group">
-              {/* TODO: replace with final logo.png once branding is ready */}
-              <Image
-                src="/logo.png"
-                alt="Digital Fabrication Network"
-                width={120}
-                height={36}
-                priority
-              />
+              <Logo priority />
             </Link>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
@@ -274,13 +267,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                {/* TODO: replace with final logo.png once branding is ready */}
-                <Image
-                  src="/logo.png"
-                  alt="Digital Fabrication Network"
-                  width={120}
-                  height={36}
-                />
+                <Logo />
               </div>
               <p className="text-sm leading-relaxed">
                 Digital Fabrication Network - Connecting the hardware innovation ecosystem worldwide.
