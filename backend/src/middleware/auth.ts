@@ -5,6 +5,7 @@ interface JwtPayload {
   id: number;
   email: string;
   role: string;
+  providerApproved?: boolean;
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
@@ -31,6 +32,11 @@ export const authorize = (...roles: string[]) => {
 
     if (roles.length && !roles.includes(req.user.role)) {
       return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Provider role requires admin approval before accessing provider endpoints
+    if (req.user.role === 'provider' && !req.user.providerApproved) {
+      return res.status(403).json({ error: 'Forbidden: Provider account pending admin approval' });
     }
 
     next();

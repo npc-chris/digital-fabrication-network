@@ -39,6 +39,10 @@ export async function verifySession(): Promise<AuthResult> {
       const data = await response.json();
       // Update localStorage with fresh user data
       localStorage.setItem('user', JSON.stringify(data.user));
+      // Persist a refreshed token when the backend detects a role/approval change
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
       return { isAuthenticated: true, user: data.user };
     } else {
       // Token is invalid, clear storage
