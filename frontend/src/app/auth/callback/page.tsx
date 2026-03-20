@@ -24,7 +24,13 @@ function AuthCallbackContent() {
         .then(data => {
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user));
-            router.push('/dashboard');
+            if (data.user.onboardingCompleted === false) {
+              router.push('/auth/google-profile');
+            } else if (data.user.role === 'provider') {
+              router.push('/dashboard/provider');
+            } else {
+              router.push('/dashboard');
+            }
           } else {
             router.push('/auth/login?error=authentication_failed');
           }
