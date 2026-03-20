@@ -41,8 +41,14 @@ export default function ProviderDashboard() {
       // Redirect if not a provider (not even pending)
       if (parsedUser.role !== 'provider') {
         router.push('/dashboard');
+        return;
       }
       // Note: users with role='provider' and providerApproved=false are shown a pending state below
+
+      // Only fetch stats for approved providers; pending providers would receive 403s
+      if (parsedUser.providerApproved) {
+        fetchStats();
+      }
     } else {
       router.push('/auth/login');
     }
@@ -52,9 +58,6 @@ export default function ProviderDashboard() {
     if (bannerDismissed === 'true') {
       setShowWelcomeBanner(false);
     }
-
-    // Fetch provider stats
-    fetchStats();
   }, [router]);
 
   const fetchStats = async () => {
@@ -97,7 +100,7 @@ export default function ProviderDashboard() {
               <ul className="space-y-1 text-sm text-blue-700 list-disc list-inside">
                 <li>Complete your profile to speed up the review</li>
                 <li>Browse components and services on the marketplace</li>
-                <li>Connect with the community in the forum</li>
+                <li>Visit your Explorer Dashboard to explore the platform</li>
               </ul>
             </div>
             <Link
