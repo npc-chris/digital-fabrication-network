@@ -6,6 +6,13 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
+const USERNAME_REGEX = /^[a-z0-9_]{3,50}$/;
+
+function isDatabaseUniqueViolation(err: any): boolean {
+  // PostgreSQL unique violation code
+  return err?.code === '23505' || /unique|duplicate/i.test(err?.message || '');
+}
+
 // Get current user's profile
 router.get('/me', authenticate, async (req: any, res) => {
   try {
@@ -41,6 +48,15 @@ router.put('/me', authenticate, async (req: any, res) => {
       avatar,
       portfolio,
     } = req.body;
+
+    // Validate username when provided
+    if (username?.trim()) {
+      if (!USERNAME_REGEX.test(username)) {
+        return res.status(400).json({
+          error: 'Username must be 3–50 characters and contain only lowercase letters, numbers, or underscores.',
+        });
+      }
+    }
 
     // Check if profile exists
     const [existingProfile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
@@ -95,6 +111,9 @@ router.put('/me', authenticate, async (req: any, res) => {
 
     res.json(updatedProfile);
   } catch (error: any) {
+    if (isDatabaseUniqueViolation(error)) {
+      return res.status(409).json({ error: 'Username is already taken. Please choose a different one.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });

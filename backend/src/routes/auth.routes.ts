@@ -214,6 +214,10 @@ router.post('/request-provider-upgrade', upgradeRateLimit, authenticate, async (
       return res.status(400).json({ error: 'Upgrade request is already pending admin approval' });
     }
 
+    if (currentUser.role !== 'explorer') {
+      return res.status(403).json({ error: 'Only explorer accounts can request a provider upgrade' });
+    }
+
     // Set role to provider with providerApproved=false (pending admin approval)
     const [updated] = await db.update(users)
       .set({ role: 'provider' as any, providerApproved: false, updatedAt: new Date() })
