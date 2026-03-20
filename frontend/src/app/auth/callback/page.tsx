@@ -23,8 +23,18 @@ function AuthCallbackContent() {
         .then(res => res.json())
         .then(data => {
           if (data.user) {
+            // If /api/auth/me returns a refreshed token, persist it
+            if (data.token) {
+              localStorage.setItem('token', data.token);
+            }
             localStorage.setItem('user', JSON.stringify(data.user));
-            router.push('/dashboard');
+            if (data.user.onboardingCompleted === false) {
+              router.push('/auth/google-profile');
+            } else if (data.user.role === 'provider') {
+              router.push('/dashboard/provider');
+            } else {
+              router.push('/dashboard');
+            }
           } else {
             router.push('/auth/login?error=authentication_failed');
           }

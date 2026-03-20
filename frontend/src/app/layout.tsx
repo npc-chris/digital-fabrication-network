@@ -4,6 +4,9 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Digital Fabrication Network',
   description: 'A digital network of workshops, fabrication plants, research centres, component providers and product designers',
+  icons: {
+    icon: '/favicon.png',
+  },
 }
 
 export default function RootLayout({

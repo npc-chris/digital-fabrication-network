@@ -6,6 +6,13 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
+const USERNAME_REGEX = /^[a-z0-9_]{3,50}$/;
+
+function isDatabaseUniqueViolation(err: any): boolean {
+  // PostgreSQL unique violation code
+  return err?.code === '23505' || /unique|duplicate/i.test(err?.message || '');
+}
+
 // Get current user's profile
 router.get('/me', authenticate, async (req: any, res) => {
   try {
@@ -31,6 +38,7 @@ router.put('/me', authenticate, async (req: any, res) => {
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
     const {
+      username,
       firstName,
       lastName,
       company,
@@ -41,6 +49,15 @@ router.put('/me', authenticate, async (req: any, res) => {
       portfolio,
     } = req.body;
 
+    // Validate username when provided
+    if (username?.trim()) {
+      if (!USERNAME_REGEX.test(username)) {
+        return res.status(400).json({
+          error: 'Username must be 3–50 characters and contain only lowercase letters, numbers, or underscores.',
+        });
+      }
+    }
+
     // Check if profile exists
     const [existingProfile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
 
@@ -48,6 +65,7 @@ router.put('/me', authenticate, async (req: any, res) => {
       // Create profile if it doesn't exist
       const [newProfile] = await db.insert(profiles).values({
         userId,
+        username: username || null,
         firstName: firstName || null,
         lastName: lastName || null,
         company: company || null,
@@ -63,6 +81,7 @@ router.put('/me', authenticate, async (req: any, res) => {
 
     // Build update object with only provided fields
     interface ProfileUpdate {
+      username?: string | null;
       firstName?: string | null;
       lastName?: string | null;
       company?: string | null;
@@ -75,6 +94,7 @@ router.put('/me', authenticate, async (req: any, res) => {
     }
     
     const updateData: ProfileUpdate = { updatedAt: new Date() };
+    if (username !== undefined) updateData.username = username;
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (company !== undefined) updateData.company = company;
@@ -91,6 +111,9 @@ router.put('/me', authenticate, async (req: any, res) => {
 
     res.json(updatedProfile);
   } catch (error: any) {
+    if (isDatabaseUniqueViolation(error)) {
+      return res.status(409).json({ error: 'Username is already taken. Please choose a different one.' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
