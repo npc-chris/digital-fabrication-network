@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { MapPin, Loader2, X } from 'lucide-react';
+import { API_URL } from '@/lib/auth';
 
 interface LocationAutocompleteProps {
   value: string;
@@ -21,9 +22,6 @@ interface Prediction {
   };
 }
 
-// Google Places API configuration
-const GOOGLE_PLACES_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
-
 export default function LocationAutocomplete({
   value,
   onChange,
@@ -37,6 +35,7 @@ export default function LocationAutocomplete({
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isUsingFallback, setIsUsingFallback] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -64,31 +63,17 @@ export default function LocationAutocomplete({
       return;
     }
 
-    // If no API key, use fallback Nigerian locations
-    if (!GOOGLE_PLACES_API_KEY) {
-      const fallbackPredictions = getFallbackPredictions(query);
-      setPredictions(fallbackPredictions);
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
+    setIsUsingFallback(false);
 
     try {
       const params = new URLSearchParams({
         input: query,
-        key: GOOGLE_PLACES_API_KEY,
-        types: '(cities)',
-        language: 'en',
+        restrictToNigeria: String(restrictToNigeria),
       });
-
-      // Restrict to Nigeria if enabled
-      if (restrictToNigeria) {
-        params.append('components', 'country:ng');
-      }
-
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`
+        `${API_URL}/api/locations/autocomplete?${params.toString()}`
       );
 
       if (!response.ok) {
@@ -97,20 +82,17 @@ export default function LocationAutocomplete({
 
       const data = await response.json();
 
-      if (data.status === 'OK') {
+      if (Array.isArray(data.predictions)) {
         setPredictions(data.predictions);
-      } else if (data.status === 'ZERO_RESULTS') {
-        setPredictions([]);
       } else {
-        // Fallback to hardcoded locations if API fails
-        const fallbackPredictions = getFallbackPredictions(query);
-        setPredictions(fallbackPredictions);
+        setPredictions([]);
       }
     } catch (err) {
       console.error('Location autocomplete error:', err);
       // Use fallback on error
       const fallbackPredictions = getFallbackPredictions(query);
       setPredictions(fallbackPredictions);
+      setIsUsingFallback(true);
     } finally {
       setIsLoading(false);
     }
@@ -214,9 +196,9 @@ export default function LocationAutocomplete({
       )}
 
       {/* API Notice */}
-      {!GOOGLE_PLACES_API_KEY && isOpen && (
+      {isOpen && isUsingFallback && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-xs text-yellow-700 z-40">
-          Using offline location data. Configure NEXT_PUBLIC_GOOGLE_PLACES_API_KEY for live autocomplete.
+          Using backend-powered autocomplete. Fallback locations are used if the service is unavailable.
         </div>
       )}
 

@@ -23,7 +23,7 @@
 /dist
 /frontend/build
 /backend/dist
-/backend/drizzle
+/templates/ 
 
 # misc
 .DS_Store
