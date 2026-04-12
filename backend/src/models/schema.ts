@@ -39,7 +39,6 @@ export const users = pgTable('users', {
 export const profiles = pgTable('profiles', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
-  username: varchar('username', { length: 50 }).unique(),
   firstName: varchar('first_name', { length: 100 }),
   lastName: varchar('last_name', { length: 100 }),
   company: varchar('company', { length: 255 }),
@@ -402,6 +401,60 @@ export const forumReplies = pgTable('forum_replies', {
   isAcceptedAnswer: boolean('is_accepted_answer').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Blog posts authored by platform editors/admins
+export const blogPosts = pgTable('blog_posts', {
+  id: serial('id').primaryKey(),
+  authorId: integer('author_id').notNull().references(() => users.id),
+  title: varchar('title', { length: 255 }).notNull(),
+  content: text('content').notNull(),
+  htmlContent: text('html_content').notNull(),
+  status: varchar('status', { length: 50 }).notNull().default('draft'), // draft, published, archived
+  likeCount: integer('like_count').notNull().default(0),
+  commentCount: integer('comment_count').notNull().default(0),
+  shareCount: integer('share_count').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Blog post attachments for editor uploads
+export const blogFiles = pgTable('blog_files', {
+  id: serial('id').primaryKey(),
+  postId: integer('post_id').notNull().references(() => blogPosts.id),
+  filename: varchar('filename', { length: 255 }).notNull(),
+  fileUrl: varchar('file_url', { length: 500 }).notNull(),
+  fileType: varchar('file_type', { length: 100 }).notNull(),
+  uploadedAt: timestamp('uploaded_at').defaultNow(),
+});
+
+// Likes on blog posts
+export const blogPostLikes = pgTable('blog_post_likes', {
+  id: serial('id').primaryKey(),
+  postId: integer('post_id').notNull().references(() => blogPosts.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Threaded comments on blog posts
+export const blogComments = pgTable('blog_comments', {
+  id: serial('id').primaryKey(),
+  postId: integer('post_id').notNull().references(() => blogPosts.id),
+  authorId: integer('author_id').notNull().references(() => users.id),
+  parentCommentId: integer('parent_comment_id'),
+  content: text('content').notNull(),
+  likeCount: integer('like_count').notNull().default(0),
+  replyCount: integer('reply_count').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Likes on individual comments
+export const blogCommentLikes = pgTable('blog_comment_likes', {
+  id: serial('id').primaryKey(),
+  commentId: integer('comment_id').notNull().references(() => blogComments.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Mentorship system

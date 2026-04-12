@@ -1,14 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { verifySession } from '@/lib/auth';
+import LandingNavbar from '@/components/LandingNavbar';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroTextRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const pillarsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -20,6 +30,194 @@ export default function LandingPage() {
       }
     });
   }, [router]);
+
+  // Initialize GSAP animations
+  useEffect(() => {
+    if (isCheckingAuth) return;
+
+    // Hero section: stagger animation for text elements
+    const heroElements = heroTextRef.current?.querySelectorAll('[data-hero-item]');
+    if (heroElements && heroElements.length > 0) {
+      gsap.fromTo(
+        heroElements,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power3.out',
+        }
+      );
+    }
+
+    // Hero image parallax effect
+    const heroImg = heroRef.current?.querySelector('[data-hero-image]');
+    if (heroImg) {
+      gsap.fromTo(
+        heroImg,
+        { opacity: 0, scale: 0.95 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 1,
+          ease: 'power3.out',
+          delay: 0.3,
+        }
+      );
+    }
+
+    // Stats section - scroll trigger
+    const statCards = statsRef.current?.querySelectorAll('[data-stat-card]');
+    statCards?.forEach((card, index) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: index * 0.1,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 85%',
+            end: 'top 45%',
+            scrub: false,
+          },
+          ease: 'power2.out',
+        }
+      );
+    });
+
+    // Service cards - scroll trigger with hover effect
+    const serviceCards = servicesRef.current?.querySelectorAll('[data-service-card]');
+    serviceCards?.forEach((card, index) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          delay: index * 0.12,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 80%',
+            end: 'top 40%',
+            scrub: false,
+          },
+          ease: 'power3.out',
+        }
+      );
+
+      // Add hover animation
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, {
+          y: -8,
+          duration: 0.3,
+          overwrite: 'auto',
+        });
+      });
+
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          y: 0,
+          duration: 0.3,
+          overwrite: 'auto',
+        });
+      });
+    });
+
+    // Pillar cards - scroll trigger
+    const pillarCards = pillarsRef.current?.querySelectorAll('[data-pillar-card]');
+    pillarCards?.forEach((card, index) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, x: index % 2 === 0 ? -50 : 50 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.8,
+          delay: index * 0.15,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 75%',
+            end: 'top 35%',
+            scrub: false,
+          },
+          ease: 'power3.out',
+        }
+      );
+    });
+
+    // Testimonial section - scroll trigger
+    const testimonialElements = document.querySelectorAll('[data-testimonial-item]');
+    testimonialElements.forEach((el, index) => {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: index * 0.1,
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 80%',
+            end: 'top 50%',
+            scrub: false,
+          },
+          ease: 'power2.out',
+        }
+      );
+    });
+
+    // Final CTA section - scroll trigger
+    const ctaSection = document.querySelector('[data-cta-final]');
+    if (ctaSection) {
+      gsap.fromTo(
+        ctaSection,
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          scrollTrigger: {
+            trigger: ctaSection,
+            start: 'top 80%',
+            end: 'top 40%',
+            scrub: false,
+          },
+          ease: 'power3.out',
+        }
+      );
+    }
+
+    // CTA button pulse effect
+    const ctaButtons = document.querySelectorAll('[data-cta-pulse]');
+    ctaButtons.forEach((btn) => {
+      btn.addEventListener('mouseenter', () => {
+        gsap.to(btn, {
+          scale: 1.08,
+          duration: 0.3,
+          ease: 'back.out',
+        });
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, {
+          scale: 1,
+          duration: 0.3,
+          ease: 'back.out',
+        });
+      });
+    });
+
+    // Cleanup
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, [isCheckingAuth]);
 
   // Show loading state while checking authentication
   if (isCheckingAuth) {
@@ -62,17 +260,6 @@ export default function LandingPage() {
           }
         }
 
-        @keyframes revealUp {
-          from {
-            opacity: 0;
-            transform: translateY(28px) scale(0.985);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
         @keyframes floatGentle {
           0% {
             transform: translateY(0px);
@@ -89,34 +276,12 @@ export default function LandingPage() {
           animation: navEnter 700ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
-        .reveal-up {
-          opacity: 0;
-          animation: revealUp 800ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
-        .delay-1 {
-          animation-delay: 120ms;
-        }
-
-        .delay-2 {
-          animation-delay: 220ms;
-        }
-
-        .delay-3 {
-          animation-delay: 320ms;
-        }
-
-        .delay-4 {
-          animation-delay: 420ms;
-        }
-
         .float-gentle {
           animation: floatGentle 7s ease-in-out infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
           .nav-enter,
-          .reveal-up,
           .float-gentle {
             animation: none !important;
             opacity: 1 !important;
@@ -125,58 +290,17 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <header className="nav-enter fixed top-0 z-50 w-full border-b border-slate-200 bg-white/85 shadow-sm backdrop-blur-xl">
-        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/favicon.png"
-              alt="DFN logo"
-              width={36}
-              height={36}
-              className="h-9 w-9 rounded-lg ring-1 ring-slate-200"
-            />
-            <span className="text-base font-black tracking-tight text-sky-900 sm:text-lg">DFN</span>
-            <span className="hidden text-sm font-semibold text-slate-600 lg:inline">Digital Fabrication Network</span>
-          </Link>
-
-          <nav className="hidden items-center gap-8 md:flex">
-            <Link href="/" className="border-b-2 border-sky-700 pb-1 text-sm font-bold text-sky-700">
-              Home
-            </Link>
-            <Link href="/forum" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Research
-            </Link>
-            <Link href="/services" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Prototyping
-            </Link>
-            <Link href="/stakeholders" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Stakeholders
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/auth/login" className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
-              Sign In
-            </Link>
-            <Link
-              href="/auth/register"
-              className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform active:scale-95"
-            >
-              Join Network
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingNavbar active="home" />
 
       <main className="pt-24">
-        <section className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-          <div className="reveal-up space-y-8">
-            <div className="reveal-up delay-1 inline-flex items-center gap-2 rounded-full bg-[#cee5ff] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#004a77]">
+        <section ref={heroRef} className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+          <div ref={heroTextRef} className="space-y-8">
+            <div data-hero-item className="inline-flex items-center gap-2 rounded-full bg-[#cee5ff] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#004a77]">
               <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
               West Africa's Tech Hub
             </div>
 
-            <h1 className="reveal-up delay-2 text-5xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-6xl lg:text-7xl">
+            <h1 data-hero-item className="text-5xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-6xl lg:text-7xl">
               Connect.
               <br />
               Fabricate.
@@ -184,13 +308,14 @@ export default function LandingPage() {
               Innovate.
             </h1>
 
-            <p className="reveal-up delay-3 max-w-lg text-lg leading-relaxed text-slate-600 sm:text-xl">
+            <p data-hero-item className="max-w-lg text-lg leading-relaxed text-slate-600 sm:text-xl">
               West Africa's premier platform for professional hardware development and precision engineering. We bridge the gap between design and physical reality.
             </p>
 
-            <div className="reveal-up delay-4 flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
+            <div data-hero-item className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
               <Link
                 href="/auth/register"
+                data-cta-pulse
                 className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 text-center text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30"
               >
                 Join the Network
@@ -204,7 +329,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="group reveal-up delay-2 relative">
+          <div data-hero-image className="group relative">
             <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
             <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/10">
               <img
@@ -221,18 +346,17 @@ export default function LandingPage() {
             <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
               Our Goals for the Year
             </h2>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
+            <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
               {[
                 { value: '450+', label: 'Stakeholders' },
                 { value: '1.2k', label: 'Projects' },
                 { value: '85', label: 'Facilities' },
                 { value: '12', label: 'Nations' },
-              ].map((stat, index) => (
+              ].map((stat) => (
                 <div
                   key={stat.label}
-                  className={`reveal-up space-y-2 rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-8 ${
-                    index === 0 ? 'delay-1' : index === 1 ? 'delay-2' : index === 2 ? 'delay-3' : 'delay-4'
-                  }`}
+                  data-stat-card
+                  className="space-y-2 rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-8"
                 >
                   <div className="text-3xl font-black text-[#004873] sm:text-4xl">{stat.value}</div>
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-sm">{stat.label}</div>
@@ -292,7 +416,7 @@ export default function LandingPage() {
               <p className="text-slate-600">Unlocking the potential of industrial fabrication for the next generation of innovators.</p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3">
+            <div ref={servicesRef} className="grid gap-8 md:grid-cols-3">
               {[
                 {
                   icon: 'hub',
@@ -309,12 +433,11 @@ export default function LandingPage() {
                   title: 'Accelerated Innovation',
                   text: 'Cut down time-to-market. Our streamlined processes ensure your innovation moves from drawing board to production faster.',
                 },
-              ].map((service, index) => (
+              ].map((service) => (
                 <div
                   key={service.title}
-                  className={`group reveal-up space-y-6 rounded-2xl bg-[#f8fafc] p-10 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-900/5 ${
-                    index === 0 ? 'delay-1' : index === 1 ? 'delay-2' : 'delay-3'
-                  }`}
+                  data-service-card
+                  className="group space-y-6 rounded-2xl bg-[#f8fafc] p-10 shadow-sm transition-all hover:shadow-xl hover:shadow-sky-900/5"
                 >
                   <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-sky-900/5 transition-colors group-hover:bg-[#004873]">
                     <span className="material-symbols-outlined text-3xl text-[#006098] transition-colors group-hover:text-white">{service.icon}</span>
@@ -344,29 +467,28 @@ export default function LandingPage() {
               of the Ecosystem
             </h2>
 
-            <div className="grid gap-8 md:grid-cols-3">
+            <div ref={pillarsRef} className="grid gap-8 md:grid-cols-3">
               {[
                 {
                   title: 'Manufacturers',
                   text: 'Optimize floor usage and connect with high-value contracts from innovative startups.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDkQeticBpHUNZ6QhvagMFmsLAXRA6Aqq9_EMvCmHkajgCPisNl7UOu08_XrDThtO011Hhwldd5O9HKBvaDFo1YUk_YehWRrZEXLwNFT_guMmXznc22HhWPoNMwkSFUJmHcDIIfqohQ8BY-8izMS4FGNwBHhIkHo8ssx0NIHM4YjogrWkJSnlW5R1ZY1bqzvcC5_RbeFlhiv-sq_fIGE5xs3lMaj8IKZt1UQTfggNs26MN8bA8hgJzdcJFkXgQT4CUTMPLWe0Q9q0I',
+                  img: '/landing-manufacturers.png',
                 },
                 {
                   title: 'Researchers',
                   text: 'Bridge academic theory with industrial practice through collaborative R&D programs.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBLwB1w2MFfGB5wQ4oalCvHF54KGyt8PY5U5rbeKCBP1XHp0el_H8sfsrmLcB-GvtdvFMeEnctBAdF8Gt82faFHX-0kPPznUS5imxTfxoed1vq0KuN3Rhl9TsdLMswjt1esNmVN0r7uoaN4ATc_4oCQslRUYM2AlKnnQXIy58zw_nI5h6j-SqOvQQNOfRMEevYEvAeVyiX0NbZAeO-N2ktQAutO8NppbgYT-jomcuRVQmZSdZb2taF5Qyj7YpD2bS_wlMGIjIAhX1c',
+                  img: '/landing-researchers.png',
                 },
                 {
                   title: 'Engineers & Designers',
                   text: 'Access tools and mentorship to bring complex hardware designs to life efficiently.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB2iSmu1DeY-SgETQmEqmn_EP9jHzvFS2SSpbwmhQ8_dQUEb7Gw8RJX1bgRdmu8399ERx3__ZbjbF8HiLc64Y30g5bU2PDYFLyDYDiYXLYf0GchkxFv9BvcXc6UBtQz9v79WF-DuT3t82FgldjAwI5EcMAp2htBU8TOAO66CmN17x5ClP8bP_CCyuZMEVgqCIDhVbzybmnIK3ZUjA1G7x2vaGSLE96Cz4-gXxhoeKo4jDXKRhsAjJ1_dGD21ZGbrdKQgW4HqomjGtE',
+                  img: '/landing-design.png',
                 },
-              ].map((pillar, index) => (
+              ].map((pillar) => (
                 <div
                   key={pillar.title}
-                  className={`reveal-up space-y-6 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10 ${
-                    index === 0 ? 'delay-1' : index === 1 ? 'delay-2' : 'delay-3'
-                  }`}
+                  data-pillar-card
+                  className="space-y-6 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
                 >
                   <img src={pillar.img} alt={pillar.title} className="h-48 w-full rounded-xl object-cover grayscale transition-all hover:grayscale-0" />
                   <h4 className="text-xl font-bold">{pillar.title}</h4>
@@ -453,20 +575,20 @@ export default function LandingPage() {
         </section>
 
         <section className="mx-auto w-full max-w-5xl space-y-8 px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-28">
-          <span className="material-symbols-outlined material-symbols-filled reveal-up text-7xl text-[#98cbff] opacity-40 sm:text-8xl">
+          <span data-testimonial-item className="material-symbols-outlined material-symbols-filled inline-block text-7xl text-[#98cbff] opacity-40 sm:text-8xl">
             format_quote
           </span>
-          <blockquote className="reveal-up delay-1 text-3xl font-black italic leading-[1.12] tracking-tight text-[#191c1e] sm:text-4xl md:text-5xl">
+          <blockquote data-testimonial-item className="text-3xl font-black italic leading-[1.12] tracking-tight text-[#191c1e] sm:text-4xl md:text-5xl">
             DFN is not just a network; it is the missing link in our industrial value chain. By centralizing fabrication resources, we reduce R&D costs for our partners by up to 40%.
           </blockquote>
-          <div className="reveal-up delay-2 space-y-1">
+          <div data-testimonial-item className="space-y-1">
             <div className="text-xl font-black">Udonsi Chris</div>
             <div className="text-xs font-medium uppercase tracking-[0.25em] text-slate-500 sm:text-sm">Head of Product, Digital Fabrication Network</div>
           </div>
         </section>
 
         <section className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
-          <div className="relative overflow-hidden rounded-[2rem] bg-[#004873] p-10 text-center text-white shadow-2xl sm:p-16 lg:rounded-[3rem] lg:p-24">
+          <div data-cta-final className="relative overflow-hidden rounded-[2rem] bg-[#004873] p-10 text-center text-white shadow-2xl sm:p-16 lg:rounded-[3rem] lg:p-24">
             <div className="absolute inset-0 bg-gradient-to-b from-[#006098] to-[#007abf] opacity-90"></div>
             <div className="relative z-10 space-y-7">
               <h2 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
@@ -480,6 +602,7 @@ export default function LandingPage() {
               <div className="pt-3">
                 <Link
                   href="/auth/register"
+                  data-cta-pulse
                   className="inline-block rounded-2xl bg-white px-10 py-5 text-xl font-black text-[#004873] shadow-2xl transition-all hover:scale-105 active:scale-95 sm:text-2xl"
                 >
                   Get Started
@@ -512,7 +635,7 @@ export default function LandingPage() {
             <Link href="/about" className="transition-colors hover:text-sky-700">
               About DFN
             </Link>
-            <Link href="/services" className="transition-colors hover:text-sky-700">
+            <Link href="/prototyping" className="transition-colors hover:text-sky-700">
               Technical Specs
             </Link>
             <Link href="/settings" className="transition-colors hover:text-sky-700">

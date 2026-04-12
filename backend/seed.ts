@@ -102,7 +102,18 @@ async function seed() {
       `INSERT INTO users (email, password, role, is_verified, onboarding_completed) VALUES ($1, $2, 'admin', true, true) RETURNING id`,
       ['admin@dfn.ng', adminPassword]
     );
-    const adminId = adminRes.rows[0].id;
+      const adminId = adminRes.rows[0].id; 
+      const adminRes = await client.query(
+        `INSERT INTO users (email, password, role, is_verified, onboarding_completed) VALUES ($1, $2, 'admin', true, true) ON CONFLICT (email) DO NOTHING RETURNING id`,
+        ['admin@dfn.ng', adminPassword]
+      );
+      let adminId: number;
+      if (adminRes.rows.length === 0) {
+        const existing = await client.query('SELECT id FROM users WHERE email = $1', ['admin@dfn.ng']);
+        adminId = existing.rows[0].id;
+      } else {
+        adminId = adminRes.rows[0].id;
+      }
 
     // Providers (Tech Hubs)
     const providerList = [

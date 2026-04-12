@@ -21,9 +21,10 @@ export class AuthService {
         role: role as any,
       }).returning();
 
-      // Create profile
+      // Create profile with safe defaults
       await db.insert(profiles).values({
         userId: user.id,
+        firstName: email.split('@')[0], // Use email prefix as default first name
       });
 
       const token = this.generateToken(user);
@@ -38,15 +39,18 @@ export class AuthService {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     
     if (!user || !user.password) {
+      console.warn('Login failed: user not found or no password for email:', email);
       throw new Error('Invalid credentials');
     }
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
+      console.warn('Login failed: password mismatch for email:', email);
       throw new Error('Invalid credentials');
     }
 
     const token = this.generateToken(user);
+    console.log('Login successful for:', email);
     return { user, token };
   }
 
@@ -60,12 +64,27 @@ export class AuthService {
         isVerified: true,
       }).returning();
 
-      await db.insert(profiles).values({
+      // Only include defined fields in profile insert to avoid 'default' keyword issues
+      const profileData: any = {
         userId: user.id,
-        firstName: profile.name?.givenName,
-        lastName: profile.name?.familyName,
-        avatar: profile.photos?.[0]?.value,
-      });
+      };
+
+      if (profile.name?.givenName) {
+        profileData.firstName = profile.name.givenName;
+      }
+      if (profile.name?.familyName) {
+        profileData.lastName = profile.name.familyName;
+      }
+      if (profile.photos?.[0]?.value) {
+        profileData.avatar = profile.photos[0].value;
+      }
+
+      // If no firstName provided, use email prefix as fallback
+      if (!profileData.firstName) {
+        profileData.firstName = email.split('@')[0];
+      }
+
+      await db.insert(profiles).values(profileData);
     }
 
     const token = this.generateToken(user);
@@ -73,9 +92,13 @@ export class AuthService {
   }
 
   generateToken(user: any) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT_SECRET environment variable is not set');
+    }
     return jwt.sign(
       { id: user.id, email: user.email, role: user.role, providerApproved: user.providerApproved ?? false },
-      process.env.JWT_SECRET || 'your-secret-key',
+      secret,
       { expiresIn: '7d' }
     );
   }

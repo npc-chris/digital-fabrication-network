@@ -186,9 +186,9 @@ export default function StakeholdersPage() {
                   <div className="rounded-xl bg-sky-100 p-3">
                     <span className="material-symbols-outlined text-[#006098]">hub</span>
                   </div>
-                  <div className="text-sm font-bold">120+ Active Lab Nodes*</div>
+                  <div className="text-sm font-bold">About 100 Active Lab Nodes*</div>
                 </div>
-                <p className="text-xs text-slate-600">Connecting regional fabrication centers with global standard protocols.</p>
+                <p className="text-xs text-slate-600">Connecting regional fabrication centers with global standard protocols by the end of the year.</p>
               </div>
             </div>
           </div>

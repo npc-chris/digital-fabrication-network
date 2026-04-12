@@ -35,6 +35,7 @@ import emailVerificationRoutes from './routes/email-verification.routes';
 import paymentRoutes from './routes/payment.routes';
 import logisticsRoutes from './routes/logistics.routes';
 import locationsRoutes from './routes/locations.routes';
+import blogRoutes from './routes/blog.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -87,6 +88,7 @@ app.use('/api/email-verification', emailVerificationRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/logistics', logisticsRoutes);
 app.use('/api/locations', locationsRoutes);
+app.use('/api/blog', blogRoutes);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

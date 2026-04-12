@@ -1,25 +1,37 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 import api from '@/lib/api';
 import EmailVerification from '@/components/EmailVerification';
 import { verifySession } from '@/lib/auth';
+import {
+  Alert,
+  AlertDescription,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+  Separator,
+} from '@/components/ui';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [showVerification, setShowVerification] = useState(false);
 
-  // Check if user is already logged in
   useEffect(() => {
     verifySession().then(({ isAuthenticated }) => {
       if (isAuthenticated) {
@@ -30,9 +42,7 @@ export default function RegisterPage() {
     });
   }, [router]);
 
-  // Password validation criteria
   const passwordValidation = useMemo(() => {
-    const password = formData.password;
     return {
       minLength: password.length >= 6,
       hasUpperCase: /[A-Z]/.test(password),
@@ -40,37 +50,32 @@ export default function RegisterPage() {
       hasNumber: /[0-9]/.test(password),
       hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
     };
-  }, [formData.password]);
+  }, [password]);
 
-  const passwordStrength = useMemo(() => {
-    const checks = Object.values(passwordValidation);
-    const passed = checks.filter(Boolean).length;
-    if (passed <= 1) return { label: 'Weak', color: 'bg-red-500', textColor: 'text-red-600' };
-    if (passed <= 3) return { label: 'Fair', color: 'bg-yellow-500', textColor: 'text-yellow-600' };
-    if (passed <= 4) return { label: 'Good', color: 'bg-blue-500', textColor: 'text-blue-600' };
-    return { label: 'Strong', color: 'bg-green-500', textColor: 'text-green-600' };
+  const strength = useMemo(() => {
+    const passed = Object.values(passwordValidation).filter(Boolean).length;
+    if (passed <= 1) return 'Weak';
+    if (passed <= 3) return 'Fair';
+    if (passed <= 4) return 'Good';
+    return 'Strong';
   }, [passwordValidation]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
 
-    // Show email verification step
     setShowVerification(true);
   };
 
   const handleEmailVerified = async () => {
     setLoading(true);
     try {
-      const response = await api.post('/api/auth/register', {
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await api.post('/api/auth/register', { email, password });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       router.push('/onboarding');
@@ -87,203 +92,134 @@ export default function RegisterPage() {
     window.location.href = `${backendUrl}/api/auth/google`;
   };
 
-  // Show loading while checking authentication
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f9fb]">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="mx-auto size-11 animate-spin rounded-full border-2 border-muted border-t-primary" />
+          <p className="mt-3 text-sm text-muted-foreground">Checking session...</p>
         </div>
       </div>
     );
   }
 
-  // Show email verification screen
   if (showVerification) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
-          <EmailVerification
-            email={formData.email}
-            onVerified={handleEmailVerified}
-            onCancel={() => setShowVerification(false)}
-          />
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f9fb] px-4 py-10">
+        <Card className="w-full max-w-lg border-[#e6e8ea] shadow-[0_18px_34px_rgba(0,72,115,0.12)]">
+          <CardHeader>
+            <CardTitle className="text-2xl font-black tracking-tight">Verify your email</CardTitle>
+            <CardDescription>
+              Complete verification to finish account creation.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <EmailVerification
+              email={email}
+              onVerified={handleEmailVerified}
+              onCancel={() => setShowVerification(false)}
+            />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-500">
-              sign in to existing account
-            </Link>
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-800">{error}</div>
-            </div>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f9fb] px-4 py-10">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(0,96,152,0.16),_transparent_50%)]" />
+      <Card className="relative z-10 w-full max-w-lg border-[#e6e8ea] shadow-[0_18px_34px_rgba(0,72,115,0.12)]">
+        <CardHeader className="space-y-2">
+          <Badge variant="secondary" className="w-fit font-semibold">Create Account</Badge>
+          <CardTitle className="text-3xl font-black tracking-tight">Join the DFN network</CardTitle>
+          <CardDescription>
+            Create your account to access projects, providers, and collaboration spaces.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+          {error ? (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          <form className="grid gap-4" onSubmit={handleSubmit}>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
                 id="email"
-                name="email"
                 type="email"
                 autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@company.com"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
                 id="password"
-                name="password"
                 type="password"
                 autoComplete="new-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Create password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
-              
-              {/* Password Strength Indicator */}
-              {formData.password && (
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${passwordStrength.color}`}
-                        style={{ width: `${(Object.values(passwordValidation).filter(Boolean).length / 5) * 100}%` } as React.CSSProperties}
-                      />
-                    </div>
-                    <span className={`text-xs font-medium ${passwordStrength.textColor}`}>
-                      {passwordStrength.label}
-                    </span>
-                  </div>
-                  
-                  {/* Password Requirements */}
-                  <div className="text-xs space-y-1">
-                    <div className={`flex items-center gap-1 ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}`}>
-                      <span>{passwordValidation.minLength ? '✓' : '○'}</span>
-                      <span>At least 6 characters (required)</span>
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
-                      <span>{passwordValidation.hasUpperCase ? '✓' : '○'}</span>
-                      <span>One uppercase letter</span>
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
-                      <span>{passwordValidation.hasLowerCase ? '✓' : '○'}</span>
-                      <span>One lowercase letter</span>
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
-                      <span>{passwordValidation.hasNumber ? '✓' : '○'}</span>
-                      <span>One number</span>
-                    </div>
-                    <div className={`flex items-center gap-1 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
-                      <span>{passwordValidation.hasSpecialChar ? '✓' : '○'}</span>
-                      <span>One special character (!@#$%^&*...)</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+
+              <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                <p className="mb-1 font-medium">Strength: {strength}</p>
+                <p>{passwordValidation.minLength ? '✓' : '○'} At least 6 characters</p>
+                <p>{passwordValidation.hasUpperCase ? '✓' : '○'} Uppercase letter</p>
+                <p>{passwordValidation.hasLowerCase ? '✓' : '○'} Lowercase letter</p>
+                <p>{passwordValidation.hasNumber ? '✓' : '○'} Number</p>
+                <p>{passwordValidation.hasSpecialChar ? '✓' : '○'} Special character</p>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
+            <div className="grid gap-2">
+              <Label htmlFor="confirm-password">Confirm password</Label>
+              <Input
+                id="confirm-password"
                 type="password"
                 autoComplete="new-password"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Confirm password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                required
               />
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-400"
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </div>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating account...' : 'Continue to verification'}
+            </Button>
+          </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
-              </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
+              <Separator className="flex-1" />
             </div>
 
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={handleGoogleSignup}
-                className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                Sign up with Google
-              </button>
-            </div>
+            <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignup}>
+              Sign up with Google
+            </Button>
           </div>
 
-          <div className="text-center">
-            <Link href="/" className="text-sm font-medium text-primary-600 hover:text-primary-500">
-              Back to home
+          <div className="flex items-center justify-between text-sm">
+            <Link href="/auth/login" className="font-medium text-[#006098] hover:underline">
+              Sign in instead
+            </Link>
+            <Link href="/" className="text-muted-foreground hover:underline">
+              Back home
             </Link>
           </div>
-        </form>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

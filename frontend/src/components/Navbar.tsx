@@ -36,6 +36,37 @@ export default function Navbar() {
         checkSession();
     }, [pathname]);
 
+    // Listen for login/logout events
+    useEffect(() => {
+        const handleAuthTokenSet = () => {
+            // Immediately check session when user logs in
+            const checkSession = async () => {
+                try {
+                    const result = await verifySession();
+                    if (result.isAuthenticated && result.user) {
+                        setUser(result.user);
+                    } else {
+                        setUser(null);
+                    }
+                } catch (e) {
+                    console.error('Session check failed', e);
+                }
+            };
+            checkSession();
+        };
+
+        const handleAuthTokenCleared = () => {
+            setUser(null);
+        };
+
+        window.addEventListener('auth-token-set', handleAuthTokenSet);
+        window.addEventListener('auth-token-cleared', handleAuthTokenCleared);
+        return () => {
+            window.removeEventListener('auth-token-set', handleAuthTokenSet);
+            window.removeEventListener('auth-token-cleared', handleAuthTokenCleared);
+        };
+    }, []);
+
     const isActive = (path: string) => {
         if (path === '/dashboard') return pathname === '/dashboard';
         return pathname?.startsWith(path);

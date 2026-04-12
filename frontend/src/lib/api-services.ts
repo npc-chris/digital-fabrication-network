@@ -704,6 +704,112 @@ export const forumAPI = {
   },
 };
 
+// Blog API
+export const blogAPI = {
+  getPosts: async (filters?: {
+    page?: number;
+    limit?: number;
+    status?: 'all' | 'draft' | 'published' | 'archived';
+    viewerId?: number;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', String(filters.page));
+    if (filters?.limit) params.append('limit', String(filters.limit));
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.viewerId) params.append('viewerId', String(filters.viewerId));
+
+    const response = await api.get(`/api/blog/posts?${params.toString()}`);
+    return response.data;
+  },
+
+  getPostById: async (id: number, viewerId?: number) => {
+    const params = new URLSearchParams();
+    if (viewerId) params.append('viewerId', String(viewerId));
+    const query = params.toString();
+    const response = await api.get(`/api/blog/posts/${id}${query ? `?${query}` : ''}`);
+    return response.data;
+  },
+
+  createPost: async (data: {
+    title: string;
+    content: string;
+    htmlContent: string;
+    status?: 'draft' | 'published' | 'archived';
+    files?: File[];
+  }) => {
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('content', data.content);
+    formData.append('htmlContent', data.htmlContent);
+    if (data.status) formData.append('status', data.status);
+    data.files?.forEach((file) => formData.append('files', file));
+
+    const response = await api.post('/api/blog/posts', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  updatePost: async (
+    id: number,
+    data: {
+      title?: string;
+      content?: string;
+      htmlContent?: string;
+      status?: 'draft' | 'published' | 'archived';
+      files?: File[];
+    }
+  ) => {
+    const formData = new FormData();
+    if (data.title !== undefined) formData.append('title', data.title);
+    if (data.content !== undefined) formData.append('content', data.content);
+    if (data.htmlContent !== undefined) formData.append('htmlContent', data.htmlContent);
+    if (data.status !== undefined) formData.append('status', data.status);
+    data.files?.forEach((file) => formData.append('files', file));
+
+    const response = await api.put(`/api/blog/posts/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  deletePost: async (id: number) => {
+    const response = await api.delete(`/api/blog/posts/${id}`);
+    return response.data;
+  },
+
+  toggleLike: async (postId: number) => {
+    const response = await api.post(`/api/blog/posts/${postId}/like`);
+    return response.data;
+  },
+
+  trackShare: async (postId: number) => {
+    const response = await api.post(`/api/blog/posts/${postId}/share`);
+    return response.data;
+  },
+
+  getComments: async (postId: number, viewerId?: number) => {
+    const params = new URLSearchParams();
+    if (viewerId) params.append('viewerId', String(viewerId));
+    const query = params.toString();
+    const response = await api.get(`/api/blog/posts/${postId}/comments${query ? `?${query}` : ''}`);
+    return response.data;
+  },
+
+  addComment: async (postId: number, content: string, parentCommentId?: number) => {
+    const response = await api.post(`/api/blog/posts/${postId}/comments`, {
+      content,
+      parentCommentId,
+    });
+    return response.data;
+  },
+
+  toggleCommentLike: async (commentId: number) => {
+    const response = await api.post(`/api/blog/comments/${commentId}/like`);
+    return response.data;
+  },
+};
+
 // Payments API
 export const paymentsAPI = {
   initialize: async (quoteId: number) => {

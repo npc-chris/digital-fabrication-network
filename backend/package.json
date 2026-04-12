@@ -9,7 +9,7 @@
     "lint": "eslint src/**/*.ts",
     "test": "jest",
     "db:migrate": "ts-node migrate.ts",
-    "db:clear-seed": "ts-node clear-seed.ts",
+    "clear-seed": "ts-node clear-seed.ts",
     "seed": "ts-node seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",

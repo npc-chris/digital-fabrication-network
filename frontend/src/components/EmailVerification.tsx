@@ -21,9 +21,17 @@ export default function EmailVerification({ email, onVerified, onCancel }: Email
 
   // Send verification code on mount
   useEffect(() => {
+    const key = `email-verification-last-send:${email.toLowerCase()}`;
+    const lastSent = Number(window.sessionStorage.getItem(key) || '0');
+
+    if (Date.now() - lastSent < 5000) {
+      return;
+    }
+
+    window.sessionStorage.setItem(key, String(Date.now()));
     sendCode();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [email]);
 
   // Countdown timer for resend
   useEffect(() => {
@@ -129,6 +137,7 @@ export default function EmailVerification({ email, onVerified, onCancel }: Email
             key={index}
             ref={el => { inputRefs.current[index] = el; }}
             type="text"
+            aria-label={`Verification code digit ${index + 1}`}
             inputMode="numeric"
             maxLength={1}
             value={digit}

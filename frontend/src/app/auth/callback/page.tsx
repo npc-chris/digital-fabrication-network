@@ -24,6 +24,10 @@ function AuthCallbackContent() {
         .then(data => {
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Dispatch custom event to notify other components of successful login
+            window.dispatchEvent(new CustomEvent('auth-token-set', { detail: { token } }));
+            
             if (data.user.onboardingCompleted === false) {
               router.push('/auth/google-profile');
             } else if (data.user.role === 'provider') {
