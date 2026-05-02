@@ -125,32 +125,32 @@ export default function AboutPage() {
             DFN brings together everything you need for hardware innovation. Here&apos;s what you can do:
           </p>
           <div className="grid md:grid-cols-3 gap-8">
-            <Link href="/dashboard" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+            <Link href="/prototyping" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
               <Cpu className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-lg font-bold mb-2">Components & Services</h3>
               <p className="text-gray-600 text-sm">Browse, compare, and order fabrication components, parts, and professional services.</p>
             </Link>
-            <Link href="/projects" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+            <Link href="/blog" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
               <Award className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-lg font-bold mb-2">Open Hardware Hub</h3>
               <p className="text-gray-600 text-sm">Discover open-source hardware projects, share your own builds, and collaborate with other makers.</p>
             </Link>
-            <Link href="/mentorship" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+            <Link href="/stakeholders" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
               <Users className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-lg font-bold mb-2">Mentorship Network</h3>
               <p className="text-gray-600 text-sm">Connect with verified fabrication experts for guidance on specific hardware challenges.</p>
             </Link>
-            <Link href="/group-buying" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+            <Link href="/prototyping" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
               <Globe className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-lg font-bold mb-2">Group Buying</h3>
               <p className="text-gray-600 text-sm">Pool orders with other makers to unlock bulk pricing on premium components and materials.</p>
             </Link>
-            <Link href="/forum" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+            <Link href="/blog" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
               <ShieldCheck className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-lg font-bold mb-2">Community Forum</h3>
               <p className="text-gray-600 text-sm">Ask questions, share knowledge, and collaborate in topic-based discussion channels.</p>
             </Link>
-            <Link href="/affiliates" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
+            <Link href="/auth/register" className="bg-white rounded-xl p-8 border border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all group">
               <Target className="w-10 h-10 text-primary-600 mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-lg font-bold mb-2">Partner Store</h3>
               <p className="text-gray-600 text-sm">Curated deals on tools, components, and materials from our verified manufacturing partners.</p>

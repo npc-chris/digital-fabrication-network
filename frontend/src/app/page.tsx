@@ -22,9 +22,13 @@ export default function LandingPage() {
 
   useEffect(() => {
     // Check if user is already logged in
-    verifySession().then(({ isAuthenticated }) => {
+    verifySession().then(({ isAuthenticated, user }) => {
       if (isAuthenticated) {
-        router.push('/dashboard');
+        if (user?.role === 'admin' || user?.role === 'platform_manager') {
+          router.push('/admin');
+        } else {
+          router.push('/');
+        }
       } else {
         setIsCheckingAuth(false);
       }
@@ -321,7 +325,7 @@ export default function LandingPage() {
                 Join the Network
               </Link>
               <Link
-                href="/about"
+                href="/manifesto"
                 className="rounded-xl bg-[#f2f4f6] px-8 py-4 text-center text-base font-bold text-[#004873] transition-all hover:-translate-y-0.5 hover:bg-[#e6e8ea]"
               >
                 Our Manifesto
@@ -401,7 +405,7 @@ export default function LandingPage() {
             </ul>
 
             <div className="reveal-up delay-3 pt-3">
-              <Link href="/about" className="inline-flex items-center gap-1 font-bold text-[#006098] transition-all hover:gap-2 hover:underline">
+              <Link href="/manifesto" className="inline-flex items-center gap-1 font-bold text-[#006098] transition-all hover:gap-2 hover:underline">
                 See our Ambitious Plans
                 <span className="material-symbols-outlined text-base">arrow_forward</span>
               </Link>
@@ -493,7 +497,7 @@ export default function LandingPage() {
                   <img src={pillar.img} alt={pillar.title} className="h-48 w-full rounded-xl object-cover grayscale transition-all hover:grayscale-0" />
                   <h4 className="text-xl font-bold">{pillar.title}</h4>
                   <p className="leading-relaxed text-[#b4d8ff]">{pillar.text}</p>
-                  <Link href="/about" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-all hover:gap-4">
+                  <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-all hover:gap-4">
                     Learn More
                     <span className="material-symbols-outlined text-base">arrow_forward</span>
                   </Link>
@@ -632,14 +636,14 @@ export default function LandingPage() {
           </div>
 
           <nav className="flex flex-wrap items-center justify-center gap-5 text-sm font-medium text-slate-500 sm:gap-8">
-            <Link href="/about" className="transition-colors hover:text-sky-700">
+            <Link href="/manifesto" className="transition-colors hover:text-sky-700">
               About DFN
             </Link>
             <Link href="/prototyping" className="transition-colors hover:text-sky-700">
               Technical Specs
             </Link>
-            <Link href="/settings" className="transition-colors hover:text-sky-700">
-              Privacy Policy
+            <Link href="/research" className="transition-colors hover:text-sky-700">
+              Research
             </Link>
             <Link href="/auth/register" className="transition-colors hover:text-sky-700">
               Contact Support

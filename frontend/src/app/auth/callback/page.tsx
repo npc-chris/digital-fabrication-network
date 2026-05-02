@@ -30,10 +30,10 @@ function AuthCallbackContent() {
             
             if (data.user.onboardingCompleted === false) {
               router.push('/auth/google-profile');
-            } else if (data.user.role === 'provider') {
-              router.push('/dashboard/provider');
+            } else if (data.user.role === 'admin' || data.user.role === 'platform_manager') {
+              router.push('/admin');
             } else {
-              router.push('/dashboard');
+              router.push('/');
             }
           } else {
             router.push('/auth/login?error=authentication_failed');

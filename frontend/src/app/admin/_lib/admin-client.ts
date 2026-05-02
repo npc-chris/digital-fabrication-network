@@ -12,7 +12,6 @@ export type AdminUser = {
   role: string;
   isVerified: boolean;
   onboardingCompleted: boolean;
-  providerApproved: boolean;
   createdAt: string;
   firstName?: string;
   lastName?: string;
@@ -154,14 +153,6 @@ export const adminClient = {
       .filter((item) => item.id > 0);
   },
 
-  async approveProvider(userId: number) {
-    await api.patch(`/api/admin/provider-requests/${userId}`, { approved: true });
-  },
-
-  async rejectProvider(userId: number, reason?: string) {
-    await api.patch(`/api/admin/provider-requests/${userId}`, { approved: false, reason });
-  },
-
   async reviewVerification(id: number, status: 'approved' | 'rejected', notes?: string, verificationStatus = 'verified') {
     await api.post(`/api/verification/${id}/review`, {
       status,
@@ -171,10 +162,7 @@ export const adminClient = {
   },
 
   async setUserRole(userId: number, role: 'provider' | 'explorer') {
-    await api.patch(`/api/admin/users/${userId}/role`, {
-      role,
-      providerApproved: role === 'provider',
-    });
+    await api.patch(`/api/admin/users/${userId}/role`, { role });
   },
 
   async setUserBan(userId: number, banned: boolean) {

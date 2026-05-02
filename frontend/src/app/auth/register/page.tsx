@@ -35,7 +35,7 @@ export default function RegisterPage() {
   useEffect(() => {
     verifySession().then(({ isAuthenticated }) => {
       if (isAuthenticated) {
-        router.push('/dashboard');
+        router.push('/');
       } else {
         setIsCheckingAuth(false);
       }

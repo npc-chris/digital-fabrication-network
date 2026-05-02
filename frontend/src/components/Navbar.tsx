@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, Search, Store, LayoutDashboard, ShoppingCart } from 'lucide-react';
-import NotificationsDropdown from '@/components/NotificationsDropdown';
+import { Menu, X, Search, LayoutDashboard } from 'lucide-react';
 import UserDropdown from '@/components/UserDropdown';
 import { verifySession } from '@/lib/auth';
 
@@ -68,7 +67,7 @@ export default function Navbar() {
     }, []);
 
     const isActive = (path: string) => {
-        if (path === '/dashboard') return pathname === '/dashboard';
+        if (path === '/admin') return pathname === '/admin';
         return pathname?.startsWith(path);
     };
 
@@ -91,25 +90,10 @@ export default function Navbar() {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-1">
-                        <Link href="/dashboard" className={navLinkClass('/dashboard')}>
+                        <Link href="/admin" className={navLinkClass('/admin')}>
                             <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                            Dashboard
+                            Admin
                         </Link>
-                        <Link href="/affiliates" className={navLinkClass('/affiliates')}>
-                            <Store className="w-4 h-4 mr-1.5" />
-                            Store
-                        </Link>
-                        {/* Role-Based Dashboards */}
-                        {user?.role === 'provider' && (
-                            <Link 
-                                href="/dashboard/provider" 
-                                className="hidden md:flex items-center px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-md border border-purple-200 transition-colors"
-                            >
-                                <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                                Provider Dashboard
-                            </Link>
-                        )}
-
                         {user?.role === 'admin' && (
                             <Link 
                                 href="/admin" 
@@ -125,14 +109,6 @@ export default function Navbar() {
                         <button className="p-2 rounded-full hover:bg-gray-100" aria-label="Open search">
                             <Search className="w-5 h-5 text-gray-600" />
                         </button>
-
-                        {user && (
-                            <Link href="/cart" className="p-2 rounded-full hover:bg-gray-100 relative" aria-label="Shopping cart">
-                                <ShoppingCart className="w-5 h-5 text-gray-600" />
-                            </Link>
-                        )}
-
-                        <NotificationsDropdown />
 
                         {loading ? (
                             <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
@@ -168,23 +144,9 @@ export default function Navbar() {
             {mobileMenuOpen && (
                 <div className="md:hidden border-t border-gray-100 bg-white">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <Link href="/dashboard" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                            Dashboard
+                        <Link href="/admin" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
+                            Admin
                         </Link>
-                        <Link href="/affiliates" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                            Partner Store
-                        </Link>
-
-                        {user && (
-                            <div className="border-t border-gray-100 mt-2 pt-2">
-                                <Link href="/cart" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                                    Cart
-                                </Link>
-                                <Link href="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
-                                    Settings
-                                </Link>
-                            </div>
-                        )}
 
                         {!user && (
                             <div className="border-t border-gray-100 mt-2 pt-2">

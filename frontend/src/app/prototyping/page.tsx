@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
+
+import Footer from '@/components/Footer';
+import LandingNavbar from '@/components/LandingNavbar';
 
 export default function PrototypingPage() {
   return (
@@ -16,17 +18,6 @@ export default function PrototypingPage() {
 
         .material-symbols-outlined {
           font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-        }
-
-        @keyframes navEnter {
-          from {
-            opacity: 0;
-            transform: translateY(-16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
 
         @keyframes revealUp {
@@ -50,10 +41,6 @@ export default function PrototypingPage() {
           100% {
             transform: translateY(0px);
           }
-        }
-
-        .nav-enter {
-          animation: navEnter 700ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .reveal-up {
@@ -82,7 +69,6 @@ export default function PrototypingPage() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .nav-enter,
           .reveal-up,
           .float-gentle {
             animation: none !important;
@@ -92,42 +78,7 @@ export default function PrototypingPage() {
         }
       `}</style>
 
-      <header className="nav-enter fixed top-0 z-50 w-full border-b border-slate-200 bg-white/85 shadow-sm backdrop-blur-xl">
-        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/favicon.png" alt="DFN logo" width={36} height={36} className="h-9 w-9 rounded-lg ring-1 ring-slate-200" />
-            <span className="text-base font-black tracking-tight text-sky-900 sm:text-lg">DFN</span>
-            <span className="hidden text-sm font-semibold text-slate-600 lg:inline">Digital Fabrication Network</span>
-          </Link>
-
-          <nav className="hidden items-center gap-8 md:flex">
-            <Link href="/projects" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Network
-            </Link>
-            <Link href="/forum" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Research
-            </Link>
-            <Link href="/prototyping" className="border-b-2 border-sky-700 pb-1 text-sm font-bold text-sky-700">
-              Prototyping
-            </Link>
-            <Link href="/stakeholders" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Stakeholders
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/auth/login" className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
-              Sign In
-            </Link>
-            <Link
-              href="/auth/register"
-              className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform active:scale-95"
-            >
-              Join Network
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingNavbar active="prototyping" />
 
       <main className="pt-20">
         <section className="relative mx-auto max-w-[1400px] overflow-hidden px-4 py-20 sm:px-6 md:py-32 lg:px-8">
@@ -150,7 +101,7 @@ export default function PrototypingPage() {
                 Start Your Build
               </Link>
               <Link
-                href="/projects"
+                href="/stakeholders"
                 className="rounded-xl border border-slate-300/60 bg-white px-8 py-4 text-lg font-bold text-[#004873] transition-all hover:bg-[#f2f4f6]"
               >
                 View Capability Map
@@ -253,7 +204,7 @@ export default function PrototypingPage() {
                 <span className="font-medium">Direct access to senior hardware architects.</span>
               </li>
             </ul>
-            <Link href="/mentorship" className="reveal-up delay-3 inline-flex items-center gap-2 font-bold text-[#006098] transition-transform hover:translate-x-1">
+            <Link href="/stakeholders" className="reveal-up delay-3 inline-flex items-center gap-2 font-bold text-[#006098] transition-transform hover:translate-x-1">
               Meet the Mentors
               <span className="material-symbols-outlined">arrow_forward</span>
             </Link>
@@ -288,7 +239,9 @@ export default function PrototypingPage() {
                 </h2>
                 <p className="mt-4 max-w-xl text-slate-400">A 6-month intensive fabrication track designed specifically for pre-seed to Series A hardware startups.</p>
               </div>
-              <button className="rounded-xl bg-[#006098] px-8 py-4 font-bold text-white transition-transform hover:-translate-y-0.5">Apply for Our Cohort</button>
+              <Link href="/auth/register" className="rounded-xl bg-[#006098] px-8 py-4 font-bold text-white transition-transform hover:-translate-y-0.5">
+                Apply for Our Cohort
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 gap-10 border-t border-slate-700/40 pt-14 md:grid-cols-3">
@@ -382,51 +335,15 @@ export default function PrototypingPage() {
             >
               Apply for Access
             </Link>
-            <Link href="/projects" className="rounded-xl bg-[#f2f4f6] px-10 py-5 text-xl font-bold text-[#191c1e] transition-all hover:bg-[#e6e8ea]">
-              Download Specs
+            <Link href="/research" className="rounded-xl bg-[#f2f4f6] px-10 py-5 text-xl font-bold text-[#191c1e] transition-all hover:bg-[#e6e8ea]">
+              Explore Research
             </Link>
           </div>
           <p className="mt-8 text-sm font-medium text-slate-600">Join 2,500+ engineers building on the Network.</p>
         </section>
       </main>
 
-      <footer className="w-full border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-6 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Image src="/favicon.png" alt="DFN logo" width={32} height={32} className="h-8 w-8 rounded-md ring-1 ring-slate-200" />
-              <span className="text-lg font-bold text-slate-900">DFN</span>
-            </div>
-            <p className="max-w-xs text-sm font-medium leading-relaxed text-slate-500">
-              © {new Date().getFullYear()} Digital Fabrication Network. All rights reserved. Precision Engineering and Design.
-            </p>
-          </div>
-
-          <nav className="flex flex-wrap items-center justify-center gap-5 text-sm font-medium text-slate-500 sm:gap-8">
-            <Link href="/about" className="transition-colors hover:text-sky-700">
-              About DFN
-            </Link>
-            <Link href="/prototyping" className="transition-colors hover:text-sky-700">
-              Technical Specs
-            </Link>
-            <Link href="/settings" className="transition-colors hover:text-sky-700">
-              Privacy Policy
-            </Link>
-            <Link href="/auth/register" className="transition-colors hover:text-sky-700">
-              Contact Support
-            </Link>
-          </nav>
-
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
-              <span className="material-symbols-outlined">language</span>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
-              <span className="material-symbols-outlined">share</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -8,7 +8,6 @@ import {
   Users,
   FolderKanban,
   Boxes,
-  Settings,
   ArrowLeft,
 } from 'lucide-react';
 
@@ -44,13 +43,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       const parsed = JSON.parse(userData);
       if (parsed.role !== 'admin' && parsed.role !== 'platform_manager') {
-        router.replace('/dashboard');
+        router.replace('/');
         return;
       }
 
       setAuthorized(true);
     } catch {
-      router.replace('/dashboard');
+      router.replace('/');
       return;
     } finally {
       setChecking(false);
@@ -101,21 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <Separator className="my-3" />
 
-              <Link href="/settings" className="block">
-                <div
-                  className={[
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    pathname === '/settings'
-                      ? 'bg-[#cee5ff] text-[#004873]'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  ].join(' ')}
-                >
-                  <Settings className="size-4" />
-                  <span>Settings</span>
-                </div>
-              </Link>
-
-              <Link href="/dashboard" className="block">
+              <Link href="/" className="block">
                 <div className="flex items-center gap-3 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                   <ArrowLeft className="size-4" />
                   <span>Exit Admin</span>

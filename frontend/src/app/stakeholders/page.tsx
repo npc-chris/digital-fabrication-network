@@ -118,10 +118,10 @@ export default function StakeholdersPage() {
             <Link href="/" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
               Home
             </Link>
-            <Link href="/forum" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
+            <Link href="/manifesto" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
               Research
             </Link>
-            <Link href="/services" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
+            <Link href="/prototyping" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
               Prototyping
             </Link>
             <Link href="/stakeholders" className="border-b-2 border-sky-700 pb-1 text-sm font-bold text-sky-700">
@@ -166,7 +166,7 @@ export default function StakeholdersPage() {
                   Partner With Us
                 </Link>
                 <Link
-                  href="/about"
+                  href="/manifesto"
                   className="rounded-xl border border-slate-300 bg-white px-8 py-4 font-bold text-[#004873] transition-all hover:-translate-y-0.5 hover:bg-slate-50"
                 >
                   View Our Manifesto
@@ -277,7 +277,7 @@ export default function StakeholdersPage() {
                   <p className="mb-8 text-xl leading-relaxed text-slate-600">
                     Supporting West African hardware innovation through de-risked venture pathways and shared infrastructure models.
                   </p>
-                  <Link href="/about" className="inline-flex items-center gap-2 font-bold text-[#006098] transition-all hover:gap-4">
+                  <Link href="/manifesto" className="inline-flex items-center gap-2 font-bold text-[#006098] transition-all hover:gap-4">
                     Invest in the Hardware Stack
                     <span className="material-symbols-outlined">arrow_forward</span>
                   </Link>
@@ -327,11 +327,11 @@ export default function StakeholdersPage() {
                     Become a Member
                   </Link>
                   <Link
-                    href="/about"
+                    href="/" 
                     className="rounded-xl border-2 border-white/30 px-10 py-4 font-black text-white transition-colors hover:bg-white/10"
-                  >
+                  > 
                     Download Ecosystem Map
-                  </Link>
+                  </Link> /* Placeholder for future resource download */
                 </div>
               </div>
             </div>
@@ -359,14 +359,14 @@ export default function StakeholdersPage() {
           </div>
 
           <nav className="flex flex-wrap items-center justify-center gap-5 text-sm font-medium text-slate-500 sm:gap-8">
-            <Link href="/about" className="transition-colors hover:text-sky-700">
+            <Link href="/manifesto" className="transition-colors hover:text-sky-700">
               About DFN
             </Link>
-            <Link href="/services" className="transition-colors hover:text-sky-700">
+            <Link href="/prototyping" className="transition-colors hover:text-sky-700">
               Technical Specs
             </Link>
-            <Link href="/settings" className="transition-colors hover:text-sky-700">
-              Privacy Policy
+            <Link href="/research" className="transition-colors hover:text-sky-700">
+              Research
             </Link>
             <Link href="/auth/register" className="transition-colors hover:text-sky-700">
               Contact Support

@@ -87,14 +87,15 @@ export default function AdminOverviewPage() {
   }, []);
 
   const reviewProvider = async (id: number, approved: boolean) => {
-    const reason = !approved ? window.prompt('Reason for rejection (optional):') ?? '' : '';
     setBusyProviderId(id);
 
     try {
       if (approved) {
-        await adminClient.approveProvider(id);
+        // Set user role to provider (no approval queue anymore)
+        await adminClient.setUserRole(id, 'provider');
       } else {
-        await adminClient.rejectProvider(id, reason);
+        // Reject by keeping user as explorer
+        await adminClient.setUserRole(id, 'explorer');
       }
       await loadOverview();
     } finally {

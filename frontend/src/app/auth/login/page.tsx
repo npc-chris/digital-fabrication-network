@@ -24,7 +24,7 @@ import {
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect_to') || '/dashboard';
+  const redirectTo = searchParams.get('redirect_to') || '/';
   const isAdminRedirect = redirectTo === '/admin';
   
   const [email, setEmail] = useState('');

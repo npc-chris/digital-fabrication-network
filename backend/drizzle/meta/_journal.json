@@ -15,6 +15,27 @@
       "when": 1775132909546,
       "tag": "0001_freezing_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777214400000,
+      "tag": "0002_onboarding_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777635461854,
+      "tag": "0003_short_the_twelve",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777692396923,
+      "tag": "0004_serious_marvel_apes",
+      "breakpoints": true
     }
   ]
 }

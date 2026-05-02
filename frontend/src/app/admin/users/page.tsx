@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
                       {user.isVerified ? <Badge>Verified</Badge> : <Badge variant="secondary">Pending</Badge>}
                     </TableCell>
                     <TableCell>
-                      {user.providerApproved ? <Badge>Approved</Badge> : <Badge variant="secondary">No</Badge>}
+                      {user.isVerified ? <Badge>Approved</Badge> : <Badge variant="secondary">No</Badge>}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex items-center gap-2">

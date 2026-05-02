@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
-import NotificationsDropdown from '@/components/NotificationsDropdown';
 import UserDropdown from '@/components/UserDropdown';
 import { verifySession } from '@/lib/auth';
 
@@ -26,7 +25,7 @@ type LandingNavbarProps = {
 
 const navLinks = [
   { href: '/', label: 'Home', key: 'home' },
-  { href: '/forum', label: 'Research', key: 'research' },
+  { href: '/research', label: 'Research', key: 'research' },
   { href: '/prototyping', label: 'Prototyping', key: 'prototyping' },
   { href: '/stakeholders', label: 'Stakeholders', key: 'stakeholders' },
 ] as const;
@@ -118,13 +117,12 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
                 </Link>
               ) : (
                 <Link
-                  href="/dashboard"
+                  href="/"
                   className="rounded-xl bg-[#f2f4f6] px-4 py-2 text-sm font-semibold text-[#004873] transition-colors hover:bg-[#e6e8ea]"
                 >
-                  Dashboard
+                  Home
                 </Link>
               )}
-              <NotificationsDropdown />
               {user.email ? (
                 <UserDropdown
                   user={{
@@ -181,18 +179,11 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
             {user ? (
               <div className="space-y-2">
                 <Link
-                  href={user.role === 'admin' || user.role === 'platform_manager' ? '/admin' : '/dashboard'}
+                  href={user.role === 'admin' || user.role === 'platform_manager' ? '/admin' : '/'}
                   className="block rounded-lg px-3 py-2 text-sm font-semibold text-[#004873] hover:bg-slate-100"
                   onClick={() => setMenuOpen(false)}
                 >
-                  {user.role === 'admin' || user.role === 'platform_manager' ? 'Admin' : 'Dashboard'}
-                </Link>
-                <Link
-                  href="/settings"
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Settings
+                  {user.role === 'admin' || user.role === 'platform_manager' ? 'Admin' : 'Home'}
                 </Link>
               </div>
             ) : (
