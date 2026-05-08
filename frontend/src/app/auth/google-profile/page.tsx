@@ -37,10 +37,10 @@ export default function GoogleProfilePage() {
 
         // If onboarding already completed, redirect to appropriate dashboard
         if (user.onboardingCompleted === true) {
-          if (user.role === 'provider') {
-            router.push('/dashboard/provider');
+          if (user.role === 'admin' || user.role === 'platform_manager') {
+            router.push('/admin');
           } else {
-            router.push('/dashboard');
+            router.push('/');
           }
           return;
         }

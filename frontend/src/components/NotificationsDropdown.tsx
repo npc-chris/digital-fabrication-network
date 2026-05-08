@@ -23,7 +23,21 @@ export default function NotificationsDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchNotifications();
+    // Only fetch notifications if a token exists (user is authenticated)
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchNotifications();
+    }
+    
+    // Listen for auth token changes (login/logout events)
+    const handleAuthTokenSet = () => {
+      fetchNotifications();
+    };
+    
+    const handleAuthTokenCleared = () => {
+      setNotifications([]);
+      setUnreadCount(0);
+    };
     
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
@@ -32,8 +46,14 @@ export default function NotificationsDropdown() {
       }
     };
 
+    window.addEventListener('auth-token-set', handleAuthTokenSet);
+    window.addEventListener('auth-token-cleared', handleAuthTokenCleared);
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('auth-token-set', handleAuthTokenSet);
+      window.removeEventListener('auth-token-cleared', handleAuthTokenCleared);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const fetchNotifications = async () => {

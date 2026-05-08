@@ -91,3 +91,11 @@ By default, the app uses local storage (`USE_S3=false`). To use AWS S3:
 - AWS_ENDPOINT=http://localhost:9000
 - AWS_FORCE_PATH_STYLE=true
 
+## 7. Google Places Autocomplete
+
+The frontend location picker calls the backend autocomplete route, which proxies requests to Google Places.
+
+**Variable:** `GOOGLE_PLACES_API_KEY`
+
+Enable the Places API in Google Cloud and add the API key to the backend environment before using location autocomplete.
+

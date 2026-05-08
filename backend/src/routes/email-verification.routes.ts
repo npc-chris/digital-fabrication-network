@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../config/database';
 import { emailVerificationCodes, users } from '../models/schema';
 import emailService from '../services/email.service';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, desc } from 'drizzle-orm';
 import crypto from 'crypto';
 
 const router = Router();
@@ -14,6 +14,7 @@ function generateVerificationCode(): string {
 
 // Rate limiting store for email verification requests
 const emailRateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const inFlightEmailSends = new Set<string>();
 
 // Rate limiter: 3 verification requests per email per 15 minutes
 function checkEmailRateLimit(email: string): boolean {
@@ -38,24 +39,53 @@ function checkEmailRateLimit(email: string): boolean {
 
 // Send verification code to email
 router.post('/send-code', async (req: Request, res: Response) => {
+  let normalizedEmail = '';
   try {
     const { email } = req.body;
+    normalizedEmail = String(email || '').trim().toLowerCase();
 
-    if (!email) {
+    if (!normalizedEmail) {
       return res.status(400).json({ error: 'Email is required' });
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
+    // De-duplicate concurrent requests for the same email.
+    if (inFlightEmailSends.has(normalizedEmail)) {
+      return res.status(202).json({ message: 'Verification code request is already in progress' });
+    }
+    inFlightEmailSends.add(normalizedEmail);
+
     // Check rate limit
-    if (!checkEmailRateLimit(email)) {
+    if (!checkEmailRateLimit(normalizedEmail)) {
       return res.status(429).json({ 
         error: 'Too many verification requests. Please try again later.',
         retryAfter: 15 * 60, // 15 minutes in seconds
+      });
+    }
+
+    // If an unexpired unverified code was sent very recently, do not send another email.
+    const [latestCode] = await db
+      .select()
+      .from(emailVerificationCodes)
+      .where(
+        and(
+          eq(emailVerificationCodes.email, normalizedEmail),
+          eq(emailVerificationCodes.verified, false),
+          gt(emailVerificationCodes.expiresAt, new Date())
+        )
+      )
+      .orderBy(desc(emailVerificationCodes.createdAt))
+      .limit(1);
+
+    if (latestCode?.createdAt && (Date.now() - latestCode.createdAt.getTime()) < 60_000) {
+      return res.json({
+        message: 'Verification code already sent recently',
+        ...(process.env.NODE_ENV === 'development' && { code: latestCode.code }),
       });
     }
 
@@ -65,12 +95,12 @@ router.post('/send-code', async (req: Request, res: Response) => {
 
     // Delete any existing codes for this email
     await db.delete(emailVerificationCodes)
-      .where(eq(emailVerificationCodes.email, email));
+      .where(eq(emailVerificationCodes.email, normalizedEmail));
 
     // Store the verification code
     await db.insert(emailVerificationCodes)
       .values({
-        email,
+        email: normalizedEmail,
         code,
         expiresAt,
       });
@@ -78,7 +108,7 @@ router.post('/send-code', async (req: Request, res: Response) => {
     // Send email with verification code
     try {
       await emailService.sendEmail(
-        email,
+        normalizedEmail,
         'Your DFN Verification Code',
         `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -96,7 +126,7 @@ router.post('/send-code', async (req: Request, res: Response) => {
     } catch (emailError) {
       console.error('Email send error:', emailError);
       // Still return success but log the error - for development without SMTP
-      console.log('Verification code for', email, ':', code);
+      console.log('Verification code for', normalizedEmail, ':', code);
     }
 
     res.json({ 
@@ -107,6 +137,10 @@ router.post('/send-code', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Send verification code error:', error);
     res.status(500).json({ error: 'Failed to send verification code' });
+  } finally {
+    if (normalizedEmail) {
+      inFlightEmailSends.delete(normalizedEmail);
+    }
   }
 });
 

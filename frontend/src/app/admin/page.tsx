@@ -1,803 +1,426 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { BarChart3, Users, ShieldCheck, Package, FileSearch } from 'lucide-react';
+
 import {
-  Users, Package, Wrench, MessageSquare, Shield, Search,
-  ChevronDown, CheckCircle, XCircle, Trash2, ArrowUpCircle,
-  ArrowDownCircle, BarChart3, AlertTriangle, Eye, X
-} from 'lucide-react';
-import api from '@/lib/api';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import Breadcrumbs from '@/components/Breadcrumbs';
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui';
+import {
+  adminClient,
+  type AdminStats,
+  type ProviderRequest,
+  type VerificationItem,
+} from './_lib/admin-client';
 
-interface Stats {
-  users: { total: number; explorers: number; providers: number };
-  content: { components: number; services: number; posts: number };
-  pending: { providerRequests: number; verifications: number };
-}
-
-interface User {
-  id: number;
-  email: string;
-  role: string;
-  isVerified: boolean;
-  onboardingCompleted: boolean;
-  providerApproved: boolean;
-  createdAt: string;
-  firstName?: string;
-  lastName?: string;
-  company?: string;
-  location?: string;
-  phone?: string;
-}
-
-interface ProviderRequest {
-  id: number;
-  email: string;
-  role: string;
-  createdAt: string;
-  firstName?: string;
-  lastName?: string;
-  company?: string;
-  bio?: string;
-  location?: string;
-  phone?: string;
-}
-
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'providers' | 'verifications' | 'content'>('overview');
-  const [stats, setStats] = useState<Stats | null>(null);
+export default function AdminOverviewPage() {
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [providers, setProviders] = useState<ProviderRequest[]>([]);
+  const [verifications, setVerifications] = useState<VerificationItem[]>([]);
+  const [providersError, setProvidersError] = useState('');
+  const [verificationsError, setVerificationsError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [busyProviderId, setBusyProviderId] = useState<number | null>(null);
+  const [busyVerificationId, setBusyVerificationId] = useState<number | null>(null);
+  const [providersModalOpen, setProvidersModalOpen] = useState(false);
+  const [verificationsModalOpen, setVerificationsModalOpen] = useState(false);
 
-  // Users tab state
-  const [userSearch, setUserSearch] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState('all');
-  const [usersList, setUsersList] = useState<User[]>([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [usersPagination, setUsersPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  const loadOverview = async () => {
+    setLoading(true);
+    setError('');
+    setProvidersError('');
+    setVerificationsError('');
 
-  // Provider requests state
-  const [providerRequests, setProviderRequests] = useState<ProviderRequest[]>([]);
-  const [providersLoading, setProvidersLoading] = useState(false);
+    try {
+      const [statsResult, providerResult, verificationResult] = await Promise.allSettled([
+        adminClient.getStats(),
+        adminClient.getProviderRequests(),
+        adminClient.getVerifications(),
+      ]);
 
-  // Verifications tab state
-  const [verificationsList, setVerificationsList] = useState<any[]>([]);
-  const [verificationsLoading, setVerificationsLoading] = useState(false);
-
-  // Selected user for details
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [userDetailsLoading, setUserDetailsLoading] = useState(false);
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const userData = localStorage.getItem('user');
-        if (!userData) {
-          router.push('/auth/login');
-          return;
-        }
-
-        const parsedUser = JSON.parse(userData);
-        if (parsedUser.role !== 'admin' && parsedUser.role !== 'platform_manager') {
-          router.push('/dashboard');
-          return;
-        }
-
-        setUser(parsedUser);
-        await loadStats();
-      } catch (err: any) {
-        setError('Failed to load admin dashboard');
-      } finally {
-        setLoading(false);
+      if (statsResult.status === 'rejected') {
+        throw new Error('stats-unavailable');
       }
-    };
 
-    checkAdmin();
-  }, [router]);
+      setStats(statsResult.value);
 
-  const loadStats = async () => {
-    try {
-      const response = await api.get('/api/admin/stats');
-      setStats(response.data);
-    } catch (err: any) {
-      console.error('Failed to load stats:', err);
-    }
-  };
+      if (providerResult.status === 'fulfilled') {
+        setProviders(providerResult.value);
+      } else {
+        setProviders([]);
+        setProvidersError('Provider queue is temporarily unavailable.');
+      }
 
-  const loadUsers = async (page: number = 1) => {
-    setUsersLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (userSearch) params.append('search', userSearch);
-      if (userRoleFilter !== 'all') params.append('role', userRoleFilter);
-      params.append('page', page.toString());
-      params.append('limit', '20');
-
-      const response = await api.get(`/api/admin/users?${params.toString()}`);
-      setUsersList(response.data.users);
-      setUsersPagination(response.data.pagination);
-    } catch (err: any) {
-      console.error('Failed to load users:', err);
+      if (verificationResult.status === 'fulfilled') {
+        setVerifications(verificationResult.value);
+      } else {
+        setVerifications([]);
+        setVerificationsError('Verification queue is temporarily unavailable.');
+      }
+    } catch {
+      setError('Failed to load admin metrics.');
     } finally {
-      setUsersLoading(false);
-    }
-  };
-
-  const loadProviderRequests = async () => {
-    setProvidersLoading(true);
-    try {
-      const response = await api.get('/api/admin/provider-requests');
-      setProviderRequests(response.data);
-    } catch (err: any) {
-      console.error('Failed to load provider requests:', err);
-    } finally {
-      setProvidersLoading(false);
-    }
-  };
-
-  const loadUserDetails = async (userId: number) => {
-    setUserDetailsLoading(true);
-    try {
-      const response = await api.get(`/api/admin/users/${userId}`);
-      setSelectedUser(response.data);
-    } catch (err: any) {
-      console.error('Failed to load user details:', err);
-    } finally {
-      setUserDetailsLoading(false);
-    }
-  };
-
-  const handleApproveProvider = async (userId: number) => {
-    try {
-      await api.patch(`/api/admin/provider-requests/${userId}`, { approved: true });
-      loadProviderRequests();
-      loadStats();
-    } catch (err: any) {
-      alert('Failed to approve provider');
-    }
-  };
-
-  const handleRejectProvider = async (userId: number) => {
-    const reason = prompt('Enter reason for rejection (optional):');
-    try {
-      await api.patch(`/api/admin/provider-requests/${userId}`, { approved: false, reason });
-      loadProviderRequests();
-      loadStats();
-    } catch (err: any) {
-      alert('Failed to reject provider');
-    }
-  };
-
-  const loadVerifications = async () => {
-    setVerificationsLoading(true);
-    try {
-      const response = await api.get('/api/verification/pending');
-      setVerificationsList(response.data);
-    } catch (err: any) {
-      console.error('Failed to load verifications:', err);
-    } finally {
-      setVerificationsLoading(false);
-    }
-  };
-
-  const handleReviewVerification = async (docId: number, status: 'approved' | 'rejected', vStatus?: string) => {
-    const notes = status === 'rejected' ? prompt('Enter reason for rejection:') : '';
-    try {
-      await api.post(`/api/verification/${docId}/review`, {
-        status,
-        reviewNotes: notes,
-        verificationStatus: vStatus || 'verified'
-      });
-      loadVerifications();
-      loadStats();
-    } catch (err: any) {
-      alert('Failed to review verification');
-    }
-  };
-
-  const handleUpgradeUser = async (userId: number) => {
-    if (!confirm('Are you sure you want to upgrade this user to provider?')) return;
-    try {
-      await api.patch(`/api/admin/users/${userId}/role`, { role: 'provider', providerApproved: true });
-      loadUsers(usersPagination.page);
-      loadStats();
-    } catch (err: any) {
-      alert('Failed to upgrade user');
-    }
-  };
-
-  const handleDowngradeUser = async (userId: number) => {
-    if (!confirm('Are you sure you want to downgrade this user to explorer?')) return;
-    try {
-      await api.patch(`/api/admin/users/${userId}/role`, { role: 'explorer', providerApproved: false });
-      loadUsers(usersPagination.page);
-      loadStats();
-    } catch (err: any) {
-      alert('Failed to downgrade user');
-    }
-  };
-
-  const handleBanUser = async (userId: number, currentlyBanned: boolean) => {
-    const action = currentlyBanned ? 'unban' : 'ban';
-    if (!confirm(`Are you sure you want to ${action} this user?`)) return;
-    try {
-      await api.patch(`/api/admin/users/${userId}/ban`, { banned: !currentlyBanned });
-      loadUsers(usersPagination.page);
-    } catch (err: any) {
-      alert(`Failed to ${action} user`);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (activeTab === 'users') {
-      loadUsers();
-    } else if (activeTab === 'providers') {
-      loadProviderRequests();
-    } else if (activeTab === 'verifications') {
-      loadVerifications();
-    }
-  }, [activeTab]);
+    loadOverview();
+  }, []);
 
-  const handleUserSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    loadUsers(1);
+  const reviewProvider = async (id: number, approved: boolean) => {
+    setBusyProviderId(id);
+
+    try {
+      if (approved) {
+        // Set user role to provider (no approval queue anymore)
+        await adminClient.setUserRole(id, 'provider');
+      } else {
+        // Reject by keeping user as explorer
+        await adminClient.setUserRole(id, 'explorer');
+      }
+      await loadOverview();
+    } finally {
+      setBusyProviderId(null);
+    }
+  };
+
+  const reviewVerification = async (id: number, status: 'approved' | 'rejected') => {
+    const notes = status === 'rejected' ? window.prompt('Reason for rejection:') ?? '' : '';
+    setBusyVerificationId(id);
+
+    try {
+      await adminClient.reviewVerification(id, status, notes);
+      await loadOverview();
+    } finally {
+      setBusyVerificationId(null);
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600">Loading admin dashboard...</p>
+      <div className="space-y-4">
+        <div className="h-12 w-64 animate-pulse rounded-lg bg-muted" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-36 animate-pulse rounded-xl bg-muted" />
+          ))}
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !stats) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600">{error}</p>
-          <Link href="/dashboard" className="mt-4 inline-block text-primary-600 hover:underline">
-            Go to Dashboard
-          </Link>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Overview unavailable</CardTitle>
+          <CardDescription>{error || 'No data returned from admin API.'}</CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
+
+  const kpis = [
+    {
+      label: 'Total Users',
+      value: stats.users.total,
+      meta: `${stats.users.explorers} explorers / ${stats.users.providers} providers`,
+      icon: Users,
+      tone: 'bg-[#cee5ff] text-[#004873]',
+    },
+    {
+      label: 'Provider Requests',
+      value: providers.length,
+      meta: 'Pending approvals available in Overview modal',
+      icon: ShieldCheck,
+      tone: 'bg-amber-100 text-amber-700',
+    },
+    {
+      label: 'Verification Queue',
+      value: verifications.length,
+      meta: 'Identity review queue available in Overview modal',
+      icon: BarChart3,
+      tone: 'bg-blue-100 text-blue-700',
+    },
+    {
+      label: 'Published Content',
+      value: stats.content.posts,
+      meta: `${stats.content.components} components / ${stats.content.services} services`,
+      icon: Package,
+      tone: 'bg-emerald-100 text-emerald-700',
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-red-600">DFN Admin</h1>
-              <span className="ml-2 text-sm text-gray-600 hidden sm:block">Platform Management</span>
-            </div>
-
-            <nav className="hidden md:flex space-x-2">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`flex items-center px-3 py-2 rounded-md ${activeTab === 'overview' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                <BarChart3 className="w-5 h-5 mr-2" />
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex items-center px-3 py-2 rounded-md ${activeTab === 'users' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                <Users className="w-5 h-5 mr-2" />
-                Users
-              </button>
-              <button
-                onClick={() => setActiveTab('providers')}
-                className={`flex items-center px-3 py-2 rounded-md relative ${activeTab === 'providers' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                <Shield className="w-5 h-5 mr-2" />
-                Provider Requests
-                {stats && stats.pending.providerRequests > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {stats.pending.providerRequests}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('verifications')}
-                className={`flex items-center px-3 py-2 rounded-md relative ${activeTab === 'verifications' ? 'bg-red-100 text-red-700' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                <CheckCircle className="w-5 h-5 mr-2" />
-                Verifications
-                {stats && stats.pending.verifications > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {stats.pending.verifications}
-                  </span>
-                )}
-              </button>
-            </nav>
-
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900">
-                Exit Admin
-              </Link>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <header className="space-y-2">
+        <Badge variant="secondary" className="font-semibold">Operations</Badge>
+        <h1 className="text-3xl font-black tracking-tight">Platform Overview</h1>
+        <p className="text-sm text-muted-foreground">
+          Provider approvals and verification reviews are handled here via modal workflows.
+        </p>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Breadcrumbs />
-        {/* Overview Tab */}
-        {activeTab === 'overview' && stats && (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Platform Overview</h2>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-medium text-gray-600">Total Users</h4>
-                  <Users className="w-5 h-5 text-blue-600" />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {kpis.map((kpi) => {
+          const Icon = kpi.icon;
+          return (
+            <Card key={kpi.label} className="border-[#e6e8ea] bg-white">
+              <CardHeader className="pb-3">
+                <CardDescription className="font-medium">{kpi.label}</CardDescription>
+                <CardTitle className="text-3xl font-black tracking-tight">{kpi.value}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{kpi.meta}</p>
+                <div className={`rounded-lg p-2 ${kpi.tone}`}>
+                  <Icon className="size-4" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.users.total}</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {stats.users.explorers} explorers, {stats.users.providers} providers
-                </p>
-              </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </section>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-medium text-gray-600">Components</h4>
-                  <Package className="w-5 h-5 text-green-600" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.content.components}</p>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-medium text-gray-600">Services</h4>
-                  <Wrench className="w-5 h-5 text-purple-600" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.content.services}</p>
-              </div>
-
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-medium text-gray-600">Community Posts</h4>
-                  <MessageSquare className="w-5 h-5 text-orange-600" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.content.posts}</p>
-              </div>
-            </div>
-
-            {/* Pending Actions */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Pending Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-yellow-800">Provider Upgrade Requests</p>
-                      <p className="text-2xl font-bold text-yellow-900">{stats.pending.providerRequests}</p>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab('providers')}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
-                    >
-                      Review
-                    </button>
-                  </div>
-                </div>
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-blue-800">Verification Documents</p>
-                      <p className="text-2xl font-bold text-blue-900">{stats.pending.verifications}</p>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab('verifications')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                      Review
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">User Management</h2>
-
-            {/* Search and Filters */}
-            <form onSubmit={handleUserSearch} className="bg-white rounded-lg shadow p-4 mb-6">
-              <div className="flex flex-wrap gap-4">
-                <div className="flex-1 min-w-[200px]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by ID, email, name, or company..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      value={userSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <select
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                  value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value)}
-                  title="Filter by user role"
-                >
-                  <option value="all">All Roles</option>
-                  <option value="explorer">Explorers</option>
-                  <option value="provider">Providers</option>
-                </select>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-                >
-                  Search
-                </button>
-              </div>
-            </form>
-
-            {/* Users Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              {usersLoading ? (
-                <div className="p-8 text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-                </div>
-              ) : usersList.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">No users found</div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {usersList.map((u) => (
-                      <tr key={u.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{u.id}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : 'No name'}
-                            </p>
-                            <p className="text-sm text-gray-500">{u.email}</p>
-                            {u.company && <p className="text-xs text-gray-400">{u.company}</p>}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs rounded-full ${u.role === 'provider' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                            }`}>
-                            {u.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-col gap-1">
-                            {u.isVerified ? (
-                              <span className="text-xs text-green-600">✓ Active</span>
-                            ) : (
-                              <span className="text-xs text-red-600">✗ Banned</span>
-                            )}
-                            {u.role === 'provider' && (
-                              u.providerApproved ? (
-                                <span className="text-xs text-green-600">✓ Approved</span>
-                              ) : (
-                                <span className="text-xs text-yellow-600">⏳ Pending</span>
-                              )
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(u.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => loadUserDetails(u.id)}
-                              className="p-1 text-gray-600 hover:text-gray-900"
-                              title="View details"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            {u.role === 'explorer' ? (
-                              <button
-                                onClick={() => handleUpgradeUser(u.id)}
-                                className="p-1 text-green-600 hover:text-green-900"
-                                title="Upgrade to provider"
-                              >
-                                <ArrowUpCircle className="w-4 h-4" />
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleDowngradeUser(u.id)}
-                                className="p-1 text-orange-600 hover:text-orange-900"
-                                title="Downgrade to explorer"
-                              >
-                                <ArrowDownCircle className="w-4 h-4" />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleBanUser(u.id, !u.isVerified)}
-                              className={`p-1 ${u.isVerified ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                              title={u.isVerified ? 'Ban user' : 'Unban user'}
-                            >
-                              {u.isVerified ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-
-              {/* Pagination */}
-              {usersPagination.totalPages > 1 && (
-                <div className="px-6 py-4 border-t flex justify-between items-center">
-                  <p className="text-sm text-gray-500">
-                    Page {usersPagination.page} of {usersPagination.totalPages} ({usersPagination.total} total)
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => loadUsers(usersPagination.page - 1)}
-                      disabled={usersPagination.page === 1}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => loadUsers(usersPagination.page + 1)}
-                      disabled={usersPagination.page === usersPagination.totalPages}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Provider Requests Tab */}
-        {activeTab === 'providers' && (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Provider Upgrade Requests</h2>
-
-            {providersLoading ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : providerRequests.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-                No pending provider requests
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {providerRequests.map((req) => (
-                  <div key={req.id} className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {req.firstName && req.lastName ? `${req.firstName} ${req.lastName}` : 'No name provided'}
-                        </h3>
-                        <p className="text-gray-600">{req.email}</p>
-                        {req.company && <p className="text-sm text-gray-500 mt-1">Company: {req.company}</p>}
-                        {req.location && <p className="text-sm text-gray-500">Location: {req.location}</p>}
-                        {req.phone && <p className="text-sm text-gray-500">Phone: {req.phone}</p>}
-                        {req.bio && (
-                          <div className="mt-2">
-                            <p className="text-sm font-medium text-gray-700">Bio:</p>
-                            <p className="text-sm text-gray-600">{req.bio}</p>
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-400 mt-2">
-                          Requested: {new Date(req.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleApproveProvider(req.id)}
-                          className="flex items-center gap-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleRejectProvider(req.id)}
-                          className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Verifications Tab */}
-        {activeTab === 'verifications' && (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Verification Document Reviews</h2>
-
-            {verificationsLoading ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : verificationsList.length === 0 ? (
-              <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-                No pending verification documents
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {verificationsList.map((item) => (
-                  <div key={item.document.id} className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded uppercase">
-                            {item.document.documentType.replace('_', ' ')}
-                          </span>
-                          <span className="text-sm text-gray-500">Submitted by:</span>
-                          <span className="font-semibold">{item.profile?.firstName} {item.profile?.lastName}</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-4">{item.user.email}</p>
-
-                        <div className="mt-4">
-                          <a
-                            href={item.document.documentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm font-medium"
-                          >
-                            <Eye className="w-4 h-4" />
-                            View Document
-                          </a>
-                        </div>
-
-                        <p className="text-xs text-gray-400 mt-4">
-                          Submitted: {new Date(item.document.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleReviewVerification(item.document.id, 'approved', 'verified')}
-                            className="flex items-center gap-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                            Verify (Standard)
-                          </button>
-                          <button
-                            onClick={() => handleReviewVerification(item.document.id, 'approved', 'premium')}
-                            className="flex items-center gap-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
-                          >
-                            <ArrowUpCircle className="w-4 h-4" />
-                            Verify (Premium)
-                          </button>
-                        </div>
-                        <button
-                          onClick={() => handleReviewVerification(item.document.id, 'rejected')}
-                          className="flex items-center justify-center gap-1 px-4 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 text-sm"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Reject Document
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* User Details Modal */}
-      {selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold">User Details #{selectedUser.user.id}</h2>
+      <section className="grid gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Queue Controls</CardTitle>
+              <CardDescription>Provider requests and verifications are processed as modal flows from this screen.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
               <button
-                onClick={() => setSelectedUser(null)}
-                className="p-2 hover:bg-gray-100 rounded-full"
-                aria-label="Close"
+                type="button"
+                className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-3 text-left text-sm transition-colors hover:bg-muted"
+                onClick={() => setProvidersModalOpen(true)}
               >
-                <X className="w-5 h-5" />
+                <span className="font-medium">Provider Requests</span>
+                <Badge variant="outline">{providers.length}</Badge>
+              </button>
+              {providersError ? (
+                <p className="text-xs text-amber-700">{providersError}</p>
+              ) : null}
+              <button
+                type="button"
+                className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-3 text-left text-sm transition-colors hover:bg-muted"
+                onClick={() => setVerificationsModalOpen(true)}
+              >
+                <span className="font-medium">Verifications</span>
+                <Badge variant="outline">{verifications.length}</Badge>
+              </button>
+              {verificationsError ? (
+                <p className="text-xs text-amber-700">{verificationsError}</p>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Operator Steps</CardTitle>
+              <CardDescription>Suggested sequence for each admin execution cycle.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">1. Process Provider Requests modal queue.</div>
+              <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">2. Clear Verification queue and resolve rejected evidence.</div>
+              <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">3. Review Users for role and access policy enforcement.</div>
+              <div className="rounded-lg border border-border bg-muted/40 px-3 py-2">4. Execute Content and Inventory moderation cycles.</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin Execution Workflow</CardTitle>
+            <CardDescription>Continue your moderation cycle from here.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Next Steps</h4>
+              <ol className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground">1.</span>
+                  <span>Review {providers.length} pending provider approvals</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground">2.</span>
+                  <span>Process {verifications.length} verification documents</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground">3.</span>
+                  <span>Audit content moderation queue</span>
+                </li>
+              </ol>
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <button
+                onClick={() => setProvidersModalOpen(true)}
+                className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100 disabled:opacity-50"
+              >
+                Open Providers
+              </button>
+              <button
+                onClick={() => setVerificationsModalOpen(true)}
+                className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 disabled:opacity-50"
+              >
+                Open Verifications
               </button>
             </div>
-            <div className="p-6">
-              {userDetailsLoading ? (
-                <div className="text-center py-8">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Email</p>
-                      <p>{selectedUser.user.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Role</p>
-                      <p className="capitalize">{selectedUser.user.role}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Name</p>
-                      <p>{selectedUser.profile?.firstName} {selectedUser.profile?.lastName || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Company</p>
-                      <p>{selectedUser.profile?.company || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Location</p>
-                      <p>{selectedUser.profile?.location || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Phone</p>
-                      <p>{selectedUser.profile?.phone || 'N/A'}</p>
-                    </div>
-                  </div>
+          </CardContent>
+        </Card>
+      </section>
 
-                  <div className="border-t pt-4">
-                    <h3 className="font-semibold mb-2">Activity Stats</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-2xl font-bold">{selectedUser.stats.components}</p>
-                        <p className="text-sm text-gray-500">Components</p>
+      <Dialog open={providersModalOpen} onOpenChange={setProvidersModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Provider Requests</DialogTitle>
+            <DialogDescription>Approve or reject provider applications without leaving Overview.</DialogDescription>
+          </DialogHeader>
+
+          {providers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending provider requests.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Applicant</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Submitted</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {providers.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {item.firstName || item.lastName
+                            ? `${item.firstName ?? ''} ${item.lastName ?? ''}`.trim()
+                            : item.email}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{item.email}</p>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-2xl font-bold">{selectedUser.stats.services}</p>
-                        <p className="text-sm text-gray-500">Services</p>
+                    </TableCell>
+                    <TableCell>{item.company || '-'}</TableCell>
+                    <TableCell>{item.location || '-'}</TableCell>
+                    <TableCell>{new Date(item.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => reviewProvider(item.id, true)}
+                          disabled={busyProviderId === item.id}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => reviewProvider(item.id, false)}
+                          disabled={busyProviderId === item.id}
+                        >
+                          Reject
+                        </Button>
                       </div>
-                      <div className="bg-gray-50 p-3 rounded">
-                        <p className="text-2xl font-bold">{selectedUser.stats.posts}</p>
-                        <p className="text-sm text-gray-500">Posts</p>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={verificationsModalOpen} onOpenChange={setVerificationsModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Verification Queue</DialogTitle>
+            <DialogDescription>Approve or reject identity records without leaving Overview.</DialogDescription>
+          </DialogHeader>
+
+          {verifications.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No pending verification records.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Document</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Submitted</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {verifications.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {item.user?.firstName || item.user?.lastName
+                            ? `${item.user?.firstName ?? ''} ${item.user?.lastName ?? ''}`.trim()
+                            : item.user?.email ?? 'Unknown user'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{item.user?.email ?? '-'}</p>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                    </TableCell>
+                    <TableCell>{String(item.documentType ?? 'document')}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">
+                        {String(item.status ?? 'pending')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {item.submittedAt ? new Date(String(item.submittedAt)).toLocaleDateString() : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => reviewVerification(item.id, 'approved')}
+                          disabled={busyVerificationId === item.id}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => reviewVerification(item.id, 'rejected')}
+                          disabled={busyVerificationId === item.id}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

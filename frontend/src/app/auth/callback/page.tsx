@@ -28,12 +28,16 @@ function AuthCallbackContent() {
               localStorage.setItem('token', data.token);
             }
             localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Dispatch custom event to notify other components of successful login
+            window.dispatchEvent(new CustomEvent('auth-token-set', { detail: { token } }));
+            
             if (data.user.onboardingCompleted === false) {
               router.push('/auth/google-profile');
-            } else if (data.user.role === 'provider') {
-              router.push('/dashboard/provider');
+            } else if (data.user.role === 'admin' || data.user.role === 'platform_manager') {
+              router.push('/admin');
             } else {
-              router.push('/dashboard');
+              router.push('/');
             }
           } else {
             router.push('/auth/login?error=authentication_failed');

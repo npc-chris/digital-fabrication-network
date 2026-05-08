@@ -23,6 +23,7 @@
 /dist
 /frontend/build
 /backend/dist
+/templates/ 
 
 # misc
 .DS_Store
@@ -52,3 +53,7 @@ next-env.d.ts
 .idea
 *.swp
 *.swo
+
+# Skills
+/.agents/
+/.claude/

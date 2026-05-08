@@ -16,35 +16,35 @@ export default function Footer() {
                     <div>
                         <h5 className="font-semibold mb-4">Explore</h5>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/dashboard" className="hover:text-primary-600">Dashboard</Link></li>
-                            <li><Link href="/projects" className="hover:text-primary-600">Projects Hub</Link></li>
-                            <li><Link href="/forum" className="hover:text-primary-600">Community Forum</Link></li>
-                            <li><Link href="/about" className="hover:text-primary-600">About DFN</Link></li>
+                            <li><Link href="/" className="hover:text-primary-600">Home</Link></li>
+                            <li><Link href="/manifesto" className="hover:text-primary-600">Manifesto</Link></li>
+                            <li><Link href="/stakeholders" className="hover:text-primary-600">Stakeholders</Link></li>
+                            <li><Link href="/blog" className="hover:text-primary-600">Blog</Link></li>
                         </ul>
                     </div>
                     <div>
                         <h5 className="font-semibold mb-4">Services</h5>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/dashboard?tab=components" className="hover:text-primary-600">Components & Parts</Link></li>
-                            <li><Link href="/dashboard?tab=services" className="hover:text-primary-600">Fabrication Services</Link></li>
-                            <li><Link href="/group-buying" className="hover:text-primary-600">Group Buying</Link></li>
-                            <li><Link href="/affiliates" className="hover:text-primary-600">Partner Store</Link></li>
+                            <li><Link href="/prototyping" className="hover:text-primary-600">Prototyping</Link></li>
+                            <li><Link href="/pricing" className="hover:text-primary-600">Pricing</Link></li>
+                            <li><Link href="/auth/register" className="hover:text-primary-600">Join Network</Link></li>
+                            <li><Link href="/admin" className="hover:text-primary-600">Admin</Link></li>
                         </ul>
                     </div>
                     <div>
                         <h5 className="font-semibold mb-4">Community</h5>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/mentorship" className="hover:text-primary-600">Mentorship</Link></li>
-                            <li><Link href="/mentorship/find-mentor" className="hover:text-primary-600">Find a Mentor</Link></li>
-                            <li><Link href="/dashboard/provider" className="hover:text-primary-600">Become a Provider</Link></li>
+                            <li><Link href="/blog" className="hover:text-primary-600">Blog</Link></li>
+                            <li><Link href="/research" className="hover:text-primary-600">Research</Link></li>
+                            <li><Link href="/stakeholders" className="hover:text-primary-600">Ecosystem</Link></li>
                             <li><Link href="/pricing" className="hover:text-primary-600">Pricing</Link></li>
                         </ul>
                     </div>
                     <div>
                         <h5 className="font-semibold mb-4">Account</h5>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/settings" className="hover:text-primary-600">Settings</Link></li>
-                            <li><Link href="/cart" className="hover:text-primary-600">My Cart</Link></li>
+                            <li><Link href="/onboarding" className="hover:text-primary-600">Onboarding</Link></li>
+                            <li><Link href="/admin" className="hover:text-primary-600">Admin</Link></li>
                             <li><Link href="/auth/login" className="hover:text-primary-600">Sign In</Link></li>
                             <li><Link href="/auth/register" className="hover:text-primary-600">Create Account</Link></li>
                         </ul>

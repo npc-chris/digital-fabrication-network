@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Settings, ShoppingCart, LogOut, ChevronDown, FolderOpen, Package, ShieldCheck, GraduationCap } from 'lucide-react';
+import { LogOut, ChevronDown, ShieldCheck, Newspaper } from 'lucide-react';
 import api from '@/lib/api';
 import LogoutConfirmModal from './LogoutConfirmModal';
 
@@ -114,33 +114,13 @@ export default function UserDropdown({ user }: UserDropdownProps) {
 
             {/* Core menu items */}
             <div className="py-1">
-              <Link href="/projects" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <FolderOpen className="w-4 h-4 mr-3 text-gray-500" />
-                My Projects
-              </Link>
-              <Link href="/cart" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <ShoppingCart className="w-4 h-4 mr-3 text-gray-500" />
-                Cart
-              </Link>
-              <Link href="/mentorship/requests" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <GraduationCap className="w-4 h-4 mr-3 text-gray-500" />
-                Mentorships
-              </Link>
-              <Link href="/settings" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <Settings className="w-4 h-4 mr-3 text-gray-500" />
-                Settings
+              <Link href="/blog" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <Newspaper className="w-4 h-4 mr-3 text-gray-500" />
+                Blog
               </Link>
             </div>
 
             {/* Provider/Admin links */}
-            {(user.role === 'provider' || user.role === 'admin') && (
-              <div className="border-t border-gray-100 py-1">
-                <Link href="/dashboard/provider" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  <Package className="w-4 h-4 mr-3 text-gray-500" />
-                  Provider Dashboard
-                </Link>
-              </div>
-            )}
             {user.role === 'admin' && (
               <div className="border-t border-gray-100 py-1">
                 <Link href="/admin" onClick={() => setIsOpen(false)} className="flex items-center px-4 py-2 text-sm text-purple-700 hover:bg-purple-50">
