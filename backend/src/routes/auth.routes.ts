@@ -64,7 +64,8 @@ router.post('/register',
       res.status(201).json(result);
     } catch (error: any) {
       console.error('Registration route error:', error.message);
-      res.status(400).json({ error: error.message });
+      const statusCode = error.statusCode || error.status || 400;
+      res.status(statusCode).json({ error: error.message });
     }
   }
 );

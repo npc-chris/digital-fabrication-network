@@ -14,7 +14,8 @@
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "db:cleanup": "docker-compose down -v && docker-compose up -d && cd backend && npm run db:generate && npm run db:push && cd .."
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",

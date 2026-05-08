@@ -22,6 +22,11 @@ interface Prediction {
   };
 }
 
+interface PlaceDetailsResponse {
+  formattedAddress?: string;
+  name?: string;
+}
+
 export default function LocationAutocomplete({
   value,
   onChange,
@@ -35,7 +40,6 @@ export default function LocationAutocomplete({
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isUsingFallback, setIsUsingFallback] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -56,16 +60,16 @@ export default function LocationAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch predictions from Google Places API
+  // Fetch predictions from the backend Google Places proxy
   const fetchPredictions = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setPredictions([]);
+      setError(null);
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    setIsUsingFallback(false);
 
     try {
       const params = new URLSearchParams({
@@ -77,7 +81,18 @@ export default function LocationAutocomplete({
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch location predictions');
+        let message = 'Failed to fetch location predictions';
+
+        try {
+          const errorData = await response.json();
+          if (typeof errorData.error === 'string' && errorData.error.trim()) {
+            message = errorData.error;
+          }
+        } catch {
+          // Ignore JSON parsing failures and keep the generic message.
+        }
+
+        throw new Error(message);
       }
 
       const data = await response.json();
@@ -89,10 +104,8 @@ export default function LocationAutocomplete({
       }
     } catch (err) {
       console.error('Location autocomplete error:', err);
-      // Use fallback on error
-      const fallbackPredictions = getFallbackPredictions(query);
-      setPredictions(fallbackPredictions);
-      setIsUsingFallback(true);
+      setPredictions([]);
+      setError(err instanceof Error ? err.message : 'Location search is temporarily unavailable');
     } finally {
       setIsLoading(false);
     }
@@ -115,12 +128,38 @@ export default function LocationAutocomplete({
     }, 300);
   };
 
-  const handleSelectPrediction = (prediction: Prediction) => {
-    const locationText = prediction.description;
-    setInputValue(locationText);
-    onChange(locationText);
-    setIsOpen(false);
-    setPredictions([]);
+  const handleSelectPrediction = async (prediction: Prediction) => {
+    setIsLoading(true);
+
+    try {
+      let locationText = prediction.description;
+
+      const params = new URLSearchParams({
+        placeId: prediction.place_id,
+      });
+
+      const response = await fetch(`${API_URL}/api/locations/details?${params.toString()}`);
+      if (response.ok) {
+        const data = (await response.json()) as PlaceDetailsResponse;
+        if (typeof data.formattedAddress === 'string' && data.formattedAddress.trim()) {
+          locationText = data.formattedAddress.trim();
+        }
+      }
+
+      setInputValue(locationText);
+      onChange(locationText);
+      setIsOpen(false);
+      setPredictions([]);
+    } catch (err) {
+      console.error('Location details error:', err);
+      const locationText = prediction.description;
+      setInputValue(locationText);
+      onChange(locationText);
+      setIsOpen(false);
+      setPredictions([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleClear = () => {
@@ -133,7 +172,7 @@ export default function LocationAutocomplete({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <div className="relative">
-        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           value={inputValue}
@@ -141,46 +180,46 @@ export default function LocationAutocomplete({
           onFocus={() => inputValue && setIsOpen(true)}
           placeholder={placeholder}
           required={required}
-          className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-10 text-sm text-[#191c1e] outline-none transition-all placeholder:text-slate-400 focus:border-[#006098] focus:ring-2 focus:ring-[#006098]/15"
         />
         {isLoading && (
-          <Loader2 className="absolute right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />
+          <Loader2 className="absolute right-8 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />
         )}
         {inputValue && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-slate-100"
             aria-label="Clear location"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="h-4 w-4 text-slate-400" />
           </button>
         )}
       </div>
 
       {/* Predictions Dropdown */}
       {isOpen && predictions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.12)]">
           {predictions.map((prediction) => (
             <button
               key={prediction.place_id}
               type="button"
               onClick={() => handleSelectPrediction(prediction)}
-              className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-start gap-3 border-b border-gray-100 last:border-b-0"
+              className="flex w-full items-start gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-50 last:border-b-0"
             >
-              <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+              <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-400" />
               <div>
                 {prediction.structured_formatting ? (
                   <>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-[#191c1e]">
                       {prediction.structured_formatting.main_text}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       {prediction.structured_formatting.secondary_text}
                     </p>
                   </>
                 ) : (
-                  <p className="text-gray-900">{prediction.description}</p>
+                  <p className="text-[#191c1e]">{prediction.description}</p>
                 )}
               </div>
             </button>
@@ -190,15 +229,8 @@ export default function LocationAutocomplete({
 
       {/* No results message */}
       {isOpen && inputValue.length >= 2 && predictions.length === 0 && !isLoading && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 text-center text-gray-500">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-slate-200 bg-white p-4 text-center text-slate-500 shadow-[0_20px_40px_rgba(15,23,42,0.12)]">
           No locations found
-        </div>
-      )}
-
-      {/* API Notice */}
-      {isOpen && isUsingFallback && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-xs text-yellow-700 z-40">
-          Using backend-powered autocomplete. Fallback locations are used if the service is unavailable.
         </div>
       )}
 
@@ -207,58 +239,4 @@ export default function LocationAutocomplete({
       )}
     </div>
   );
-}
-
-// Fallback Nigerian locations when API is not available
-function getFallbackPredictions(query: string): Prediction[] {
-  const nigerianLocations = [
-    // Major Cities
-    { city: 'Lagos', state: 'Lagos State', country: 'Nigeria' },
-    { city: 'Lagos Island', state: 'Lagos State', country: 'Nigeria' },
-    { city: 'Victoria Island', state: 'Lagos State', country: 'Nigeria' },
-    { city: 'Ikeja', state: 'Lagos State', country: 'Nigeria' },
-    { city: 'Lekki', state: 'Lagos State', country: 'Nigeria' },
-    { city: 'Abuja', state: 'FCT', country: 'Nigeria' },
-    { city: 'Kano', state: 'Kano State', country: 'Nigeria' },
-    { city: 'Ibadan', state: 'Oyo State', country: 'Nigeria' },
-    { city: 'Port Harcourt', state: 'Rivers State', country: 'Nigeria' },
-    { city: 'Benin City', state: 'Edo State', country: 'Nigeria' },
-    { city: 'Kaduna', state: 'Kaduna State', country: 'Nigeria' },
-    { city: 'Enugu', state: 'Enugu State', country: 'Nigeria' },
-    { city: 'Calabar', state: 'Cross River State', country: 'Nigeria' },
-    { city: 'Warri', state: 'Delta State', country: 'Nigeria' },
-    { city: 'Owerri', state: 'Imo State', country: 'Nigeria' },
-    { city: 'Onitsha', state: 'Anambra State', country: 'Nigeria' },
-    { city: 'Jos', state: 'Plateau State', country: 'Nigeria' },
-    { city: 'Maiduguri', state: 'Borno State', country: 'Nigeria' },
-    { city: 'Aba', state: 'Abia State', country: 'Nigeria' },
-    { city: 'Ilorin', state: 'Kwara State', country: 'Nigeria' },
-    { city: 'Abeokuta', state: 'Ogun State', country: 'Nigeria' },
-    { city: 'Akure', state: 'Ondo State', country: 'Nigeria' },
-    { city: 'Osogbo', state: 'Osun State', country: 'Nigeria' },
-    { city: 'Sokoto', state: 'Sokoto State', country: 'Nigeria' },
-    { city: 'Yola', state: 'Adamawa State', country: 'Nigeria' },
-    { city: 'Uyo', state: 'Akwa Ibom State', country: 'Nigeria' },
-    { city: 'Asaba', state: 'Delta State', country: 'Nigeria' },
-    { city: 'Makurdi', state: 'Benue State', country: 'Nigeria' },
-    { city: 'Minna', state: 'Niger State', country: 'Nigeria' },
-    { city: 'Lokoja', state: 'Kogi State', country: 'Nigeria' },
-  ];
-
-  const lowerQuery = query.toLowerCase();
-  
-  return nigerianLocations
-    .filter(loc => 
-      loc.city.toLowerCase().includes(lowerQuery) ||
-      loc.state.toLowerCase().includes(lowerQuery)
-    )
-    .slice(0, 5)
-    .map((loc, index) => ({
-      place_id: `fallback-${index}`,
-      description: `${loc.city}, ${loc.state}, ${loc.country}`,
-      structured_formatting: {
-        main_text: loc.city,
-        secondary_text: `${loc.state}, ${loc.country}`,
-      },
-    }));
 }

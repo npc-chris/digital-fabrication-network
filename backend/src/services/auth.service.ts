@@ -10,7 +10,9 @@ export class AuthService {
       // Check if user already exists
       const existingUser = await db.select().from(users).where(eq(users.email, email));
       if (existingUser.length > 0) {
-        throw new Error('Email already registered');
+        const duplicateError = new Error('Email already registered') as Error & { statusCode?: number };
+        duplicateError.statusCode = 409;
+        throw duplicateError;
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,6 +58,23 @@ export class AuthService {
 
   async googleAuth(googleId: string, email: string, profile: any) {
     let [user] = await db.select().from(users).where(eq(users.googleId, googleId));
+
+    if (!user) {
+      const [existingEmailUser] = await db.select().from(users).where(eq(users.email, email));
+
+      if (existingEmailUser) {
+        const [linkedUser] = await db
+          .update(users)
+          .set({
+            googleId,
+            isVerified: true,
+          })
+          .where(eq(users.id, existingEmailUser.id))
+          .returning();
+
+        user = linkedUser;
+      }
+    }
     
     if (!user) {
       [user] = await db.insert(users).values({
@@ -63,7 +82,10 @@ export class AuthService {
         googleId,
         isVerified: true,
       }).returning();
+    }
 
+    const [existingProfile] = await db.select().from(profiles).where(eq(profiles.userId, user.id));
+    if (!existingProfile) {
       // Only include defined fields in profile insert to avoid 'default' keyword issues
       const profileData: any = {
         userId: user.id,
