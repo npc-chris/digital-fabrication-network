@@ -30,7 +30,10 @@ export default function GoogleProfilePage() {
         }
 
         const response = await api.get('/api/auth/me');
-        const { user, profile } = response.data;
+        const { user, profile, token: refreshedToken } = response.data;
+        if (refreshedToken) {
+          localStorage.setItem('token', refreshedToken);
+        }
 
         // If onboarding already completed, redirect to appropriate dashboard
         if (user.onboardingCompleted === true) {

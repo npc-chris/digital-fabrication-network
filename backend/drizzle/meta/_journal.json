@@ -1,40 +1,47 @@
 {
-  "version": "5",
+  "version": "7",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
       "version": "7",
-      "when": 1774952781115,
-      "tag": "0000_friendly_gargoyle",
+      "when": 1766007244191,
+      "tag": "0000_silky_kylun",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1775132909546,
-      "tag": "0001_freezing_supernaut",
+      "when": 1766509917389,
+      "tag": "0001_nice_bloodstrike",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1777214400000,
-      "tag": "0002_onboarding_submissions",
+      "when": 1772030827898,
+      "tag": "0002_chubby_the_spike",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1777635461854,
-      "tag": "0003_short_the_twelve",
+      "when": 1772036664490,
+      "tag": "0003_dizzy_king_cobra",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1777692396923,
-      "tag": "0004_serious_marvel_apes",
+      "when": 1772052875520,
+      "tag": "0004_gorgeous_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774012015011,
+      "tag": "0005_nifty_george_stacy",
       "breakpoints": true
     }
   ]

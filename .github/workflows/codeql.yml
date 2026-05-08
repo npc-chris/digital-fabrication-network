@@ -16,6 +16,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    types: [opened, synchronize, reopened]
+    
   schedule:
     - cron: '44 17 * * 2'
 
@@ -38,6 +40,7 @@ jobs:
       # only required for workflows in private repositories
       actions: read
       contents: read
+      pull-requests: write
 
     strategy:
       fail-fast: false

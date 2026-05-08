@@ -23,6 +23,10 @@ function AuthCallbackContent() {
         .then(res => res.json())
         .then(data => {
           if (data.user) {
+            // If /api/auth/me returns a refreshed token, persist it
+            if (data.token) {
+              localStorage.setItem('token', data.token);
+            }
             localStorage.setItem('user', JSON.stringify(data.user));
             
             // Dispatch custom event to notify other components of successful login
