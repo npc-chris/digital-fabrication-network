@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import LandingNavbar from '@/components/LandingNavbar';
+import Footer from '@/components/Footer';
 import { verifySession } from '@/lib/auth';
 
 export default function StakeholdersPage() {
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -100,95 +103,67 @@ export default function StakeholdersPage() {
         }
       `}</style>
 
-      <header className="nav-enter fixed top-0 z-50 w-full border-b border-slate-200 bg-white/85 shadow-sm backdrop-blur-xl">
-        <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/favicon.png"
-              alt="DFN logo"
-              width={36}
-              height={36}
-              className="h-9 w-9 rounded-lg ring-1 ring-slate-200"
-            />
-            <span className="text-base font-black tracking-tight text-sky-900 sm:text-lg">DFN</span>
-            <span className="hidden text-sm font-semibold text-slate-600 lg:inline">Digital Fabrication Network</span>
-          </Link>
+      <LandingNavbar active="stakeholders" />
 
-          <nav className="hidden items-center gap-8 md:flex">
-            <Link href="/" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Home
-            </Link>
-            <Link href="/manifesto" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Research
-            </Link>
-            <Link href="/prototyping" className="text-sm font-medium text-slate-600 transition-colors hover:text-sky-900">
-              Prototyping
-            </Link>
-            <Link href="/stakeholders" className="border-b-2 border-sky-700 pb-1 text-sm font-bold text-sky-700">
-              Stakeholders
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/auth/login" className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
-              Sign In
-            </Link>
-            <Link
-              href="/auth/register"
-              className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform active:scale-95"
-            >
-              Join Network
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="pt-24">
+      <main className="pt-14">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-[#f7f9fb] py-24 md:py-32">
-          <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-            <div className="z-10">
-              <span className="inline-block rounded-full bg-[#cee5ff] px-4 py-1.5 text-xs font-bold tracking-widest uppercase text-[#004a77]">
-                Ecosystem Synergy
-              </span>
-              <h1 className="reveal-up mb-8 text-5xl font-black leading-[0.9] tracking-tight text-[#191c1e] md:text-7xl">
-                Building the <br />
-                <span className="text-[#006098]">Future Together</span>
+        <section className="relative overflow-hidden pt-6 pb-12 sm:pt-8 sm:pb-14 lg:pt-10 lg:pb-16">
+          {/* Background Ambient Blur & Grid Effect */}
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[120px] opacity-70" />
+            <div className="absolute top-1/4 -right-20 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-sky-300/15 via-blue-500/10 to-indigo-500/5 blur-[140px] opacity-80" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+          </div>
+
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
+            <div className="space-y-6">
+              <h1 className="reveal-up text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
+                Building the
+                <br />
+                <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">Future Together.</span>
               </h1>
-              <p className="reveal-up delay-1 mb-10 max-w-lg text-lg leading-relaxed text-slate-600 sm:text-xl">
+
+              <p className="reveal-up delay-1 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
                 The Digital Fabrication Network connects industry leaders, policy architects, and capital to catalyze the next era of West African hardware manufacturing.
               </p>
-              <div className="reveal-up delay-2 flex flex-wrap gap-4">
+
+              <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
                 <Link
                   href="/auth/register"
-                  className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30"
+                  className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Partner With Us
                 </Link>
                 <Link
                   href="/manifesto"
-                  className="rounded-xl border border-slate-300 bg-white px-8 py-4 font-bold text-[#004873] transition-all hover:-translate-y-0.5 hover:bg-slate-50"
+                  className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
                 >
                   View Our Manifesto
                 </Link>
               </div>
             </div>
-            <div className="relative">
-              <div className="overflow-hidden rounded-3xl shadow-2xl">
+
+            <div className="reveal-up delay-3 group relative">
+              <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
+              <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/15 ring-1 ring-slate-900/10">
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3o8LHCSKiC7ROSihdECsGD1UB8mwehbxscZn_vkXEUKh6tzU-4b2RN0UQ_j3ke_znZSSUUK_wDQvvuztMJkvIMP--1_GTqj5K8Mjjh44OC7jkFBxjG3fQTODibYhnUiIBt2vQyRgxQLnNhETX8I4xjYyLsCBowGSvSAgJKBSgV19NkUyp75P8-uOXxdVmbIGc-4HmyvZxdnW3tSHcEeExZKKMlWmMgy43BZZAgFDpHiIh9JLPgYkCkjNPxMZOIizoUwvclhTwwxU"
                   alt="Close up of high precision industrial robotic arm in a clean lab setting"
-                  className="h-full w-full object-cover"
+                  className="h-[380px] sm:h-[440px] lg:h-[480px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </div>
-              <div className="absolute -bottom-6 -left-6 max-w-xs rounded-2xl bg-white p-6 shadow-xl">
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="rounded-xl bg-sky-100 p-3">
-                    <span className="material-symbols-outlined text-[#006098]">hub</span>
-                  </div>
-                  <div className="text-sm font-bold">About 100 Active Lab Nodes*</div>
-                </div>
-                <p className="text-xs text-slate-600">Connecting regional fabrication centers with global standard protocols by the end of the year.</p>
+
+                {/* Gradient Vignette */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-slate-950/10" />
+
+                {/* Technical Grid Pattern Accent (Top-Right Corner) */}
+                <div className="pointer-events-none absolute top-0 right-0 h-44 w-44 bg-[linear-gradient(to_right,#ffffff30_1px,transparent_1px),linear-gradient(to_bottom,#ffffff30_1px,transparent_1px)] bg-[size:16px_16px] opacity-70 [mask-image:radial-gradient(ellipse_100%_100%_at_100%_0%,#000_45%,transparent_100%)]" />
+
+                {/* Dot Matrix Pattern Accent (Bottom-Left Corner) */}
+                <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 bg-[radial-gradient(#ffffff45_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-75 [mask-image:radial-gradient(ellipse_100%_100%_at_0%_100%,#000_45%,transparent_100%)]" />
+
+                {/* Technical Corner Brackets */}
+                <div className="pointer-events-none absolute top-5 left-5 h-6 w-6 border-t-2 border-l-2 border-white/70 rounded-tl-sm" />
+                <div className="pointer-events-none absolute bottom-5 right-5 h-6 w-6 border-b-2 border-r-2 border-white/70 rounded-br-sm" />
               </div>
             </div>
           </div>
@@ -303,6 +278,31 @@ export default function StakeholdersPage() {
           </div>
         </section>
 
+        <section className="bg-[#f2f4f6] py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
+              Our Goals*
+            </h2>
+            <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
+              {[
+                { value: '450+', label: 'Stakeholders' },
+                { value: '1.2k', label: 'Projects' },
+                { value: '85', label: 'Facilities' },
+                { value: '12', label: 'Nations' },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  data-stat-card
+                  className="space-y-2 rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-8"
+                >
+                  <div className="text-3xl font-black text-[#004873] sm:text-4xl">{stat.value}</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-sm">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="bg-white py-24">
           <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -315,7 +315,7 @@ export default function StakeholdersPage() {
                 />
               </div>
               <div className="relative z-10">
-                <h2 className="mb-6 text-4xl font-black text-white md:text-5xl">Join the Digital Fabrication Network</h2>
+                <h2 className="mb-6 text-4xl font-black text-white md:text-5xl">Join Us Today</h2>
                 <p className="mb-10 mx-auto max-w-2xl text-lg text-white/80">
                   Access the collective intelligence and hardware infrastructure of the continent's most advanced fab-lab ecosystem.
                 </p>
@@ -327,11 +327,11 @@ export default function StakeholdersPage() {
                     Become a Member
                   </Link>
                   <Link
-                    href="/" 
+                    href="/"
                     className="rounded-xl border-2 border-white/30 px-10 py-4 font-black text-white transition-colors hover:bg-white/10"
-                  > 
+                  >
                     Download Ecosystem Map
-                  </Link> /* Placeholder for future resource download */
+                  </Link>
                 </div>
               </div>
             </div>
@@ -339,50 +339,7 @@ export default function StakeholdersPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-6 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/favicon.png"
-                alt="DFN logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-md ring-1 ring-slate-200"
-              />
-              <span className="text-lg font-bold text-slate-900">DFN</span>
-            </div>
-            <p className="max-w-xs text-sm font-medium leading-relaxed text-slate-500">
-              © {new Date().getFullYear()} Digital Fabrication Network. All rights reserved. Precision Engineering and Design.
-            </p>
-          </div>
-
-          <nav className="flex flex-wrap items-center justify-center gap-5 text-sm font-medium text-slate-500 sm:gap-8">
-            <Link href="/manifesto" className="transition-colors hover:text-sky-700">
-              About DFN
-            </Link>
-            <Link href="/prototyping" className="transition-colors hover:text-sky-700">
-              Technical Specs
-            </Link>
-            <Link href="/research" className="transition-colors hover:text-sky-700">
-              Research
-            </Link>
-            <Link href="/auth/register" className="transition-colors hover:text-sky-700">
-              Contact Support
-            </Link>
-          </nav>
-
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
-              <span className="material-symbols-outlined">language</span>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
-              <span className="material-symbols-outlined">share</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

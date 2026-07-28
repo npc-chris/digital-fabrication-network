@@ -7,10 +7,10 @@ interface LogoProps {
   height?: number;
 }
 
-export default function Logo({ priority = false, className, width = 120, height = 36 }: LogoProps) {
+export default function Logo({ priority = false, className, width = 192, height = 48 }: LogoProps) {
   return (
     <Image
-      src="/logo.png"
+      src="/DFN - 800x200.png"
       alt="Digital Fabrication Network"
       width={width}
       height={height}

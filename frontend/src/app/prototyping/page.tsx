@@ -80,44 +80,67 @@ export default function PrototypingPage() {
 
       <LandingNavbar active="prototyping" />
 
-      <main className="pt-20">
-        <section className="relative mx-auto max-w-[1400px] overflow-hidden px-4 py-20 sm:px-6 md:py-32 lg:px-8">
-          <div className="relative z-10 max-w-3xl">
-            <span className="reveal-up inline-block rounded-full bg-[#cee5ff] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#004a77]">
-              Industrial Fabrication Reimagined
-            </span>
-            <h1 className="reveal-up delay-1 mb-8 mt-6 text-5xl font-black leading-[0.9] tracking-tighter text-[#191c1e] md:text-7xl lg:text-8xl">
-              Concept to <span className="text-[#004873]">Physical Reality</span>.
-            </h1>
-            <p className="reveal-up delay-2 mb-10 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl">
-              Deploy industrial-grade tools across a distributed global network. DFN provides the technical precision required for aerospace, medical, and high-performance
-              engineering.
-            </p>
-            <div className="reveal-up delay-3 flex flex-wrap gap-4">
-              <Link
-                href="/auth/register"
-                className="primary-gradient rounded-xl px-8 py-4 text-lg font-bold text-white shadow-xl shadow-sky-900/20 transition-all hover:-translate-y-0.5"
-              >
-                Start Your Build
-              </Link>
-              <Link
-                href="/stakeholders"
-                className="rounded-xl border border-slate-300/60 bg-white px-8 py-4 text-lg font-bold text-[#004873] transition-all hover:bg-[#f2f4f6]"
-              >
-                View Capability Map
-              </Link>
-            </div>
+      <main className="pt-14">
+        <section className="relative overflow-hidden pt-6 pb-12 sm:pt-8 sm:pb-14 lg:pt-10 lg:pb-16">
+
+          {/* Background Ambient Blur & Grid Effect */}
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[120px] opacity-70" />
+            <div className="absolute top-1/4 -right-20 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-sky-300/15 via-blue-500/10 to-indigo-500/5 blur-[140px] opacity-80" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           </div>
 
-          <div className="absolute right-0 top-1/2 hidden h-[80%] w-1/2 -translate-y-1/2 lg:block">
-            <div className="float-gentle h-full w-full translate-x-12 rotate-2 overflow-hidden rounded-3xl bg-[#e6e8ea] shadow-2xl">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMoq5v99Meffj7SQ9l30YOCYoePpLaJ11H6oA37KTyWtds0TSRExA-ryZZtGlg2Wop9JYHd_axZeRDyFkS3CGtgPLo_hwBV-sSrlOxYK6vAB76xNbSfsLsshQVp1aEsthcDKAxRg_Mb2CUGELeJkJ7OkGug167Jq3pnR_l9pgmD4mrUHPvPlmKQWncY_pCsLt6xSyqUwLeNs17IP8vl_GyWEZHsbgcD7G8TPF-rxNsCEgDamQo6JSvmhbbc0Yyh1p7G4v7cXzoubA"
-                alt="Industrial 3D printer detail"
-                className="h-full w-full object-cover opacity-80 grayscale"
-              />
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
+            <div className="space-y-6">
+              <h1 className="reveal-up text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
+                Concept to
+                <br />
+                <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">Physical Reality.</span>
+              </h1>
+
+              <p className="reveal-up delay-1 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                Deploy industrial-grade tools across a distributed global network. DFN provides the technical precision required for aerospace, medical, and high-performance engineering.
+              </p>
+
+              <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
+                <Link
+                  href="/auth/register"
+                  className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
+                >
+                  Start Your Build
+                </Link>
+                <Link
+                  href="/stakeholders"
+                  className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
+                >
+                  View Capability Map
+                </Link>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#f7f9fb] via-transparent to-transparent"></div>
+
+            <div className="reveal-up delay-3 group relative">
+              <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
+              <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/15 ring-1 ring-slate-900/10">
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMoq5v99Meffj7SQ9l30YOCYoePpLaJ11H6oA37KTyWtds0TSRExA-ryZZtGlg2Wop9JYHd_axZeRDyFkS3CGtgPLo_hwBV-sSrlOxYK6vAB76xNbSfsLsshQVp1aEsthcDKAxRg_Mb2CUGELeJkJ7OkGug167Jq3pnR_l9pgmD4mrUHPvPlmKQWncY_pCsLt6xSyqUwLeNs17IP8vl_GyWEZHsbgcD7G8TPF-rxNsCEgDamQo6JSvmhbbc0Yyh1p7G4v7cXzoubA"
+                  alt="Industrial 3D printer detail"
+                  className="h-[380px] sm:h-[440px] lg:h-[480px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+
+                {/* Gradient Vignette */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-slate-950/10" />
+
+                {/* Technical Grid Pattern Accent (Top-Right Corner) */}
+                <div className="pointer-events-none absolute top-0 right-0 h-44 w-44 bg-[linear-gradient(to_right,#ffffff30_1px,transparent_1px),linear-gradient(to_bottom,#ffffff30_1px,transparent_1px)] bg-[size:16px_16px] opacity-70 [mask-image:radial-gradient(ellipse_100%_100%_at_100%_0%,#000_45%,transparent_100%)]" />
+
+                {/* Dot Matrix Pattern Accent (Bottom-Left Corner) */}
+                <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 bg-[radial-gradient(#ffffff45_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-75 [mask-image:radial-gradient(ellipse_100%_100%_at_0%_100%,#000_45%,transparent_100%)]" />
+
+                {/* Technical Corner Brackets */}
+                <div className="pointer-events-none absolute top-5 left-5 h-6 w-6 border-t-2 border-l-2 border-white/70 rounded-tl-sm" />
+                <div className="pointer-events-none absolute bottom-5 right-5 h-6 w-6 border-b-2 border-r-2 border-white/70 rounded-br-sm" />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -239,7 +262,7 @@ export default function PrototypingPage() {
                 </h2>
                 <p className="mt-4 max-w-xl text-slate-400">A 6-month intensive fabrication track designed specifically for pre-seed to Series A hardware startups.</p>
               </div>
-              <Link href="/auth/register" className="rounded-xl bg-[#006098] px-8 py-4 font-bold text-white transition-transform hover:-translate-y-0.5">
+              <Link href="/auth/register" className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95">
                 Apply for Our Cohort
               </Link>
             </div>
@@ -331,7 +354,7 @@ export default function PrototypingPage() {
           <div className="mt-12 flex flex-wrap justify-center gap-6">
             <Link
               href="/auth/register"
-              className="primary-gradient rounded-xl px-10 py-5 text-xl font-bold text-white shadow-xl shadow-sky-900/20 transition-all hover:-translate-y-0.5"
+              className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-10 py-5 text-xl font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
             >
               Apply for Access
             </Link>

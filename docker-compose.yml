@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: dfn-postgres
+    container_name: dfn-landing-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-dfn_user}
@@ -21,7 +21,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: dfn-redis
+    container_name: dfn-landing-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD:-redis_password}
     ports:
@@ -38,7 +38,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: dfn-minio
+    container_name: dfn-landing-minio
     restart: unless-stopped
     ports:
       - "${MINIO_PORT:-9000}:9000"
@@ -59,7 +59,7 @@ services:
 
   createbuckets:
     image: minio/mc
-    container_name: dfn-minio-init
+    container_name: dfn-landing-minio-init
     depends_on:
       minio:
         condition: service_healthy

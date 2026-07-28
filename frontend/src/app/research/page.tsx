@@ -80,43 +80,68 @@ export default function ResearchPage() {
 
       <LandingNavbar active="research" />
 
-      <main className="pt-20">
-        <section className="relative mx-auto max-w-[1400px] overflow-hidden px-4 py-20 sm:px-6 md:py-32 lg:px-8">
-          <div className="relative z-10 max-w-3xl">
-            <span className="reveal-up inline-block rounded-full bg-[#cee5ff] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#004a77]">
-              Advancing Regional Capability
-            </span>
-            <h1 className="reveal-up delay-1 mb-8 mt-6 text-5xl font-black leading-[0.9] tracking-tighter text-[#191c1e] md:text-7xl lg:text-8xl">
-              Accelerating <span className="text-[#004873]">Hardware Research</span> in West Africa
-            </h1>
-            <p className="reveal-up delay-2 mb-10 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl">
-              We bridge the gap between conceptual design and physical realization by providing a decentralized network of high-precision laboratories and industrial partnerships.
-            </p>
-            <div className="reveal-up delay-3 flex flex-wrap gap-4">
-              <Link
-                href="/auth/register"
-                className="primary-gradient rounded-xl px-8 py-4 text-lg font-bold text-white shadow-xl shadow-sky-900/20 transition-all hover:-translate-y-0.5"
-              >
-                Join as Research Fellow
-              </Link>
-              <Link
-                href="/stakeholders"
-                className="rounded-xl border border-slate-300/60 bg-white px-8 py-4 text-lg font-bold text-[#004873] transition-all hover:bg-[#f2f4f6]"
-              >
-                Explore Partnerships
-              </Link>
-            </div>
+      <main className="pt-14">
+        <section className="relative overflow-hidden pt-6 pb-12 sm:pt-8 sm:pb-14 lg:pt-10 lg:pb-16">
+          {/* Background Ambient Blur & Grid Effect */}
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[120px] opacity-70" />
+            <div className="absolute top-1/4 -right-20 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-sky-300/15 via-blue-500/10 to-indigo-500/5 blur-[140px] opacity-80" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           </div>
 
-          <div className="absolute right-0 top-1/2 hidden h-[80%] w-1/2 -translate-y-1/2 lg:block">
-            <div className="float-gentle h-full w-full translate-x-12 rotate-2 overflow-hidden rounded-3xl bg-[#e6e8ea] shadow-2xl">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVo0Ml4x3xb065fBhY-XZt_FpcNy1suyGBOvTVQ-Se9vb2qMYGVMwOKaiPj16XlCvZae50r1jesYkYLU-jekRnWeSWJm4XJqL9C83T15NjGgae-Z3e7zEUkWPIH5xcij1Y9jtT74WtMABOzLHDUy_QNbqtz96QMSWwr3HJ_7p5fC_qTJ0RCUgoWXc1rQOddt9Bn7tbB2Y56z15DlAHSqhJYv2UOzcf63ecsWyTZOaJyb73LewiPH9NJ7-gawPRCzJPTGQqPdCWDv4"
-                alt="Laboratory precision equipment"
-                className="h-full w-full object-cover opacity-80 grayscale"
-              />
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
+            <div className="space-y-6">
+              <h1 className="reveal-up text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
+                Accelerating
+                <br />
+                <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">Hardware Research</span>
+                <br />
+                in West Africa.
+              </h1>
+
+              <p className="reveal-up delay-1 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                We bridge the gap between conceptual design and physical realization by providing a decentralized network of high-precision laboratories and industrial partnerships.
+              </p>
+
+              <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
+                <Link
+                  href="/auth/register"
+                  className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
+                >
+                  Join as Research Fellow
+                </Link>
+                <Link
+                  href="/stakeholders"
+                  className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
+                >
+                  Explore Partnerships
+                </Link>
+              </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#f7f9fb] via-transparent to-transparent"></div>
+
+            <div className="reveal-up delay-3 group relative">
+              <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
+              <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/15 ring-1 ring-slate-900/10">
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVo0Ml4x3xb065fBhY-XZt_FpcNy1suyGBOvTVQ-Se9vb2qMYGVMwOKaiPj16XlCvZae50r1jesYkYLU-jekRnWeSWJm4XJqL9C83T15NjGgae-Z3e7zEUkWPIH5xcij1Y9jtT74WtMABOzLHDUy_QNbqtz96QMSWwr3HJ_7p5fC_qTJ0RCUgoWXc1rQOddt9Bn7tbB2Y56z15DlAHSqhJYv2UOzcf63ecsWyTZOaJyb73LewiPH9NJ7-gawPRCzJPTGQqPdCWDv4"
+                  alt="Laboratory precision equipment"
+                  className="h-[380px] sm:h-[440px] lg:h-[480px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+
+                {/* Gradient Vignette */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-slate-950/10" />
+
+                {/* Technical Grid Pattern Accent (Top-Right Corner) */}
+                <div className="pointer-events-none absolute top-0 right-0 h-44 w-44 bg-[linear-gradient(to_right,#ffffff30_1px,transparent_1px),linear-gradient(to_bottom,#ffffff30_1px,transparent_1px)] bg-[size:16px_16px] opacity-70 [mask-image:radial-gradient(ellipse_100%_100%_at_100%_0%,#000_45%,transparent_100%)]" />
+
+                {/* Dot Matrix Pattern Accent (Bottom-Left Corner) */}
+                <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 bg-[radial-gradient(#ffffff45_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-75 [mask-image:radial-gradient(ellipse_100%_100%_at_0%_100%,#000_45%,transparent_100%)]" />
+
+                {/* Technical Corner Brackets */}
+                <div className="pointer-events-none absolute top-5 left-5 h-6 w-6 border-t-2 border-l-2 border-white/70 rounded-tl-sm" />
+                <div className="pointer-events-none absolute bottom-5 right-5 h-6 w-6 border-b-2 border-r-2 border-white/70 rounded-br-sm" />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -249,6 +274,78 @@ export default function ResearchPage() {
             </div>
           </div>
         </section>
+
+        <section className="mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+          <div className="grid items-center gap-12 rounded-[2rem] bg-[#f2f4f6] p-8 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:rounded-[3rem] lg:p-16">
+            <div className="space-y-8">
+              <h2 className="text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl">Build the Future with Us</h2>
+              <div className="space-y-6">
+                {[
+                  {
+                    icon: 'groups',
+                    title: 'Pioneer Cohort',
+                    text: 'Be part of the inaugural group shaping West African hardware standards.',
+                  },
+                  {
+                    icon: 'construction',
+                    title: 'Infrastructure Access',
+                    text: 'Unprecedented access to localized manufacturing and global testing labs.',
+                  },
+                  {
+                    icon: 'rocket_launch',
+                    title: 'Mission-Driven',
+                    text: 'Join a cause focused on economic self-sufficiency through engineering.',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="flex gap-5 sm:gap-6">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#004873]">
+                      <span className="material-symbols-outlined text-white">{item.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold">{item.title}</h4>
+                      <p className="text-slate-600">{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-gradient-to-br from-[#006098] to-[#004873] p-1">
+              <div className="space-y-7 rounded-[1.4rem] bg-white p-8 sm:p-10">
+                <h3 className="text-2xl font-bold">Join the Pioneer Cohort</h3>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Professional Email"
+                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
+                  />
+                  <select
+                    title="Stakeholder Type"
+                    aria-label="Stakeholder Type"
+                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
+                  >
+                    <option>Select Stakeholder Type</option>
+                    <option>Manufacturer</option>
+                    <option>Researcher</option>
+                    <option>Engineer/Designer</option>
+                  </select>
+                </div>
+                <Link
+                  href="/auth/register"
+                  className="block w-full rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] py-4 text-center text-lg font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
+                >
+                  Apply for Admission
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       <Footer />

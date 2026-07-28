@@ -1,59 +1,50 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import Logo from '@/components/Logo';
-import React from 'react';
 
 export default function Footer() {
-    return (
-        <footer className="bg-white border-t mt-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-                    <div className="col-span-2 md:col-span-1">
-                        <Logo className="mb-2" />
-                        <p className="text-sm text-gray-600">
-                            Connecting the digital fabrication ecosystem to accelerate hardware innovation across Africa.
-                        </p>
-                    </div>
-                    <div>
-                        <h5 className="font-semibold mb-4">Explore</h5>
-                        <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/" className="hover:text-primary-600">Home</Link></li>
-                            <li><Link href="/manifesto" className="hover:text-primary-600">Manifesto</Link></li>
-                            <li><Link href="/stakeholders" className="hover:text-primary-600">Stakeholders</Link></li>
-                            <li><Link href="/blog" className="hover:text-primary-600">Blog</Link></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h5 className="font-semibold mb-4">Services</h5>
-                        <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/prototyping" className="hover:text-primary-600">Prototyping</Link></li>
-                            <li><Link href="/pricing" className="hover:text-primary-600">Pricing</Link></li>
-                            <li><Link href="/auth/register" className="hover:text-primary-600">Join Network</Link></li>
-                            <li><Link href="/admin" className="hover:text-primary-600">Admin</Link></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h5 className="font-semibold mb-4">Community</h5>
-                        <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/blog" className="hover:text-primary-600">Blog</Link></li>
-                            <li><Link href="/research" className="hover:text-primary-600">Research</Link></li>
-                            <li><Link href="/stakeholders" className="hover:text-primary-600">Ecosystem</Link></li>
-                            <li><Link href="/pricing" className="hover:text-primary-600">Pricing</Link></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h5 className="font-semibold mb-4">Account</h5>
-                        <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/onboarding" className="hover:text-primary-600">Onboarding</Link></li>
-                            <li><Link href="/admin" className="hover:text-primary-600">Admin</Link></li>
-                            <li><Link href="/auth/login" className="hover:text-primary-600">Sign In</Link></li>
-                            <li><Link href="/auth/register" className="hover:text-primary-600">Create Account</Link></li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="border-t mt-8 pt-8 text-center text-sm text-gray-600">
-                    © {new Date().getFullYear()} Digital Fabrication Network. All rights reserved.
-                </div>
-            </div>
-        </footer>
-    );
+  return (
+    <footer className="w-full border-t border-slate-200 bg-slate-50">
+      <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-6 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/favicon.png"
+              alt="DFN logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-md ring-1 ring-slate-200"
+            />
+            <span className="text-lg font-bold text-slate-900">DFN</span>
+          </div>
+          <p className="max-w-xs text-sm font-medium leading-relaxed text-slate-500">
+            © {new Date().getFullYear()} Digital Fabrication Network. All rights reserved. Precision Engineering and Design.
+          </p>
+        </div>
+
+        <nav className="flex flex-wrap items-center justify-center gap-5 text-sm font-medium text-slate-500 sm:gap-8">
+          <Link href="/manifesto" className="transition-colors hover:text-sky-700">
+            About DFN
+          </Link>
+          <Link href="/prototyping" className="transition-colors hover:text-sky-700">
+            Technical Specs
+          </Link>
+          <Link href="/research" className="transition-colors hover:text-sky-700">
+            Research
+          </Link>
+          <Link href="/auth/register" className="transition-colors hover:text-sky-700">
+            Contact Support
+          </Link>
+        </nav>
+
+        <div className="flex gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
+            <span className="material-symbols-outlined">language</span>
+          </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
+            <span className="material-symbols-outlined">share</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
 }

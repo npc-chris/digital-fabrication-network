@@ -8,6 +8,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { verifySession } from '@/lib/auth';
 import LandingNavbar from '@/components/LandingNavbar';
+import Footer from '@/components/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -296,76 +297,68 @@ export default function LandingPage() {
 
       <LandingNavbar active="home" />
 
-      <main className="pt-24">
-        <section ref={heroRef} className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-          <div ref={heroTextRef} className="space-y-8">
-            <div data-hero-item className="inline-flex items-center gap-2 rounded-full bg-[#cee5ff] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#004a77]">
-              <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
-              West Africa's Tech Hub
-            </div>
-
-            <h1 data-hero-item className="text-5xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-6xl lg:text-7xl">
-              Connect.
-              <br />
-              Fabricate.
-              <br />
-              Innovate.
-            </h1>
-
-            <p data-hero-item className="max-w-lg text-lg leading-relaxed text-slate-600 sm:text-xl">
-              West Africa's premier platform for professional hardware development and precision engineering. We bridge the gap between design and physical reality.
-            </p>
-
-            <div data-hero-item className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
-              <Link
-                href="/auth/register"
-                data-cta-pulse
-                className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 text-center text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30"
-              >
-                Join the Network
-              </Link>
-              <Link
-                href="/manifesto"
-                className="rounded-xl bg-[#f2f4f6] px-8 py-4 text-center text-base font-bold text-[#004873] transition-all hover:-translate-y-0.5 hover:bg-[#e6e8ea]"
-              >
-                Our Manifesto
-              </Link>
-            </div>
+      <main className="pt-14">
+        <section ref={heroRef} className="relative overflow-hidden pt-6 pb-12 sm:pt-8 sm:pb-14 lg:pt-10 lg:pb-16">
+          {/* Background Ambient Blur & Grid Effect */}
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[120px] opacity-70" />
+            <div className="absolute top-1/4 -right-20 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-sky-300/15 via-blue-500/10 to-indigo-500/5 blur-[140px] opacity-80" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           </div>
 
-          <div data-hero-image className="group relative">
-            <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
-            <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/10">
-              <img
-                src="https://media.licdn.com/dms/image/v2/D4D12AQEwa6c_EymbPw/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1692005969362?e=2147483647&v=beta&t=06PrlnV6KhBp6QMXkeZ7cCtQHotsZ8ki9d1a807d6TE"
-                alt="Advanced fabrication facility"
-                className="h-[480px] w-full object-cover transition-transform duration-700 group-hover:scale-105 lg:h-[600px]"
-              />
-            </div>
-          </div>
-        </section>
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
+            <div ref={heroTextRef} className="space-y-6">
+              <h1 data-hero-item className="text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
+                Connect.
+                <br />
+                Build.
+                <br />
+                <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">Scale.</span>
+              </h1>
 
-        <section className="bg-[#f2f4f6] py-20">
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
-              Our Goals for the Year
-            </h2>
-            <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
-              {[
-                { value: '450+', label: 'Stakeholders' },
-                { value: '1.2k', label: 'Projects' },
-                { value: '85', label: 'Facilities' },
-                { value: '12', label: 'Nations' },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  data-stat-card
-                  className="space-y-2 rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-8"
+              <p data-hero-item className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                West Africa's premier platform for professional hardware development and precision engineering. We bridge the gap between design and physical reality.
+              </p>
+
+              <div data-hero-item className="flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
+                <Link
+                  href="/auth/register"
+                  data-cta-pulse
+                  className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
-                  <div className="text-3xl font-black text-[#004873] sm:text-4xl">{stat.value}</div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-sm">{stat.label}</div>
-                </div>
-              ))}
+                  Join the Network
+                </Link>
+                <Link
+                  href="/manifesto"
+                  className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
+                >
+                  Our Manifesto
+                </Link>
+              </div>
+            </div>
+
+            <div data-hero-image className="group relative">
+              <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
+              <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/15 ring-1 ring-slate-900/10">
+                <img
+                  src="/root-hero-img.jpg"
+                  alt="Advanced fabrication facility"
+                  className="h-[380px] sm:h-[440px] lg:h-[480px] w-full object-cover object-[80%_center] transition-transform duration-700 group-hover:scale-105"
+                />
+
+                {/* Gradient Vignette */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-slate-950/10" />
+
+                {/* Technical Grid Pattern Accent (Top-Right Corner) */}
+                <div className="pointer-events-none absolute top-0 right-0 h-44 w-44 bg-[linear-gradient(to_right,#ffffff30_1px,transparent_1px),linear-gradient(to_bottom,#ffffff30_1px,transparent_1px)] bg-[size:16px_16px] opacity-70 [mask-image:radial-gradient(ellipse_100%_100%_at_100%_0%,#000_45%,transparent_100%)]" />
+
+                {/* Dot Matrix Pattern Accent (Bottom-Left Corner) */}
+                <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 bg-[radial-gradient(#ffffff45_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-75 [mask-image:radial-gradient(ellipse_100%_100%_at_0%_100%,#000_45%,transparent_100%)]" />
+
+                {/* Technical Corner Brackets */}
+                <div className="pointer-events-none absolute top-5 left-5 h-6 w-6 border-t-2 border-l-2 border-white/70 rounded-tl-sm" />
+                <div className="pointer-events-none absolute bottom-5 right-5 h-6 w-6 border-b-2 border-r-2 border-white/70 rounded-br-sm" />
+              </div>
             </div>
           </div>
         </section>
@@ -476,17 +469,20 @@ export default function LandingPage() {
                 {
                   title: 'Manufacturers',
                   text: 'Optimize floor usage and connect with high-value contracts from innovative startups.',
-                  img: '/landing-manufacturers.png',
+                  img: '/landing-manufacturers.jpg',
+                  href: '/stakeholders',
                 },
                 {
                   title: 'Researchers',
                   text: 'Bridge academic theory with industrial practice through collaborative R&D programs.',
-                  img: '/landing-researchers.png',
+                  img: '/landing-researchers.jpg',
+                  href: '/research',
                 },
                 {
                   title: 'Engineers & Designers',
                   text: 'Access tools and mentorship to bring complex hardware designs to life efficiently.',
-                  img: '/landing-design.png',
+                  img: '/landing-design.jpg',
+                  href: '/prototyping',
                 },
               ].map((pillar) => (
                 <div
@@ -497,7 +493,7 @@ export default function LandingPage() {
                   <img src={pillar.img} alt={pillar.title} className="h-48 w-full rounded-xl object-cover grayscale transition-all hover:grayscale-0" />
                   <h4 className="text-xl font-bold">{pillar.title}</h4>
                   <p className="leading-relaxed text-[#b4d8ff]">{pillar.text}</p>
-                  <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-all hover:gap-4">
+                  <Link href={pillar.href} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-all hover:gap-4">
                     Learn More
                     <span className="material-symbols-outlined text-base">arrow_forward</span>
                   </Link>
@@ -507,73 +503,27 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-          <div className="grid items-center gap-12 rounded-[2rem] bg-[#f2f4f6] p-8 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:rounded-[3rem] lg:p-16">
-            <div className="space-y-8">
-              <h2 className="text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl">Build the Future with Us</h2>
-              <div className="space-y-6">
-                {[
-                  {
-                    icon: 'groups',
-                    title: 'Pioneer Cohort',
-                    text: 'Be part of the inaugural group shaping West African hardware standards.',
-                  },
-                  {
-                    icon: 'construction',
-                    title: 'Infrastructure Access',
-                    text: 'Unprecedented access to localized manufacturing and global testing labs.',
-                  },
-                  {
-                    icon: 'rocket_launch',
-                    title: 'Mission-Driven',
-                    text: 'Join a cause focused on economic self-sufficiency through engineering.',
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="flex gap-5 sm:gap-6">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#004873]">
-                      <span className="material-symbols-outlined text-white">{item.icon}</span>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold">{item.title}</h4>
-                      <p className="text-slate-600">{item.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-gradient-to-br from-[#006098] to-[#004873] p-1">
-              <div className="space-y-7 rounded-[1.4rem] bg-white p-8 sm:p-10">
-                <h3 className="text-2xl font-bold">Join the Pioneer Cohort</h3>
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Professional Email"
-                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
-                  />
-                  <select
-                    title="Stakeholder Type"
-                    aria-label="Stakeholder Type"
-                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
-                  >
-                    <option>Select Stakeholder Type</option>
-                    <option>Manufacturer</option>
-                    <option>Researcher</option>
-                    <option>Engineer/Designer</option>
-                  </select>
-                </div>
-                <Link
-                  href="/auth/register"
-                  className="block w-full rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] py-4 text-center text-lg font-bold text-white shadow-xl"
+        <section className="bg-[#f2f4f6] py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
+              Our Goals*
+            </h2>
+            <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
+              {[
+                { value: '450+', label: 'Stakeholders' },
+                { value: '1.2k', label: 'Projects' },
+                { value: '85', label: 'Facilities' },
+                { value: '12', label: 'Nations' },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  data-stat-card
+                  className="space-y-2 rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-8"
                 >
-                  Apply for Admission
-                </Link>
-              </div>
+                  <div className="text-3xl font-black text-[#004873] sm:text-4xl">{stat.value}</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-sm">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -617,49 +567,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="w-full border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-6 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Image
-                src="/favicon.png"
-                alt="DFN logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-md ring-1 ring-slate-200"
-              />
-              <span className="text-lg font-bold text-slate-900">DFN</span>
-            </div>
-            <p className="max-w-xs text-sm font-medium leading-relaxed text-slate-500">
-              © {new Date().getFullYear()} Digital Fabrication Network. All rights reserved. Precision Engineering and Design.
-            </p>
-          </div>
-
-          <nav className="flex flex-wrap items-center justify-center gap-5 text-sm font-medium text-slate-500 sm:gap-8">
-            <Link href="/manifesto" className="transition-colors hover:text-sky-700">
-              About DFN
-            </Link>
-            <Link href="/prototyping" className="transition-colors hover:text-sky-700">
-              Technical Specs
-            </Link>
-            <Link href="/research" className="transition-colors hover:text-sky-700">
-              Research
-            </Link>
-            <Link href="/auth/register" className="transition-colors hover:text-sky-700">
-              Contact Support
-            </Link>
-          </nav>
-
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
-              <span className="material-symbols-outlined">language</span>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">
-              <span className="material-symbols-outlined">share</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

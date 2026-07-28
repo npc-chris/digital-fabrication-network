@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
+import Logo from '@/components/Logo';
 import UserDropdown from '@/components/UserDropdown';
 import { verifySession } from '@/lib/auth';
 
@@ -73,19 +73,12 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
 
   return (
     <header className={containerClass}>
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3" onClick={() => setMenuOpen(false)}>
-          <Image
-            src="/favicon.png"
-            alt="DFN logo"
-            width={36}
-            height={36}
-            className="h-9 w-9 rounded-lg ring-1 ring-slate-200"
-          />
-          <span className="hidden text-sm font-semibold text-slate-600 lg:inline">Digital Fabrication Network</span>
+      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="-ml-2 sm:-ml-4 lg:-ml-6 flex items-center gap-3" onClick={() => setMenuOpen(false)}>
+          <Logo priority className="h-8 sm:h-9 w-auto object-contain" />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-7 md:flex">
           {navLinks.map((link) => {
             const isActive = active === link.key;
             return (
@@ -93,9 +86,9 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
                 key={link.href}
                 href={link.href}
                 className={[
-                  'text-sm transition-colors',
+                  'text-xs sm:text-sm transition-colors',
                   isActive
-                    ? 'border-b-2 border-sky-700 pb-1 font-bold text-sky-700'
+                    ? 'border-b-2 border-sky-700 pb-0.5 font-bold text-sky-700'
                     : 'font-medium text-slate-600 hover:text-sky-900',
                 ].join(' ')}
               >
@@ -111,14 +104,14 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
               {user.role === 'admin' || user.role === 'platform_manager' ? (
                 <Link
                   href="/admin"
-                  className="rounded-xl bg-[#f2f4f6] px-4 py-2 text-sm font-semibold text-[#004873] transition-colors hover:bg-[#e6e8ea]"
+                  className="rounded-lg bg-[#f2f4f6] px-3 py-1.5 text-xs sm:text-sm font-semibold text-[#004873] transition-colors hover:bg-[#e6e8ea]"
                 >
                   Admin
                 </Link>
               ) : (
                 <Link
                   href="/"
-                  className="rounded-xl bg-[#f2f4f6] px-4 py-2 text-sm font-semibold text-[#004873] transition-colors hover:bg-[#e6e8ea]"
+                  className="rounded-lg bg-[#f2f4f6] px-3 py-1.5 text-xs sm:text-sm font-semibold text-[#004873] transition-colors hover:bg-[#e6e8ea]"
                 >
                   Home
                 </Link>
@@ -137,12 +130,12 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
+              <Link href="/auth/login" className="rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
                 Sign In
               </Link>
               <Link
                 href="/auth/register"
-                className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform active:scale-95"
+                className="rounded-lg bg-gradient-to-b from-[#006098] to-[#007abf] px-4 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
               >
                 Join Network
               </Link>
