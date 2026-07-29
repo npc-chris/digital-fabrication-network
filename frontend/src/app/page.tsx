@@ -298,7 +298,7 @@ export default function LandingPage() {
       <LandingNavbar active="home" />
 
       <main className="pt-14">
-        <section ref={heroRef} className="relative overflow-hidden pt-6 pb-12 sm:pt-8 sm:pb-14 lg:pt-10 lg:pb-16">
+        <section ref={heroRef} className="relative overflow-hidden pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8">
           {/* Background Ambient Blur & Grid Effect */}
           <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
             <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[120px] opacity-70" />
@@ -306,7 +306,7 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           </div>
 
-          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
+          <div className="mx-auto grid w-full max-w-7xl items-end gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8 pb-1">
             <div ref={heroTextRef} className="space-y-6">
               <h1 data-hero-item className="text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
                 Connect.
@@ -317,7 +317,7 @@ export default function LandingPage() {
               </h1>
 
               <p data-hero-item className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                West Africa's premier platform for professional hardware development and precision engineering. We bridge the gap between design and physical reality.
+                West Africa's premier platform for professional hardware development and precision engineering. We bridge the gap between design and reality.
               </p>
 
               <div data-hero-item className="flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
@@ -506,7 +506,9 @@ export default function LandingPage() {
         <section className="bg-[#f2f4f6] py-20">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
-              Our Goals*
+              <Link href="/stakeholders" className="transition-colors hover:text-[#004873] hover:underline underline-offset-4">
+                Our Goals*
+              </Link>
             </h2>
             <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
               {[

@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 
 export default function Footer() {
   return (
@@ -7,14 +7,9 @@ export default function Footer() {
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-6 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <Image
-              src="/favicon.png"
-              alt="DFN logo"
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-md ring-1 ring-slate-200"
-            />
-            <span className="text-lg font-bold text-slate-900">DFN</span>
+            <Link href="/" className="inline-block">
+              <Logo variant="responsive" className="h-9 w-auto" />
+            </Link>
           </div>
           <p className="max-w-xs text-sm font-medium leading-relaxed text-slate-500">
             © {new Date().getFullYear()} Digital Fabrication Network. All rights reserved. Precision Engineering and Design.

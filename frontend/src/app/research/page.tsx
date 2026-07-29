@@ -12,6 +12,10 @@ export default function ResearchPage() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
+        html {
+          scroll-behavior: smooth;
+        }
+
         body {
           font-family: 'Inter', sans-serif;
         }
@@ -105,7 +109,7 @@ export default function ResearchPage() {
 
               <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
                 <Link
-                  href="/auth/register"
+                  href="#build-with-us"
                   className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Join as Research Fellow
@@ -243,7 +247,7 @@ export default function ResearchPage() {
           </div>
         </section>
 
-        <section className="px-4 py-20 sm:px-6 lg:px-8">
+        <section className="px-4 pt-12 pb-2 sm:px-6 sm:pt-16 sm:pb-3 lg:px-8">
           <div className="mx-auto max-w-[1400px]">
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
               <div>
@@ -275,11 +279,11 @@ export default function ResearchPage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-          <div className="grid items-center gap-12 rounded-[2rem] bg-[#f2f4f6] p-8 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:rounded-[3rem] lg:p-16">
-            <div className="space-y-8">
-              <h2 className="text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl">Build the Future with Us</h2>
-              <div className="space-y-6">
+        <section id="build-with-us" className="mx-auto w-full max-w-7xl px-4 min-h-[calc(100vh-3.5rem)] flex items-center justify-center py-6 sm:px-6 lg:px-8 scroll-mt-14">
+          <div className="grid w-full items-center gap-8 rounded-[2rem] bg-[#f2f4f6] p-6 sm:p-8 lg:grid-cols-2 lg:gap-12 lg:rounded-[2.5rem] lg:p-10 shadow-sm">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl lg:text-5xl">Build the Future with Us</h2>
+              <div className="space-y-4">
                 {[
                   {
                     icon: 'groups',
@@ -297,37 +301,37 @@ export default function ResearchPage() {
                     text: 'Join a cause focused on economic self-sufficiency through engineering.',
                   },
                 ].map((item) => (
-                  <div key={item.title} className="flex gap-5 sm:gap-6">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#004873]">
-                      <span className="material-symbols-outlined text-white">{item.icon}</span>
+                  <div key={item.title} className="flex gap-4 sm:gap-5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#004873]">
+                      <span className="material-symbols-outlined text-sm text-white">{item.icon}</span>
                     </div>
                     <div>
-                      <h4 className="text-lg font-bold">{item.title}</h4>
-                      <p className="text-slate-600">{item.text}</p>
+                      <h4 className="text-base font-bold">{item.title}</h4>
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{item.text}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-3xl bg-gradient-to-br from-[#006098] to-[#004873] p-1">
-              <div className="space-y-7 rounded-[1.4rem] bg-white p-8 sm:p-10">
-                <h3 className="text-2xl font-bold">Join the Pioneer Cohort</h3>
-                <div className="space-y-4">
+            <div className="rounded-2xl bg-gradient-to-br from-[#006098] to-[#004873] p-1">
+              <div className="space-y-5 rounded-[1.2rem] bg-white p-6 sm:p-8">
+                <h3 className="text-xl font-bold text-[#191c1e]">Join the Pioneer Cohort</h3>
+                <div className="space-y-3">
                   <input
                     type="text"
                     placeholder="Full Name"
-                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
+                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-4 py-3 text-sm text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
                   />
                   <input
                     type="email"
                     placeholder="Professional Email"
-                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
+                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-4 py-3 text-sm text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
                   />
                   <select
                     title="Stakeholder Type"
                     aria-label="Stakeholder Type"
-                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-5 py-4 text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
+                    className="w-full rounded-xl border-none bg-[#f2f4f6] px-4 py-3 text-sm text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
                   >
                     <option>Select Stakeholder Type</option>
                     <option>Manufacturer</option>
@@ -337,7 +341,7 @@ export default function ResearchPage() {
                 </div>
                 <Link
                   href="/auth/register"
-                  className="block w-full rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] py-4 text-center text-lg font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
+                  className="block w-full rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] py-3.5 text-center text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Apply for Admission
                 </Link>
