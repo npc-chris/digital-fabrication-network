@@ -18,9 +18,7 @@ export default function Logo({
   animated = true,
 }: LogoProps) {
   const baseImgClasses = `w-auto object-contain transition-all duration-300 ease-out ${
-    animated
-      ? 'group-hover:scale-[1.03] group-hover:brightness-105 drop-shadow-sm group-hover:drop-shadow-[0_4px_16px_rgba(14,165,233,0.25)]'
-      : ''
+    animated ? 'group-hover:scale-[1.03] group-hover:brightness-105' : ''
   }`;
 
   if (variant === 'responsive') {
