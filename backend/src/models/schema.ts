@@ -146,8 +146,21 @@ export const emailVerificationCodes = pgTable('email_verification_codes', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Waitlist submissions table
+export const waitlist = pgTable('waitlist', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  fullName: varchar('full_name', { length: 255 }),
+  role: varchar('role', { length: 50 }).notNull().default('explorer'),
+  organization: varchar('organization', { length: 255 }),
+  notes: text('notes'),
+  queueNumber: integer('queue_number'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // NOTE: tables intentionally removed from this runtime schema:
 // affiliate_stores, blog_*, bookings, build_pipelines, cart_items, carts,
 // community_posts, component_*, components, forum_*, group_buying_*,
 // mentorship_*, messages, order_tracking, orders, pipeline_executions,
 // project_*, quotes, reviews, wishlists.
+

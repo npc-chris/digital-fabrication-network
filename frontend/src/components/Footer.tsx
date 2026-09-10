@@ -26,10 +26,11 @@ export default function Footer() {
           <Link href="/research" className="transition-colors hover:text-sky-700">
             Research
           </Link>
-          <Link href="/auth/register" className="transition-colors hover:text-sky-700">
+          <Link href="/coming-soon" className="transition-colors hover:text-sky-700">
             Contact Support
           </Link>
         </nav>
+
 
         <div className="flex gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-opacity hover:opacity-100">

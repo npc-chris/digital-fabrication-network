@@ -118,10 +118,10 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <div className="hidden md:flex items-center space-x-2">
-                                <Link href="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
+                                <Link href="/coming-soon" className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
                                     Sign In
                                 </Link>
-                                <Link href="/auth/register" className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
+                                <Link href="/coming-soon" className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
                                     Sign Up
                                 </Link>
                             </div>
@@ -150,10 +150,10 @@ export default function Navbar() {
 
                         {!user && (
                             <div className="border-t border-gray-100 mt-2 pt-2">
-                                <Link href="/auth/login" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
+                                <Link href="/coming-soon" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50" onClick={() => setMobileMenuOpen(false)}>
                                     Sign In
                                 </Link>
-                                <Link href="/auth/register" className="block px-3 py-2 rounded-md text-base font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50" onClick={() => setMobileMenuOpen(false)}>
+                                <Link href="/coming-soon" className="block px-3 py-2 rounded-md text-base font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50" onClick={() => setMobileMenuOpen(false)}>
                                     Sign Up
                                 </Link>
                             </div>

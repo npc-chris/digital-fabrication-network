@@ -17,6 +17,7 @@ import verificationRoutes from './routes/verification.routes';
 import adminRoutes from './routes/admin.routes';
 import emailVerificationRoutes from './routes/email-verification.routes';
 import locationsRoutes from './routes/locations.routes';
+import waitlistRoutes from './routes/waitlist.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -51,6 +52,8 @@ app.use('/api/verification', verificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/email-verification', emailVerificationRoutes);
 app.use('/api/locations', locationsRoutes);
+app.use('/api/waitlist', waitlistRoutes);
+
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

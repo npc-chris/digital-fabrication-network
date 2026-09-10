@@ -33,14 +33,9 @@ export default function RegisterPage() {
   const [showVerification, setShowVerification] = useState(false);
 
   useEffect(() => {
-    verifySession().then(({ isAuthenticated }) => {
-      if (isAuthenticated) {
-        router.push('/');
-      } else {
-        setIsCheckingAuth(false);
-      }
-    });
+    router.replace('/coming-soon');
   }, [router]);
+
 
   const passwordValidation = useMemo(() => {
     return {
@@ -211,9 +206,10 @@ export default function RegisterPage() {
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <Link href="/auth/login" className="font-medium text-[#006098] hover:underline">
+            <Link href="/coming-soon" className="font-medium text-[#006098] hover:underline">
               Sign in instead
             </Link>
+
             <Link href="/" className="text-muted-foreground hover:underline">
               Back home
             </Link>

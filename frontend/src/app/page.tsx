@@ -322,12 +322,13 @@ export default function LandingPage() {
 
               <div data-hero-item className="flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
                 <Link
-                  href="/auth/register"
+                  href="/coming-soon"
                   data-cta-pulse
                   className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Join the Network
                 </Link>
+
                 <Link
                   href="/manifesto"
                   className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
@@ -557,13 +558,14 @@ export default function LandingPage() {
               </p>
               <div className="pt-3">
                 <Link
-                  href="/auth/register"
+                  href="/coming-soon"
                   data-cta-pulse
                   className="inline-block rounded-2xl bg-white px-10 py-5 text-xl font-black text-[#004873] shadow-2xl transition-all hover:scale-105 active:scale-95 sm:text-2xl"
                 >
                   Get Started
                 </Link>
               </div>
+
             </div>
           </div>
         </section>

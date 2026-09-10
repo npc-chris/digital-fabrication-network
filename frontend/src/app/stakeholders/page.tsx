@@ -129,11 +129,12 @@ export default function StakeholdersPage() {
 
               <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
                 <Link
-                  href="/auth/register"
+                  href="/coming-soon"
                   className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Partner With Us
                 </Link>
+
                 <Link
                   href="/manifesto"
                   className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
@@ -321,11 +322,12 @@ export default function StakeholdersPage() {
                 </p>
                 <div className="flex flex-wrap justify-center gap-6">
                   <Link
-                    href="/auth/register"
+                    href="/coming-soon"
                     className="rounded-xl bg-white px-10 py-4 font-black text-[#006098] transition-colors hover:bg-slate-100"
                   >
                     Become a Member
                   </Link>
+
                   <Link
                     href="/"
                     className="rounded-xl border-2 border-white/30 px-10 py-4 font-black text-white transition-colors hover:bg-white/10"

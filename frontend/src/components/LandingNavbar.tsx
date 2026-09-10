@@ -130,11 +130,11 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
+              <Link href="/coming-soon" className="rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 transition-colors hover:text-sky-800">
                 Sign In
               </Link>
               <Link
-                href="/auth/register"
+                href="/coming-soon"
                 className="rounded-lg bg-gradient-to-b from-[#006098] to-[#007abf] px-4 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
               >
                 Join Network
@@ -182,14 +182,14 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
             ) : (
               <div className="space-y-2">
                 <Link
-                  href="/auth/login"
+                  href="/coming-soon"
                   className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
                   onClick={() => setMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
-                  href="/auth/register"
+                  href="/coming-soon"
                   className="block rounded-lg bg-[#006098] px-3 py-2 text-sm font-semibold text-white"
                   onClick={() => setMenuOpen(false)}
                 >

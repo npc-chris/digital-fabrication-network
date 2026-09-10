@@ -34,6 +34,11 @@ function LoginContent() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
+    if (!isAdminRedirect) {
+      router.replace('/coming-soon');
+      return;
+    }
+
     verifySession().then(({ isAuthenticated }) => {
       if (isAuthenticated) {
         router.push(redirectTo);
@@ -41,7 +46,8 @@ function LoginContent() {
         setIsCheckingAuth(false);
       }
     });
-  }, [router, redirectTo]);
+  }, [router, redirectTo, isAdminRedirect]);
+
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -155,10 +161,11 @@ function LoginContent() {
 
           <div className="flex items-center justify-between text-sm">
             {!isAdminRedirect && (
-              <Link href="/auth/register" className="font-medium text-[#006098] hover:underline">
+              <Link href="/coming-soon" className="font-medium text-[#006098] hover:underline">
                 Create account
               </Link>
             )}
+
             {isAdminRedirect && (
               <span className="text-muted-foreground text-xs">Admin credentials required</span>
             )}

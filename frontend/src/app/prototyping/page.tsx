@@ -104,11 +104,12 @@ export default function PrototypingPage() {
 
               <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
                 <Link
-                  href="/auth/register"
+                  href="/coming-soon"
                   className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Start Your Build
                 </Link>
+
                 <Link
                   href="/stakeholders"
                   className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
@@ -262,9 +263,10 @@ export default function PrototypingPage() {
                 </h2>
                 <p className="mt-4 max-w-xl text-slate-400">A 6-month intensive fabrication track designed specifically for pre-seed to Series A hardware startups.</p>
               </div>
-              <Link href="/auth/register" className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95">
+              <Link href="/coming-soon" className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95">
                 Apply for Our Cohort
               </Link>
+
             </div>
 
             <div className="grid grid-cols-1 gap-10 border-t border-slate-700/40 pt-14 md:grid-cols-3">
@@ -353,11 +355,12 @@ export default function PrototypingPage() {
           </h2>
           <div className="mt-12 flex flex-wrap justify-center gap-6">
             <Link
-              href="/auth/register"
+              href="/coming-soon"
               className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-10 py-5 text-xl font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
             >
               Apply for Access
             </Link>
+
             <Link href="/research" className="rounded-xl bg-[#f2f4f6] px-10 py-5 text-xl font-bold text-[#191c1e] transition-all hover:bg-[#e6e8ea]">
               Explore Research
             </Link>

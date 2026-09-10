@@ -68,13 +68,14 @@ export default function PricingPage() {
               <Logo variant="responsive" className="h-8 sm:h-9" />
             </Link>
             <div className="flex space-x-4">
-              <Link href="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
+              <Link href="/coming-soon" className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
                 Sign In
               </Link>
-              <Link href="/auth/register" className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
+              <Link href="/coming-soon" className="px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md">
                 Get Started
               </Link>
             </div>
+
           </div>
         </nav>
       </header>
@@ -127,7 +128,7 @@ export default function PricingPage() {
                   <span>Up to 5 orders/month</span>
                 </li>
               </ul>
-              <Link href="/auth/register" className="block w-full py-3 px-4 text-center bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200">
+              <Link href="/coming-soon" className="block w-full py-3 px-4 text-center bg-gray-100 text-gray-900 font-semibold rounded-lg hover:bg-gray-200">
                 Get Started
               </Link>
             </div>
@@ -169,10 +170,11 @@ export default function PricingPage() {
                   <span>Portfolio showcase</span>
                 </li>
               </ul>
-              <Link href="/auth/register" className="flex items-center justify-center w-full py-3 px-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100">
+              <Link href="/coming-soon" className="flex items-center justify-center w-full py-3 px-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100">
                 Get Started
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
+
             </div>
 
             {/* Enterprise Plan */}

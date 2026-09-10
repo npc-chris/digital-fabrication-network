@@ -232,11 +232,12 @@ export default function ResearchPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/auth/register"
+                href="/coming-soon"
                 className="rounded-xl bg-white px-8 py-4 font-bold text-[#004873] shadow-lg transition-all hover:-translate-y-0.5"
               >
                 Submit Research Proposal
               </Link>
+
               <Link
                 href="/stakeholders"
                 className="rounded-xl border-2 border-white px-8 py-4 font-bold text-white transition-all hover:bg-white/10"
@@ -340,11 +341,12 @@ export default function ResearchPage() {
                   </select>
                 </div>
                 <Link
-                  href="/auth/register"
+                  href="/coming-soon"
                   className="block w-full rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] py-3.5 text-center text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Apply for Admission
                 </Link>
+
               </div>
             </div>
           </div>

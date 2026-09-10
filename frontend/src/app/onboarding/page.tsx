@@ -187,9 +187,10 @@ export default function OnboardingPage() {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          router.push('/auth/register');
+          router.push('/coming-soon');
           return;
         }
+
         
         const response = await api.get('/api/auth/me');
                 const { user, profile } = response.data as {

@@ -25,7 +25,7 @@ export default function GoogleProfilePage() {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          router.push('/auth/register');
+          router.push('/coming-soon');
           return;
         }
 
@@ -57,8 +57,9 @@ export default function GoogleProfilePage() {
         }
       } catch (err) {
         console.error('Failed to load profile', err);
-        router.push('/auth/register');
+        router.push('/coming-soon');
       } finally {
+
         setLoading(false);
       }
     };
