@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Minus, Plus, Trash2, Phone, Mail, MapPin } from 'lucide-react';
+import { X, Minus, Plus, Trash as Trash2, Phone, EnvelopeSimple as Mail, MapPin } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 

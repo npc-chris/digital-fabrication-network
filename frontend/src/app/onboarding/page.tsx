@@ -5,24 +5,24 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import {
   User,
-  Building2,
+  Buildings as Building2,
   MapPin,
   Phone,
   FileText,
-  CheckCircle2,
+  CheckCircle as CheckCircle2,
   ArrowRight,
   ArrowLeft,
-  Upload,
+  UploadSimple as Upload,
   ShieldCheck,
-  Banknote,
-  Loader2,
+  Money as Banknote,
+  CircleNotch as Loader2,
   Plus,
   X,
-  Github,
-  Mail,
-  ChevronDown,
-  AlertCircle,
-} from 'lucide-react';
+  GithubLogo as Github,
+  EnvelopeSimple as Mail,
+  CaretDown as ChevronDown,
+  WarningCircle as AlertCircle,
+} from '@phosphor-icons/react';
 import ImageUpload from '@/components/ImageUpload';
 import LocationAutocomplete from '@/components/LocationAutocomplete';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';

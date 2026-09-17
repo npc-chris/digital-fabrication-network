@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut, ChevronDown, ShieldCheck, Newspaper } from 'lucide-react';
+import { SignOut as LogOut, CaretDown as ChevronDown, ShieldCheck, Newspaper } from '@phosphor-icons/react';
 import api from '@/lib/api';
 import LogoutConfirmModal from './LogoutConfirmModal';
 

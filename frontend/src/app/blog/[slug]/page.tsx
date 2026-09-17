@@ -2,15 +2,15 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
-  ArrowLeft,
-  Bookmark,
-  ChevronRight,
-  ExternalLink,
-  MessageCircle,
-  Menu,
-  Share2,
-  Sparkles,
-} from 'lucide-react';
+  Sparkle,
+  List,
+  ShareNetwork,
+  BookmarkSimple,
+  ChatCircle,
+  CaretRight,
+  ArrowUpRight,
+  ArrowRight,
+} from '@phosphor-icons/react/dist/ssr';
 import { Inter } from 'next/font/google';
 
 import { articleBySlug, blogArticles } from '../blog-data';
@@ -79,11 +79,11 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
               href="/blog"
               className="hidden items-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[0.99] active:scale-95 lg:inline-flex"
             >
-              <Sparkles className="size-4" />
+              <Sparkle size={16} weight="fill" />
               Subscribe
             </Link>
             <button type="button" className="rounded-lg p-2 text-[#414750] transition-colors hover:bg-white md:hidden" aria-label="Open menu">
-              <Menu className="size-5" />
+              <List size={20} weight="bold" />
             </button>
           </div>
         </div>
@@ -124,13 +124,13 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
           <aside className="sticky top-32 hidden h-fit lg:col-span-1 lg:block">
             <div className="flex flex-col gap-6 text-[#414750]">
               <button type="button" className="rounded-full p-3 transition-colors hover:bg-[#f2f4f6] hover:text-[#004873]" aria-label="Share">
-                <Share2 className="size-5" />
+                <ShareNetwork size={20} weight="duotone" />
               </button>
               <button type="button" className="rounded-full p-3 transition-colors hover:bg-[#f2f4f6] hover:text-[#004873]" aria-label="Bookmark">
-                <Bookmark className="size-5" />
+                <BookmarkSimple size={20} weight="duotone" />
               </button>
               <button type="button" className="rounded-full p-3 transition-colors hover:bg-[#f2f4f6] hover:text-[#004873]" aria-label="Discuss">
-                <MessageCircle className="size-5" />
+                <ChatCircle size={20} weight="duotone" />
               </button>
             </div>
           </aside>
@@ -159,7 +159,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                   <img src={article.figure.imageUrl} alt={article.figure.imageAlt} className="h-full w-full object-cover opacity-90" loading="lazy" />
                 </div>
                 <figcaption className="mt-4 flex items-center gap-2 px-6 text-sm text-[#414750] lg:px-24">
-                  <ChevronRight className="size-4" />
+                  <CaretRight size={14} weight="bold" />
                   {article.figure.caption}
                 </figcaption>
               </figure>
@@ -175,7 +175,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                   {article.highlights.map((item) => (
                     <div key={item.title} className="flex items-start gap-4 rounded-[1rem] border border-[#e0e3e5]/40 bg-white p-6 shadow-[0_20px_40px_rgba(0,96,152,0.06)]">
                       <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#cee5ff] text-[#004873]">
-                        <Sparkles className="size-5" />
+                        <Sparkle size={20} weight="duotone" />
                       </div>
                       <div>
                         <h4 className="mb-1 text-xl font-bold text-[#191c1e]">{item.title}</h4>
@@ -235,7 +235,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                     className="inline-flex items-center gap-2 rounded-full border border-[#e0e3e5] px-4 py-2 text-sm font-medium text-[#004873] transition-colors hover:bg-[#f2f4f6]"
                   >
                     Notion draft placeholder
-                    <ExternalLink className="size-4" />
+                    <ArrowUpRight size={16} weight="bold" />
                   </Link>
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                     type="submit"
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 font-bold text-white transition-transform hover:scale-[0.99] active:scale-95"
                   >
-                    <ArrowLeft className="size-4 rotate-180" />
+                    <ArrowRight size={16} weight="bold" />
                     Access Lab Logs
                   </button>
                 </form>

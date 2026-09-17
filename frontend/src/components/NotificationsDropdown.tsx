@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell, X } from 'lucide-react';
+import { Bell, X } from '@phosphor-icons/react';
 import { notificationsAPI } from '@/lib/api-services';
 
 interface Notification {

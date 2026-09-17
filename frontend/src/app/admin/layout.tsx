@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard,
+  SquaresFour as LayoutDashboard,
   Users,
-  FolderKanban,
-  Boxes,
+  Kanban as FolderKanban,
+  Package as Boxes,
   ArrowLeft,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 
 import {
   Card,

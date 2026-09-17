@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, Package, Wrench, Users, FileText } from 'lucide-react';
+import { MagnifyingGlass as Search, X, Package, Wrench, Users, FileText } from '@phosphor-icons/react';
 import { searchAPI } from '@/lib/api-services';
 
 interface SearchResult {

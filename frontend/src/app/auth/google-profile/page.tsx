@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, User, AtSign } from 'lucide-react';
+import { CheckCircle, User, At as AtSign } from '@phosphor-icons/react';
 import api from '@/lib/api';
 import ImageUpload from '@/components/ImageUpload';
 

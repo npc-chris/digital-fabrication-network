@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Factory, Atom, ArrowRight, Handshake, Buildings, ShieldCheck, CheckCircle, Users, Wrench, RocketLaunch } from '@phosphor-icons/react';
 
 import Footer from '@/components/Footer';
 import LandingNavbar from '@/components/LandingNavbar';
@@ -10,7 +11,6 @@ export default function ResearchPage() {
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
         html {
           scroll-behavior: smooth;
@@ -18,10 +18,6 @@ export default function ResearchPage() {
 
         body {
           font-family: 'Inter', sans-serif;
-        }
-
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         @keyframes revealUp {
@@ -159,7 +155,7 @@ export default function ResearchPage() {
             <div className="grid h-auto grid-cols-1 gap-6 md:h-[600px] md:grid-cols-12">
               <div className="group reveal-up relative flex flex-col justify-between overflow-hidden rounded-[2rem] bg-white p-8 md:col-span-8">
                 <div className="relative z-10">
-                  <span className="material-symbols-outlined mb-4 text-4xl text-[#004873]">precision_manufacturing</span>
+                  <Factory size={36} weight="duotone" className="mb-4 text-[#004873]" />
                   <h3 className="mb-2 text-3xl font-bold">Precision CNC & Additive</h3>
                   <p className="max-w-md text-slate-600">5-axis milling and industrial-grade SLM 3D printing for rapid hardware iteration without international shipping delays.</p>
                 </div>
@@ -177,12 +173,12 @@ export default function ResearchPage() {
 
               <div className="reveal-up delay-1 flex flex-col justify-between overflow-hidden rounded-[2rem] bg-[#004873] p-8 text-white md:col-span-4">
                 <div>
-                  <span className="material-symbols-outlined mb-4 block text-4xl">biotech</span>
+                  <Atom size={36} weight="duotone" className="mb-4 block" />
                   <h3 className="mb-2 text-2xl font-bold">Materials Laboratory</h3>
                   <p className="mb-6 text-sm leading-relaxed text-blue-100">Clean-room environments for PCB fabrication, sensor calibration, and material stress testing for regional environmental conditions.</p>
                 </div>
-                <Link href="/prototyping" className="inline-block text-sm font-bold text-blue-200 hover:text-white transition-colors">
-                  Explore Services <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                <Link href="/prototyping" className="inline-flex items-center gap-1 text-sm font-bold text-blue-200 hover:text-white transition-colors">
+                  Explore Services <ArrowRight size={14} weight="bold" />
                 </Link>
               </div>
             </div>
@@ -199,7 +195,7 @@ export default function ResearchPage() {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               <div className="reveal-up rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm hover:shadow-lg transition-all">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                  <span className="material-symbols-outlined text-[#004873]">handshake</span>
+                  <Handshake size={24} weight="duotone" className="text-[#004873]" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold">Dual-Credit Research</h3>
                 <p className="text-sm leading-relaxed text-slate-600">Published academic research with integrated IP protection for industrial sponsors, ensuring both innovation and attribution.</p>
@@ -207,7 +203,7 @@ export default function ResearchPage() {
 
               <div className="reveal-up delay-1 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm hover:shadow-lg transition-all">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                  <span className="material-symbols-outlined text-[#004873]">factory</span>
+                  <Buildings size={24} weight="duotone" className="text-[#004873]" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold">Production Sandboxing</h3>
                 <p className="text-sm leading-relaxed text-slate-600">Test manufacturing workflows in our labs before scaling to regional factories, reducing risk and optimizing processes.</p>
@@ -215,7 +211,7 @@ export default function ResearchPage() {
 
               <div className="reveal-up delay-2 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm hover:shadow-lg transition-all">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
-                  <span className="material-symbols-outlined text-[#004873]">verified_user</span>
+                  <ShieldCheck size={24} weight="duotone" className="text-[#004873]" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold">Data Security & IP</h3>
                 <p className="text-sm leading-relaxed text-slate-600">Encrypted telemetry, decentralized IP ledger, and standardized metadata protocols protecting innovation while enabling collaboration.</p>
@@ -253,18 +249,18 @@ export default function ResearchPage() {
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
               <div>
                 <h2 className="mb-6 text-4xl font-bold tracking-tight text-[#191c1e]">Open Data, Secure Innovation</h2>
-                <p className="mb-8 text-lg text-slate-600">DFN Lab implements strict data sharing protocols that balance open-science collaboration with the competitive needs of local innovators.</p>
+                <p className="mb-8 text-lg text-slate-600">DFN Labs implement strict data sharing protocols that balance open-science collaboration with the competitive needs of local innovators.</p>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-[#004873]">check_circle</span>
+                    <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0" />
                     <span className="font-medium">Encrypted Telemetry for Lab Machines</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-[#004873]">check_circle</span>
+                    <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0" />
                     <span className="font-medium">Decentralized IP Ledger (Regional Nodes)</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-[#004873]">check_circle</span>
+                    <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0" />
                     <span className="font-medium">Standardized Metadata for Hardware Testing</span>
                   </li>
                 </ul>
@@ -287,24 +283,24 @@ export default function ResearchPage() {
               <div className="space-y-4">
                 {[
                   {
-                    icon: 'groups',
+                    icon: Users,
                     title: 'Pioneer Cohort',
                     text: 'Be part of the inaugural group shaping West African hardware standards.',
                   },
                   {
-                    icon: 'construction',
+                    icon: Wrench,
                     title: 'Infrastructure Access',
                     text: 'Unprecedented access to localized manufacturing and global testing labs.',
                   },
                   {
-                    icon: 'rocket_launch',
+                    icon: RocketLaunch,
                     title: 'Mission-Driven',
                     text: 'Join a cause focused on economic self-sufficiency through engineering.',
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4 sm:gap-5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#004873]">
-                      <span className="material-symbols-outlined text-sm text-white">{item.icon}</span>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#004873] text-white">
+                      <item.icon size={18} weight="duotone" />
                     </div>
                     <div>
                       <h4 className="text-base font-bold">{item.title}</h4>

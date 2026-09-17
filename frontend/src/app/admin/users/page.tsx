@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  ShieldAlert,
+  ShieldWarning as ShieldAlert,
   ShieldCheck,
-  Search,
-  UserCog,
-} from 'lucide-react';
+  MagnifyingGlass as Search,
+  UserGear as UserCog,
+} from '@phosphor-icons/react';
 
 import {
   Badge,

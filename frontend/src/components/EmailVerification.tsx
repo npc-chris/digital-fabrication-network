@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Mail, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { EnvelopeSimple as Mail, CheckCircle, XCircle, CircleNotch as Loader2 } from '@phosphor-icons/react';
 import { emailVerificationAPI } from '@/lib/api-services';
 
 interface EmailVerificationProps {

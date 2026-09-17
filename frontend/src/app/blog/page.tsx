@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowUpRight, Bell, CalendarDays, Clock3, Menu, Send, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Bell, Calendar, Clock, List, PaperPlaneRight, Sparkle } from '@phosphor-icons/react/dist/ssr';
 import { Inter } from 'next/font/google';
 
 import { blogPreviews } from './blog-data';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Field Notes & Dispatches | DFN Lab',
-  description: 'A Stitch-faithful placeholder blog home for DFN, ready for Notion-backed articles.',
+  title: 'DFN Lab • Editorial & Field Notes',
+  description: 'The technical journal of the Digital Fabrication Network.',
 };
 
 const labelStyle = 'inline-flex items-center rounded-full px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-[0.24em]';
@@ -40,11 +40,11 @@ function VisualCard({ preview, className = '' }: { preview: (typeof blogPreviews
             <h2 className="mt-4 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white">{preview.title}</h2>
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-medium text-[#cee5ff]">
               <span className="inline-flex items-center gap-1.5">
-                <Clock3 className="size-4" />
+                <Clock size={16} weight="duotone" />
                 {preview.readTime}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <CalendarDays className="size-4" />
+                <Calendar size={16} weight="duotone" />
                 {preview.publishedAt}
               </span>
             </div>
@@ -67,7 +67,7 @@ function VisualCard({ preview, className = '' }: { preview: (typeof blogPreviews
         {!isFeature ? (
           <div className="mt-auto flex items-center justify-between pt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#717881]">
             <span>{preview.publishedAt}</span>
-            <ArrowUpRight className="size-4 text-[#004873] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            <ArrowUpRight size={16} weight="bold" className="text-[#004873] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </div>
         ) : null}
       </div>
@@ -98,17 +98,17 @@ export default function BlogPage() {
 
           <div className="flex items-center gap-3">
             <button type="button" className="rounded-full p-2 text-[#414750] transition-colors hover:bg-white hover:text-[#006098]" aria-label="Notifications">
-              <Bell className="size-5" />
+              <Bell size={20} weight="duotone" />
             </button>
             <Link
               href={featured.notionUrl}
               className="hidden items-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[0.99] active:scale-95 sm:inline-flex"
             >
-              <Sparkles className="size-4" />
+              <Sparkle size={16} weight="fill" />
               Write Post
             </Link>
             <button type="button" className="rounded-full p-2 text-[#414750] transition-colors hover:bg-white md:hidden" aria-label="Open menu">
-              <Menu className="size-5" />
+              <List size={20} weight="bold" />
             </button>
           </div>
         </div>
@@ -183,7 +183,7 @@ export default function BlogPage() {
                 type="button"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-8 py-4 font-bold text-white shadow-lg transition-transform hover:scale-[0.99] active:scale-95"
               >
-                <Send className="size-4" />
+                <PaperPlaneRight size={16} weight="bold" />
                 Subscribe
               </button>
             </div>

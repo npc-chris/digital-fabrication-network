@@ -1,7 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Code, Eye, Sparkles, LayoutPanelTop, ImagePlus, Link2 } from 'lucide-react';
+import {
+  Code,
+  Eye,
+  Sparkle as Sparkles,
+  Columns as LayoutPanelTop,
+  Image as ImagePlus,
+  LinkSimple as Link2,
+} from '@phosphor-icons/react';
 
 import {
   Badge,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Boxes, ListMinus, PackagePlus, Search, Wrench } from 'lucide-react';
+import { Package as Boxes, MinusCircle as ListMinus, PlusSquare as PackagePlus, MagnifyingGlass as Search, Wrench } from '@phosphor-icons/react';
 
 import {
   Badge,

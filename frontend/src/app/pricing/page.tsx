@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check } from '@phosphor-icons/react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Logo from '@/components/Logo';
 

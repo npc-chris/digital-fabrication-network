@@ -3,16 +3,16 @@
 import React from 'react';
 import {
     Package,
-    Settings,
+    Gear as Settings,
     ShieldCheck,
     Truck,
     MapPin,
-    Home,
-    CheckCircle2,
+    House as Home,
+    CheckCircle as CheckCircle2,
     Clock,
-    ExternalLink,
-    ChevronRight
-} from 'lucide-react';
+    ArrowUpRight as ExternalLink,
+    CaretRight as ChevronRight
+} from '@phosphor-icons/react';
 
 interface TrackingStep {
     id: number;

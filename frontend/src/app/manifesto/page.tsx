@@ -2,20 +2,16 @@
 
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
+import { Factory, ArrowsClockwise, ShareNetwork, Wrench, GitFork } from '@phosphor-icons/react';
 
 export default function ManifestoPage() {
   return (
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
         body {
           font-family: 'Inter', sans-serif;
-        }
-
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
       `}</style>
 
@@ -65,7 +61,7 @@ export default function ManifestoPage() {
             <div className="md:col-span-7 p-6 sm:p-8 bg-white rounded-[2rem] shadow-sm border border-slate-200/60 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-[#006098]/10 text-[#006098] flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-xl">precision_manufacturing</span>
+                  <Factory size={22} weight="duotone" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#191c1e] mb-3">Unlocking Hidden Capacity</h3>
                 <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
@@ -78,7 +74,7 @@ export default function ManifestoPage() {
             <div className="md:col-span-5 p-6 sm:p-8 bg-[#004873] text-white rounded-[2rem] shadow-xl shadow-sky-900/15 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-white/10 text-sky-300 flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-xl">published_with_changes</span>
+                  <ArrowsClockwise size={22} weight="duotone" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold mb-3">Replacing Supply Chain Vulnerability</h3>
                 <p className="text-white/80 leading-relaxed text-sm sm:text-base">
@@ -91,7 +87,7 @@ export default function ManifestoPage() {
             <div className="md:col-span-5 p-6 sm:p-8 bg-[#f2f4f6] rounded-[2rem] border border-slate-200/60 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-xl bg-[#006098]/10 text-[#006098] flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-xl">hub</span>
+                  <ShareNetwork size={22} weight="duotone" />
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#191c1e] mb-3">Software-Driven Orchestration</h3>
                 <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
@@ -186,7 +182,7 @@ export default function ManifestoPage() {
             <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-sm border border-slate-200/60 flex flex-col justify-between">
               <div>
                 <div className="w-14 h-14 rounded-2xl bg-[#006098] text-white flex items-center justify-center mb-6">
-                  <span className="material-symbols-outlined text-2xl">build_circle</span>
+                  <Wrench size={28} weight="duotone" />
                 </div>
                 <h3 className="text-2xl font-black text-[#191c1e] tracking-tighter mb-4 sm:text-3xl">
                   Consolidate First, Scale Second
@@ -207,7 +203,7 @@ export default function ManifestoPage() {
             <div className="bg-[#004873] text-white p-8 sm:p-10 rounded-[2.5rem] shadow-2xl flex flex-col justify-between">
               <div>
                 <div className="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6">
-                  <span className="material-symbols-outlined text-2xl">account_tree</span>
+                  <GitFork size={28} weight="duotone" />
                 </div>
                 <h3 className="text-2xl font-black tracking-tighter mb-4 sm:text-3xl">
                   Formalizing Local Fabricators
@@ -217,7 +213,7 @@ export default function ManifestoPage() {
                 </p>
               </div>
               <div className="p-5 bg-white/10 rounded-2xl border border-white/10">
-                <p className="text-lg font-bold mb-1">Informal is not inefficient.</p>
+                <p className="text-lg font-bold mb-1">Informal and inefficient, not ineffective.</p>
                 <p className="text-xs sm:text-sm text-white/70">
                   It is simply unnetworked. DFN provides the protocol to unify it.
                 </p>

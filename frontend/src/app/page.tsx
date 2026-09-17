@@ -7,6 +7,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { verifySession } from '@/lib/auth';
+import { Check, ArrowRight, Quotes, CubeFocus, GitFork, SealCheck } from '@phosphor-icons/react';
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
 
@@ -240,18 +241,9 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
         body {
           font-family: 'Inter', sans-serif;
-        }
-
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-        }
-
-        .material-symbols-filled {
-          font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         @keyframes navEnter {
@@ -317,7 +309,7 @@ export default function LandingPage() {
               </h1>
 
               <p data-hero-item className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                West Africa's premier platform for professional hardware development and precision engineering. We bridge the gap between design and reality.
+                Connecting local engineering with underutilized manufacturing capacity across Nigeria. Turn months of import delays into days of reliable local production.
               </p>
 
               <div data-hero-item className="flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
@@ -377,31 +369,30 @@ export default function LandingPage() {
           </div>
 
           <div className="order-1 space-y-6 lg:order-2">
-            <h2 className="reveal-up text-3xl font-black leading-tight tracking-tight text-[#191c1e] sm:text-4xl">Redefining Engineering through Connectivity</h2>
+            <h2 className="reveal-up text-3xl font-black leading-tight tracking-tight text-[#191c1e] sm:text-4xl">Ending the Industrial Disconnect in African Manufacturing</h2>
             <p className="reveal-up delay-1 text-lg leading-relaxed text-slate-600">
-              At DFN, we believe that innovation should not happen in silos. We are building a borderless ecosystem where regional manufacturers connect with global designers,
-              leveraging modern infrastructure to turn ambitious concepts into market-ready hardware.
+              High regional demand for manufactured products meets capable local workshops operating below full capacity. Because of fragmented market visibility, businesses routinely rely on expensive overseas imports, while capable domestic facilities remain underutilized. DFN provides the digital routing, verification, and orchestration layer to bridge this gap.
             </p>
 
             <ul className="reveal-up delay-2 space-y-4 pt-2">
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-sky-900/10">
-                  <span className="material-symbols-outlined text-sm text-[#004873]">check</span>
+                  <Check size={14} weight="bold" className="text-[#004873]" />
                 </div>
-                <span className="font-medium text-[#191c1e]">Verified fabrication partners across 12 countries.</span>
+                <span className="font-medium text-[#191c1e]">Verified fabrication nodes mapped across key regional industrial corridors.</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-sky-900/10">
-                  <span className="material-symbols-outlined text-sm text-[#004873]">check</span>
+                  <Check size={14} weight="bold" className="text-[#004873]" />
                 </div>
-                <span className="font-medium text-[#191c1e]">Standardized prototyping protocols for speed.</span>
+                <span className="font-medium text-[#191c1e]">Standardized engineering protocols to validate designs before production.</span>
               </li>
             </ul>
 
             <div className="reveal-up delay-3 pt-3">
               <Link href="/manifesto" className="inline-flex items-center gap-1 font-bold text-[#006098] transition-all hover:gap-2 hover:underline">
                 See our Ambitious Plans
-                <span className="material-symbols-outlined text-base">arrow_forward</span>
+                <ArrowRight size={16} weight="bold" />
               </Link>
             </div>
           </div>
@@ -410,40 +401,43 @@ export default function LandingPage() {
         <section className="bg-white py-24 lg:py-32">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-14 max-w-2xl space-y-4 lg:mb-16">
-              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Our Core Services</h2>
-              <p className="text-slate-600">Unlocking the potential of industrial fabrication for the next generation of innovators.</p>
+              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Our Core Capabilities</h2>
+              <p className="text-slate-600">Unlocking the potential of domestic manufacturing for the next generation of innovators.</p>
             </div>
 
             <div ref={servicesRef} className="grid gap-8 md:grid-cols-3">
               {[
                 {
-                  icon: 'hub',
-                  title: 'Regional Collaboration',
-                  text: 'Forge powerful partnerships across borders. Access a network of expertise tailored to regional engineering challenges.',
+                  icon: CubeFocus,
+                  title: 'Design & CAD Intelligence',
+                  text: 'Automated analysis that evaluates manufacturability early, streamlining requirements and specifications before work reaches the shop floor.',
                 },
                 {
-                  icon: 'biotech',
-                  title: 'Modern Prototyping',
-                  text: 'From 3D printing to CNC machining, utilize state-of-the-art facilities for rapid hardware iteration and testing.',
+                  icon: GitFork,
+                  title: 'Intelligent Job Routing',
+                  text: 'Algorithmic matching that connects engineering projects directly to verified workshops with active capacity and compatible tooling.',
                 },
                 {
-                  icon: 'speed',
-                  title: 'Accelerated Innovation',
-                  text: 'Cut down time-to-market. Our streamlined processes ensure your innovation moves from drawing board to production faster.',
+                  icon: SealCheck,
+                  title: 'Standards & Quality Assurance',
+                  text: 'End-to-end verification aligned with recognized industrial standards, ensuring locally produced parts meet strict quality benchmarks.',
                 },
-              ].map((service) => (
-                <div
-                  key={service.title}
-                  data-service-card
-                  className="group space-y-6 rounded-2xl bg-[#f8fafc] p-10 shadow-sm transition-all hover:shadow-xl hover:shadow-sky-900/5"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-sky-900/5 transition-colors group-hover:bg-[#004873]">
-                    <span className="material-symbols-outlined text-3xl text-[#006098] transition-colors group-hover:text-white">{service.icon}</span>
+              ].map((service) => {
+                const IconComp = service.icon;
+                return (
+                  <div
+                    key={service.title}
+                    data-service-card
+                    className="group space-y-6 rounded-2xl bg-[#f8fafc] p-10 shadow-sm transition-all hover:shadow-xl hover:shadow-sky-900/5"
+                  >
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-sky-900/5 transition-colors group-hover:bg-[#004873]">
+                      <IconComp size={32} weight="duotone" className="text-[#006098] transition-colors group-hover:text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold">{service.title}</h3>
+                    <p className="leading-relaxed text-slate-600">{service.text}</p>
                   </div>
-                  <h3 className="text-2xl font-bold">{service.title}</h3>
-                  <p className="leading-relaxed text-slate-600">{service.text}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -496,7 +490,7 @@ export default function LandingPage() {
                   <p className="leading-relaxed text-[#b4d8ff]">{pillar.text}</p>
                   <Link href={pillar.href} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-all hover:gap-4">
                     Learn More
-                    <span className="material-symbols-outlined text-base">arrow_forward</span>
+                    <ArrowRight size={16} weight="bold" />
                   </Link>
                 </div>
               ))}
@@ -508,15 +502,15 @@ export default function LandingPage() {
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
               <Link href="/stakeholders" className="transition-colors hover:text-[#004873] hover:underline underline-offset-4">
-                Our Goals*
+                Platform Benchmarks*
               </Link>
             </h2>
             <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
               {[
-                { value: '450+', label: 'Stakeholders' },
-                { value: '1.2k', label: 'Projects' },
-                { value: '85', label: 'Facilities' },
-                { value: '12', label: 'Nations' },
+                { value: '±0.02mm', label: 'Tolerance Target' },
+                { value: '25+', label: 'Standards Indexed' },
+                { value: '6-Factor', label: 'Match Intelligence' },
+                { value: '6', label: 'Industrial Hubs' },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -532,15 +526,95 @@ export default function LandingPage() {
         </section>
 
         <section className="mx-auto w-full max-w-5xl space-y-8 px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-28">
-          <span data-testimonial-item className="material-symbols-outlined material-symbols-filled inline-block text-7xl text-[#98cbff] opacity-40 sm:text-8xl">
-            format_quote
-          </span>
+          <Quotes size={72} weight="duotone" className="inline-block text-[#98cbff] opacity-60" />
           <blockquote data-testimonial-item className="text-3xl font-black italic leading-[1.12] tracking-tight text-[#191c1e] sm:text-4xl md:text-5xl">
-            DFN is not just a network; it is the missing link in our industrial value chain. By centralizing fabrication resources, we reduce R&D costs for our partners by up to 40%.
+            DFN is not just a network; it is the coordination infrastructure for African industrial autonomy. By indexing verified machine capacity and standardizing engineering workflows, we turn fragmented workshops into a reliable, enterprise-grade manufacturing pipeline.
           </blockquote>
           <div data-testimonial-item className="space-y-1">
             <div className="text-xl font-black">Udonsi Chris</div>
             <div className="text-xs font-medium uppercase tracking-[0.25em] text-slate-500 sm:text-sm">Head of Product, Digital Fabrication Network</div>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#006098]">
+                Dispatches & Field Notes
+              </div>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl">
+                From the Engineering Desk
+              </h2>
+            </div>
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-1 text-sm font-bold text-[#006098] transition-all hover:gap-2 hover:underline"
+            >
+              <span>View All Articles</span>
+              <ArrowRight size={16} weight="bold" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                slug: 'the-problem-of-innovating-in-nigeria',
+                category: 'Research',
+                readTime: '12 min read',
+                title: 'The problem of innovating in Nigeria',
+                excerpt:
+                  'A field report on how infrastructure friction reshapes technical ambition, and why durable systems matter more than perfect ones.',
+                img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAC_nVxWjzfx8lLQ8teMBCSFTLUOJIsueT2mdvw-UmwwLoIj_VEe9c923_dIp5-YvRJO3tkkeosigYJq-TGcdsuEDiSwu7pu6klnc79zajN9T9OsBCxilN7iiPMyXZs4JTrB28uurzIXaSXKCozX2hUg-5wx6OFP2QCqlLdKAmuaSOyGexvpNmKDiZnLon9t7ZrI1jzV4kanfLeuP4gN6LR5aBa9xzeg0Nu9lwqskmmQpB_TEjK5_dzf_qBAR5P1eSSSnjMlKnOeyY',
+              },
+              {
+                slug: 'laser-sintering-beyond-traditional-casting',
+                category: 'Fabrication',
+                readTime: '7 min read',
+                title: 'Laser Sintering: Beyond Traditional Casting',
+                excerpt:
+                  'How additive manufacturing is rewriting the rules for complex internal voids and low-volume production.',
+                img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC-wcOOgaEAqWm-VWr9P6pqqDEwloigpblC74SSzYc1Zenv_AaOry64KGybJt9zoQEkgG4Y0rexn7w7qzjXSXsiXTvOTEH3TZd0Tg0qtaWXwb8AxTIuDiHjfZ7auSHzBrDl8cIn9VIdcOaIcJ9U8UR0zuGmWYPRDVGX4svkYf32CHbJat55DoLtfBtjo6Nuqm--wTq5WcjljZ3XeGbDQsbGO38Ogw0rAgc3duIklgiXdvw6cpP0zPUVM5VL6WpTE3HeBcV4MssZRMI',
+              },
+              {
+                slug: 'kinematic-couplings-modular-robotics',
+                category: 'Mechanical',
+                readTime: '6 min read',
+                title: 'Kinematic Couplings in Modular Robotics',
+                excerpt:
+                  'Exploring deterministic location and repeatable precision for interchangeable robot end-effectors.',
+                img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDy8deUCtUtgB8CjWsWo-oWdzGjGJ9j8pO7SoMdookvTFQTDeDkJMGKfMPvDF_iB5T9ug3wFJreO01L83Flm3eLX3DkwM9lki2-KiXz6Utmg-P1mVzFnCFb4bmMqtItmIxWNUs9PfgsAG_LL1kHB1vqrYhYNH_xPs8jhkrCIaXWbtDs2l48B6LqZfhWZrgTDgdEKQgo0QUYiDxQGpP-7txNIm9WgkSucuwuNOqryf32gU2EePnH2QQ7NkzBY9PTvn4JsdM5P3nnFsg',
+              },
+            ].map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200/70 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-slate-300"
+              >
+                <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={post.img}
+                    alt={post.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute top-3 left-3 rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-[#004873] backdrop-blur-sm">
+                    {post.category}
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <span className="text-xs font-semibold text-slate-500">{post.readTime}</span>
+                  <h3 className="mt-2 text-lg font-bold text-[#191c1e] transition-colors group-hover:text-[#006098]">
+                    {post.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600 line-clamp-2">
+                    {post.excerpt}
+                  </p>
+                  <div className="mt-auto pt-4 flex items-center gap-1 text-xs font-bold text-[#006098] transition-colors group-hover:text-[#004873]">
+                    <span>Read Article</span>
+                    <ArrowRight size={14} weight="bold" />
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
@@ -549,12 +623,12 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-gradient-to-b from-[#006098] to-[#007abf] opacity-90"></div>
             <div className="relative z-10 space-y-7">
               <h2 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-                Ready to Lead the
+                Ready to Build the
                 <br />
-                Innovation Wave?
+                Future of African Manufacturing?
               </h2>
               <p className="mx-auto max-w-2xl text-lg leading-relaxed text-[#cee5ff] sm:text-xl">
-                Join hundreds of leaders building the future of African fabrication. The next industrial revolution is hardware, and it starts here.
+                Apply for priority access to the DFN Pioneer Cohort. Whether you are developing hardware, operating manufacturing capacity, or seeking resilient domestic supply chains, join our network today.
               </p>
               <div className="pt-3">
                 <Link
@@ -562,7 +636,7 @@ export default function LandingPage() {
                   data-cta-pulse
                   className="inline-block rounded-2xl bg-white px-10 py-5 text-xl font-black text-[#004873] shadow-2xl transition-all hover:scale-105 active:scale-95 sm:text-2xl"
                 >
-                  Get Started
+                  Join the Waitlist
                 </Link>
               </div>
 

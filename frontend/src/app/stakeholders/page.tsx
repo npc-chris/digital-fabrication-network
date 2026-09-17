@@ -7,6 +7,7 @@ import Image from 'next/image';
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
 import { verifySession } from '@/lib/auth';
+import { GearSix, Scroll, CheckCircle, TrendUp, ArrowRight } from '@phosphor-icons/react';
 
 export default function StakeholdersPage() {
   const router = useRouter();
@@ -36,18 +37,9 @@ export default function StakeholdersPage() {
     <div className="min-h-screen bg-white text-[#191c1e] antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
         body {
           font-family: 'Inter', sans-serif;
-        }
-
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-        }
-
-        .material-symbols-filled {
-          font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         @keyframes navEnter {
@@ -185,8 +177,8 @@ export default function StakeholdersPage() {
               <div className="group relative overflow-hidden rounded-[2rem] bg-white p-10 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl md:col-span-8">
                 <div className="flex flex-col">
                   <div className="mb-8 flex items-start justify-between">
-                    <div className="rounded-2xl bg-sky-100 p-4">
-                      <span className="material-symbols-outlined text-3xl text-[#006098]">precision_manufacturing</span>
+                    <div className="rounded-2xl bg-sky-100 p-4 text-[#006098]">
+                      <GearSix size={32} weight="duotone" />
                     </div>
                     <span className="text-sm font-medium text-slate-600">Industrial Efficiency</span>
                   </div>
@@ -218,8 +210,8 @@ export default function StakeholdersPage() {
               <div className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#006098] to-[#007abf] p-10 text-white md:col-span-4">
                 <div className="flex flex-col justify-between">
                   <div>
-                    <div className="mb-8 w-fit rounded-2xl bg-white/10 p-4">
-                      <span className="material-symbols-outlined text-3xl text-white">gavel</span>
+                    <div className="mb-8 w-fit rounded-2xl bg-white/10 p-4 text-white">
+                      <Scroll size={32} weight="duotone" />
                     </div>
                     <h3 className="mb-4 text-3xl font-bold">Policy Makers</h3>
                     <p className="mb-8 text-lg opacity-90">
@@ -228,15 +220,15 @@ export default function StakeholdersPage() {
                   </div>
                   <ul className="space-y-4">
                     <li className="flex items-center gap-3 text-sm font-medium">
-                      <span className="material-symbols-outlined text-xs">check_circle</span>
+                      <CheckCircle size={16} weight="duotone" />
                       Regulatory Sandboxes
                     </li>
                     <li className="flex items-center gap-3 text-sm font-medium">
-                      <span className="material-symbols-outlined text-xs">check_circle</span>
+                      <CheckCircle size={16} weight="duotone" />
                       Standard Harmonization
                     </li>
                     <li className="flex items-center gap-3 text-sm font-medium">
-                      <span className="material-symbols-outlined text-xs">check_circle</span>
+                      <CheckCircle size={16} weight="duotone" />
                       Workforce Analytics
                     </li>
                   </ul>
@@ -246,8 +238,8 @@ export default function StakeholdersPage() {
               {/* Investors */}
               <div className="group flex flex-col gap-12 rounded-[2rem] border border-slate-200 bg-white p-12 shadow-sm lg:flex-row lg:items-center md:col-span-12">
                 <div className="lg:w-1/2">
-                  <div className="mb-8 w-fit rounded-2xl bg-slate-100 p-4">
-                    <span className="material-symbols-outlined text-3xl text-[#006098]">monetization_on</span>
+                  <div className="mb-8 w-fit rounded-2xl bg-slate-100 p-4 text-[#006098]">
+                    <TrendUp size={32} weight="duotone" />
                   </div>
                   <h3 className="mb-6 text-4xl font-black">Investors</h3>
                   <p className="mb-8 text-xl leading-relaxed text-slate-600">
@@ -255,7 +247,7 @@ export default function StakeholdersPage() {
                   </p>
                   <Link href="/manifesto" className="inline-flex items-center gap-2 font-bold text-[#006098] transition-all hover:gap-4">
                     Invest in the Hardware Stack
-                    <span className="material-symbols-outlined">arrow_forward</span>
+                    <ArrowRight size={18} weight="bold" />
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-4 lg:w-1/2">

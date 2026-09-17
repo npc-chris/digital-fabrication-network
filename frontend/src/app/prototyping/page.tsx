@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { Printer, Disc, Intersect, ShieldCheck, Wrench, CheckCircle, ArrowRight } from '@phosphor-icons/react';
 
 import Footer from '@/components/Footer';
 import LandingNavbar from '@/components/LandingNavbar';
@@ -10,14 +11,9 @@ export default function PrototypingPage() {
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
         body {
           font-family: 'Inter', sans-serif;
-        }
-
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         @keyframes revealUp {
@@ -155,7 +151,7 @@ export default function PrototypingPage() {
             <div className="grid h-auto grid-cols-1 gap-6 md:h-[600px] md:grid-cols-12">
               <div className="group reveal-up relative flex flex-col justify-between overflow-hidden rounded-[2rem] bg-white p-8 md:col-span-8">
                 <div className="relative z-10">
-                  <span className="material-symbols-outlined mb-4 text-4xl text-[#004873]">precision_manufacturing</span>
+                  <Printer size={36} weight="duotone" className="mb-4 text-[#004873]" />
                   <h3 className="mb-2 text-3xl font-bold">Additive (3D Printing)</h3>
                   <p className="max-w-md text-slate-600">Industrial SLA, SLS, and FDM with micron-level precision and multi-material engineering plastics.</p>
                 </div>
@@ -173,7 +169,7 @@ export default function PrototypingPage() {
 
               <div className="reveal-up delay-1 flex flex-col justify-between overflow-hidden rounded-[2rem] bg-[#004873] p-8 text-white md:col-span-4">
                 <div>
-                  <span className="material-symbols-outlined mb-4 text-4xl">architecture</span>
+                  <Disc size={36} weight="duotone" className="mb-4" />
                   <h3 className="mb-2 text-3xl font-bold">Subtractive (CNC)</h3>
                   <p className="text-white/80">Multi-axis milling for aerospace-grade aluminum and titanium alloys.</p>
                 </div>
@@ -183,7 +179,7 @@ export default function PrototypingPage() {
               </div>
 
               <div className="reveal-up delay-2 flex flex-col rounded-[2rem] bg-[#e0e3e5] p-8 md:col-span-4">
-                <span className="material-symbols-outlined mb-4 text-4xl text-[#004873]">flare</span>
+                <Intersect size={36} weight="duotone" className="mb-4 text-[#004873]" />
                 <h3 className="mb-2 text-2xl font-bold">Laser & Plasma</h3>
                 <p className="text-sm text-slate-600">High-speed profile cutting with minimal heat-affected zones for sheets up to 50mm.</p>
               </div>
@@ -194,7 +190,7 @@ export default function PrototypingPage() {
                   <p className="text-sm text-slate-600">Every part undergoes automated CMM inspection to ensure design-intent compliance.</p>
                 </div>
                 <div className="hidden text-[#004873]/20 sm:block">
-                  <span className="material-symbols-outlined text-8xl">verified</span>
+                  <ShieldCheck size={80} weight="duotone" />
                 </div>
               </div>
             </div>
@@ -204,7 +200,7 @@ export default function PrototypingPage() {
         <section className="mx-auto flex max-w-[1400px] flex-col items-center gap-16 px-4 py-24 sm:px-6 lg:flex-row lg:gap-20 lg:px-8 lg:py-28">
           <div className="lg:w-1/2">
             <div className="reveal-up mb-6 inline-flex items-center gap-2 rounded-full bg-[#ffdad5] px-3 py-1 text-xs font-bold uppercase text-[#930009]">
-              <span className="material-symbols-outlined text-xs">engineering</span>
+              <Wrench size={14} weight="bold" />
               Technical Mentorship
             </div>
             <h2 className="reveal-up delay-1 mb-8 text-4xl font-extrabold leading-tight tracking-tight text-[#191c1e] sm:text-5xl">
@@ -216,21 +212,21 @@ export default function PrototypingPage() {
             </p>
             <ul className="reveal-up delay-3 mb-10 space-y-4">
               <li className="flex items-start gap-4">
-                <span className="material-symbols-outlined text-[#004873]">check_circle</span>
+                <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0 mt-0.5" />
                 <span className="font-medium">Supply chain risk assessment and mitigation.</span>
               </li>
               <li className="flex items-start gap-4">
-                <span className="material-symbols-outlined text-[#004873]">check_circle</span>
+                <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0 mt-0.5" />
                 <span className="font-medium">Material selection for mechanical optimization.</span>
               </li>
               <li className="flex items-start gap-4">
-                <span className="material-symbols-outlined text-[#004873]">check_circle</span>
+                <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0 mt-0.5" />
                 <span className="font-medium">Direct access to senior hardware architects.</span>
               </li>
             </ul>
             <Link href="/stakeholders" className="reveal-up delay-3 inline-flex items-center gap-2 font-bold text-[#006098] transition-transform hover:translate-x-1">
               Meet the Mentors
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <ArrowRight size={16} weight="bold" />
             </Link>
           </div>
 

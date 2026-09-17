@@ -3,23 +3,23 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  CheckCircle2,
+  CheckCircle,
   ArrowRight,
   ArrowDown,
   X,
-  Sparkles,
-  Layers,
+  Sparkle,
+  Stack,
   Cpu,
   Factory,
   GraduationCap,
-  Building2,
+  Buildings,
   BookOpen,
   Clock,
   ShieldCheck,
-  Zap,
+  Lightning,
   Copy,
   Check,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
@@ -61,7 +61,7 @@ const ROLES: RoleOption[] = [
     label: 'Industries & Institutions',
     badge: 'Enterprise',
     description: 'Procurement teams, public and private organizations, institutional partners & OEM manufacturers seeking to de-risk supply chains through localized production.',
-    icon: Building2,
+    icon: Buildings,
   },
 ];
 
@@ -202,14 +202,9 @@ export default function ComingSoonPage() {
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
         body {
           font-family: 'Inter', sans-serif;
-        }
-
-        .material-symbols-outlined {
-          font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         @keyframes pulseBeacon {
@@ -265,16 +260,8 @@ export default function ComingSoonPage() {
               </h1>
 
               <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg">
-                We are finishing the final validation phases of West Africa's decentralized digital manufacturing platform.
+                We are finalizing the final validation phases of West Africa's decentralized digital manufacturing platform.
               </p>
-
-              {/* Momentum Live Metric Counter */}
-              <div className="mt-6 inline-flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/80 px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-md">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                <span>
-                  <strong className="font-bold text-[#004873]">{liveCount.toLocaleString()}</strong> innovators and machine shops on priority waitlist
-                </span>
-              </div>
             </div>
 
             {/* Interactive Early Access Pass Terminal */}
@@ -317,7 +304,7 @@ export default function ComingSoonPage() {
                                     className={`flex h-8 w-8 items-center justify-center rounded-lg ${isSelected ? 'bg-[#006098] text-white' : 'bg-slate-200 text-slate-700'
                                       }`}
                                   >
-                                    <IconComp className="h-4 w-4" />
+                                    <IconComp size={18} weight={isSelected ? 'bold' : 'duotone'} />
                                   </div>
                                   <span className="text-sm font-bold text-[#191c1e]">{role.label}</span>
                                 </div>
@@ -408,7 +395,7 @@ export default function ComingSoonPage() {
                         ) : (
                           <>
                             <span>Reserve Priority Network Access</span>
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight size={16} weight="bold" />
                           </>
                         )}
                       </button>
@@ -421,7 +408,7 @@ export default function ComingSoonPage() {
                   /* Boarding Pass / Priority Access Ticket */
                   <div className="space-y-6 text-center">
                     <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
-                      <CheckCircle2 className="h-9 w-9" />
+                      <CheckCircle size={36} weight="duotone" />
                     </div>
 
                     <div>
@@ -450,12 +437,12 @@ export default function ComingSoonPage() {
                         >
                           {copied ? (
                             <>
-                              <Check className="h-3.5 w-3.5 text-emerald-600" />
+                              <Check size={14} weight="bold" className="text-emerald-600" />
                               <span className="text-emerald-600">Copied</span>
                             </>
                           ) : (
                             <>
-                              <Copy className="h-3.5 w-3.5" />
+                              <Copy size={14} weight="bold" />
                               <span>Copy</span>
                             </>
                           )}
@@ -494,7 +481,7 @@ export default function ComingSoonPage() {
                         href="/blog"
                         className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5"
                       >
-                        <BookOpen className="h-4 w-4" />
+                        <BookOpen size={18} weight="duotone" />
                         Explore DFN Blog & Field Notes
                       </Link>
                       <Link
@@ -533,7 +520,7 @@ export default function ComingSoonPage() {
                   <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-800">
                     Phase 01 • Completed
                   </span>
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  <CheckCircle size={20} weight="duotone" className="text-emerald-600 shrink-0" />
                 </div>
                 <h3 className="mt-4 text-xl font-bold text-[#191c1e]">Core Geometry & DFM Kernel</h3>
                 <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
@@ -564,7 +551,7 @@ export default function ComingSoonPage() {
                   <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-800">
                     Phase 03 • Launching Q3 2026
                   </span>
-                  <Clock className="h-5 w-5 text-amber-600" />
+                  <Clock size={20} weight="duotone" className="text-amber-600 shrink-0" />
                 </div>
                 <h3 className="mt-4 text-xl font-bold text-[#191c1e]">Public Dispatch & Escrow</h3>
                 <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
@@ -593,12 +580,12 @@ export default function ComingSoonPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 {
-                  icon: Layers,
+                  icon: Stack,
                   title: '5-Axis CNC & Wire EDM',
                   desc: 'High-precision subtractive milling for aerospace-grade tolerances down to ±0.02mm.',
                 },
                 {
-                  icon: Sparkles,
+                  icon: Sparkle,
                   title: 'Industrial SLS & FDM',
                   desc: 'Functional nylon, PEEK, and composite 3D printing for production-grade end-use parts.',
                 },
@@ -608,7 +595,7 @@ export default function ComingSoonPage() {
                   desc: 'Every completed part verified with optical and contact coordinate measuring before delivery.',
                 },
                 {
-                  icon: Zap,
+                  icon: Lightning,
                   title: 'Automated RFQ Routing',
                   desc: 'Algorithmic matching routes jobs to machines with idle capacity, avoiding production backlogs.',
                 },
@@ -620,7 +607,7 @@ export default function ComingSoonPage() {
                     className="group rounded-2xl bg-[#f7f9fb] p-7 transition-all hover:bg-white hover:shadow-xl hover:shadow-sky-900/5 hover:-translate-y-1"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-900/5 text-[#006098] transition-colors group-hover:bg-[#004873] group-hover:text-white">
-                      <CapIcon className="h-6 w-6" />
+                      <CapIcon size={24} weight="duotone" />
                     </div>
                     <h4 className="mt-5 text-lg font-bold text-[#191c1e]">{cap.title}</h4>
                     <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">{cap.desc}</p>
@@ -647,7 +634,7 @@ export default function ComingSoonPage() {
             <div className="relative z-10 grid gap-8 lg:grid-cols-2 lg:items-center">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#cee5ff] backdrop-blur-md">
-                  <BookOpen className="h-3.5 w-3.5" />
+                  <BookOpen size={14} weight="duotone" />
                   <span>DFN Insights & Field Notes</span>
                 </div>
                 <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl leading-tight">
@@ -662,7 +649,7 @@ export default function ComingSoonPage() {
                     className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm sm:text-base font-bold text-[#004873] shadow-lg transition-all hover:bg-slate-100 hover:scale-105 active:scale-95"
                   >
                     <span>Read DFN Blog Articles</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight size={16} weight="bold" />
                   </Link>
                 </div>
               </div>
@@ -684,7 +671,7 @@ export default function ComingSoonPage() {
                     className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#98cbff] hover:text-white transition-colors"
                   >
                     <span>View All Articles</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight size={14} weight="bold" />
                   </Link>
                 </div>
               </div>
@@ -702,7 +689,7 @@ export default function ComingSoonPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-400 text-slate-950 font-black text-xs shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 fill-slate-950" />
+                <Sparkle size={14} weight="fill" className="text-slate-950" />
               </span>
               <span className="text-xs font-black uppercase tracking-wider text-[#cee5ff]">
                 Explore Platform & Blog
@@ -714,11 +701,11 @@ export default function ComingSoonPage() {
               className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white transition-colors"
               aria-label="Dismiss notice"
             >
-              <X className="h-4 w-4" />
+              <X size={16} weight="bold" />
             </button>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-blue-100">
-            Scroll down to reserve priority waitlist access, inspect our engineering roadmap, or read technical teardowns on the DFN Blog.
+            Reserve access or read technical deep dives on our blog.
           </p>
           <div className="mt-3 flex items-center gap-2">
             <button
@@ -730,13 +717,13 @@ export default function ComingSoonPage() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-bold text-[#004873] shadow-md transition-all hover:bg-slate-100 hover:scale-105 active:scale-95"
             >
               <span>Join Waitlist</span>
-              <ArrowDown className="h-3.5 w-3.5 text-[#006098]" />
+              <ArrowDown size={14} weight="bold" className="text-[#006098]" />
             </button>
             <Link
               href="/blog"
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
             >
-              <BookOpen className="h-3.5 w-3.5 text-sky-300" />
+              <BookOpen size={14} weight="duotone" className="text-sky-300" />
               <span>DFN Blog</span>
             </Link>
           </div>
@@ -763,7 +750,7 @@ export default function ComingSoonPage() {
               className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white transition-colors"
               aria-label="Dismiss notice"
             >
-              <X className="h-4 w-4" />
+              <X size={16} weight="bold" />
             </button>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-blue-100">
@@ -774,9 +761,9 @@ export default function ComingSoonPage() {
               href="/blog"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[#004873] shadow-md transition-all hover:bg-slate-100 hover:scale-105 active:scale-95"
             >
-              <BookOpen className="h-3.5 w-3.5" />
+              <BookOpen size={14} weight="duotone" />
               <span>Explore DFN Blog & Articles</span>
-              <ArrowRight className="h-3 w-3" />
+              <ArrowRight size={12} weight="bold" />
             </Link>
           </div>
         </aside>

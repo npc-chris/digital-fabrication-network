@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Upload, CheckCircle, AlertTriangle, FileText } from 'lucide-react';
+import { X, UploadSimple as Upload, CheckCircle, Warning as AlertTriangle, FileText } from '@phosphor-icons/react';
 import api from '@/lib/api';
 
 interface VerificationModalProps {

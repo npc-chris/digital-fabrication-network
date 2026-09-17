@@ -152,29 +152,17 @@ label.flex.items-center span {
   color: #111827;
 }
 
-/* Ensure SVG icons are visible (lucide-react icons) */
+/* Ensure SVG icons are visible */
 svg {
   display: inline-block;
   vertical-align: middle;
 }
 
-/* Ensure button icons are visible with proper color */
+/* Ensure button icons inherit text color */
 button svg {
-  color: currentColor !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-width: 2 !important;
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Specifically for filter buttons */
-button.flex.items-center svg {
-  width: 1rem;
-  height: 1rem;
-  color: #374151 !important;
+  color: currentColor;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Ensure text visibility in filter dropdown labels */

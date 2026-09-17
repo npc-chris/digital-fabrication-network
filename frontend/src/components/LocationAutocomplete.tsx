@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MapPin, Loader2, X } from 'lucide-react';
+import { MapPin, CircleNotch as Loader2, X } from '@phosphor-icons/react';
 import { API_URL } from '@/lib/auth';
 
 interface LocationAutocompleteProps {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, Search, LayoutDashboard } from 'lucide-react';
+import { List, X, MagnifyingGlass, SquaresFour } from '@phosphor-icons/react';
 import UserDropdown from '@/components/UserDropdown';
 import { verifySession } from '@/lib/auth';
 
@@ -91,7 +91,7 @@ export default function Navbar() {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-1">
                         <Link href="/admin" className={navLinkClass('/admin')}>
-                            <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                            <SquaresFour size={16} weight="duotone" className="mr-1.5" />
                             Admin
                         </Link>
                         {user?.role === 'admin' && (
@@ -99,7 +99,7 @@ export default function Navbar() {
                                 href="/admin" 
                                 className="hidden md:flex items-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-md border border-red-200 transition-colors"
                             >
-                                <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                                <SquaresFour size={16} weight="duotone" className="mr-1.5" />
                                 Admin Panel
                             </Link>
                         )}
@@ -107,7 +107,7 @@ export default function Navbar() {
                         {/* Right side icons */}
                         <div className="flex items-center space-x-3">
                         <button className="p-2 rounded-full hover:bg-gray-100" aria-label="Open search">
-                            <Search className="w-5 h-5 text-gray-600" />
+                            <MagnifyingGlass size={20} weight="bold" className="text-gray-600" />
                         </button>
 
                         {loading ? (
@@ -133,7 +133,7 @@ export default function Navbar() {
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             aria-label="Toggle mobile menu"
                         >
-                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            {mobileMenuOpen ? <X size={24} weight="bold" /> : <List size={24} weight="bold" />}
                         </button>
                     </div>
                     </nav>

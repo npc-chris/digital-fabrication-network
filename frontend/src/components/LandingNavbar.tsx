@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { List, X } from '@phosphor-icons/react';
 
 import Logo from '@/components/Logo';
 import UserDropdown from '@/components/UserDropdown';
@@ -149,7 +149,7 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
           aria-label="Toggle navigation menu"
           onClick={() => setMenuOpen((prev) => !prev)}
         >
-          {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          {menuOpen ? <X size={20} weight="bold" /> : <List size={20} weight="bold" />}
         </button>
       </div>
 

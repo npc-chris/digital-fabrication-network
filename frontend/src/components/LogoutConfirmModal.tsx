@@ -1,6 +1,6 @@
 'use client';
 
-import { X, LogOut, AlertTriangle } from 'lucide-react';
+import { X, SignOut as LogOut, Warning as AlertTriangle } from '@phosphor-icons/react';
 
 interface LogoutConfirmModalProps {
   isOpen: boolean;

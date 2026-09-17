@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BarChart3, Users, ShieldCheck, Package, FileSearch } from 'lucide-react';
+import { ChartBar as BarChart3, Users, ShieldCheck, Package, FileMagnifyingGlass as FileSearch } from '@phosphor-icons/react';
 
 import {
   Badge,

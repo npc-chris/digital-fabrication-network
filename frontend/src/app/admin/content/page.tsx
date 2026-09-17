@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BellRing, FileText, MessageSquare, Search, ShieldAlert, BookOpen, Trash2 } from 'lucide-react';
+import { BellRinging as BellRing, FileText, ChatText as MessageSquare, MagnifyingGlass as Search, ShieldWarning as ShieldAlert, BookOpen, Trash as Trash2 } from '@phosphor-icons/react';
 
 import {
   Badge,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { UploadSimple as Upload, X, Image as ImageIcon, CircleNotch as Loader2 } from '@phosphor-icons/react';
 import { uploadAPI } from '@/lib/api-services';
 
 interface ImageUploadProps {
