@@ -74,7 +74,7 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
   return (
     <header className={containerClass}>
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="-ml-2 sm:-ml-4 lg:-ml-6 flex items-center gap-3" onClick={() => setMenuOpen(false)}>
+        <Link href="/" className="flex items-center gap-3" onClick={() => setMenuOpen(false)}>
           <Logo priority className="h-8 sm:h-9 w-auto object-contain" />
         </Link>
 
@@ -154,18 +154,27 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 py-4 shadow-sm md:hidden">
-          <nav className="space-y-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-                onClick={() => setMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+        <div className="border-t border-slate-200 bg-white/95 px-4 py-4 shadow-lg backdrop-blur-xl md:hidden">
+          <nav className="space-y-1.5">
+            {navLinks.map((link) => {
+              const isActive = active === link.key;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={[
+                    'flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors',
+                    isActive
+                      ? 'bg-sky-50 text-[#006098]'
+                      : 'text-slate-700 hover:bg-slate-100/80',
+                  ].join(' ')}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span>{link.label}</span>
+                  {isActive && <div className="h-1.5 w-1.5 rounded-full bg-[#006098]" />}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="mt-4 border-t border-slate-200 pt-4">
@@ -173,24 +182,24 @@ export default function LandingNavbar({ active = null, fixed = true }: LandingNa
               <div className="space-y-2">
                 <Link
                   href={user.role === 'admin' || user.role === 'platform_manager' ? '/admin' : '/'}
-                  className="block rounded-lg px-3 py-2 text-sm font-semibold text-[#004873] hover:bg-slate-100"
+                  className="block rounded-xl px-3.5 py-2.5 text-sm font-semibold text-[#004873] hover:bg-slate-100"
                   onClick={() => setMenuOpen(false)}
                 >
-                  {user.role === 'admin' || user.role === 'platform_manager' ? 'Admin' : 'Home'}
+                  {user.role === 'admin' || user.role === 'platform_manager' ? 'Admin Dashboard' : 'Home'}
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2.5">
                 <Link
                   href="/coming-soon"
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                  className="flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   onClick={() => setMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/coming-soon"
-                  className="block rounded-lg bg-[#006098] px-3 py-2 text-sm font-semibold text-white"
+                  className="flex items-center justify-center rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-3 py-2.5 text-center text-sm font-semibold text-white shadow-sm"
                   onClick={() => setMenuOpen(false)}
                 >
                   Join Network

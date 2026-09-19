@@ -136,18 +136,24 @@ export default function LandingPage() {
 
     // Pillar cards - scroll trigger
     const pillarCards = pillarsRef.current?.querySelectorAll('[data-pillar-card]');
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     pillarCards?.forEach((card, index) => {
       gsap.fromTo(
         card,
-        { opacity: 0, x: index % 2 === 0 ? -50 : 50 },
+        {
+          opacity: 0,
+          y: isMobile ? 30 : 0,
+          x: isMobile ? 0 : (index % 2 === 0 ? -40 : 40),
+        },
         {
           opacity: 1,
+          y: 0,
           x: 0,
           duration: 0.8,
           delay: index * 0.15,
           scrollTrigger: {
             trigger: card,
-            start: 'top 75%',
+            start: 'top 85%',
             end: 'top 35%',
             scrub: false,
           },
@@ -238,7 +244,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
+    <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased overflow-x-clip">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -290,17 +296,17 @@ export default function LandingPage() {
       <LandingNavbar active="home" />
 
       <main className="pt-14">
-        <section ref={heroRef} className="relative overflow-hidden pt-4 pb-4 sm:pt-6 sm:pb-6 lg:pt-8 lg:pb-8">
+        <section ref={heroRef} className="relative overflow-hidden pt-4 pb-6 sm:pt-8 sm:pb-10 lg:pt-12 lg:pb-14">
           {/* Background Ambient Blur & Grid Effect */}
           <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[120px] opacity-70" />
-            <div className="absolute top-1/4 -right-20 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-sky-300/15 via-blue-500/10 to-indigo-500/5 blur-[140px] opacity-80" />
+            <div className="absolute -top-32 -left-32 h-[320px] w-[320px] sm:h-[500px] sm:w-[500px] rounded-full bg-gradient-to-tr from-sky-400/20 to-blue-600/10 blur-[100px] sm:blur-[120px] opacity-70" />
+            <div className="absolute top-1/4 -right-20 h-[360px] w-[360px] sm:h-[600px] sm:w-[600px] rounded-full bg-gradient-to-br from-sky-300/15 via-blue-500/10 to-indigo-500/5 blur-[100px] sm:blur-[140px] opacity-80" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           </div>
 
-          <div className="mx-auto grid w-full max-w-7xl items-end gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8 pb-1">
-            <div ref={heroTextRef} className="space-y-6">
-              <h1 data-hero-item className="text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
+          <div className="mx-auto grid w-full max-w-7xl items-center lg:items-end gap-8 sm:gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8 pb-1">
+            <div ref={heroTextRef} className="space-y-5 sm:space-y-6">
+              <h1 data-hero-item className="text-3.5xl xs:text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.02] sm:leading-[0.96] tracking-tight text-[#191c1e]">
                 Connect.
                 <br />
                 Build.
@@ -308,89 +314,89 @@ export default function LandingPage() {
                 <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">Scale.</span>
               </h1>
 
-              <p data-hero-item className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              <p data-hero-item className="max-w-xl text-sm sm:text-base lg:text-lg leading-relaxed text-slate-600">
                 Connecting local engineering with underutilized manufacturing capacity across Nigeria. Turn months of import delays into days of reliable local production.
               </p>
 
-              <div data-hero-item className="flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
+              <div data-hero-item className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
                 <Link
                   href="/coming-soon"
                   data-cta-pulse
-                  className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
+                  className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-6 sm:px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
                   Join the Network
                 </Link>
 
                 <Link
                   href="/manifesto"
-                  className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
+                  className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300/80 bg-white px-6 sm:px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
                 >
                   Our Manifesto
                 </Link>
               </div>
             </div>
 
-            <div data-hero-image className="group relative">
+            <div data-hero-image className="group relative w-full">
               <div className="absolute inset-0 rounded-full bg-sky-900/10 blur-3xl transition-all group-hover:bg-sky-900/20"></div>
-              <div className="float-gentle relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/15 ring-1 ring-slate-900/10">
+              <div className="float-gentle relative overflow-hidden rounded-2xl sm:rounded-[2rem] shadow-2xl shadow-sky-900/15 ring-1 ring-slate-900/10">
                 <img
                   src="/root-hero-img.jpg"
                   alt="Advanced fabrication facility"
-                  className="h-[380px] sm:h-[440px] lg:h-[480px] w-full object-cover object-[80%_center] transition-transform duration-700 group-hover:scale-105"
+                  className="h-[260px] xs:h-[320px] sm:h-[400px] lg:h-[480px] w-full object-cover object-[80%_center] transition-transform duration-700 group-hover:scale-105"
                 />
 
                 {/* Gradient Vignette */}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-slate-950/10" />
 
                 {/* Technical Grid Pattern Accent (Top-Right Corner) */}
-                <div className="pointer-events-none absolute top-0 right-0 h-44 w-44 bg-[linear-gradient(to_right,#ffffff30_1px,transparent_1px),linear-gradient(to_bottom,#ffffff30_1px,transparent_1px)] bg-[size:16px_16px] opacity-70 [mask-image:radial-gradient(ellipse_100%_100%_at_100%_0%,#000_45%,transparent_100%)]" />
+                <div className="pointer-events-none absolute top-0 right-0 h-28 w-28 sm:h-44 sm:w-44 bg-[linear-gradient(to_right,#ffffff30_1px,transparent_1px),linear-gradient(to_bottom,#ffffff30_1px,transparent_1px)] bg-[size:16px_16px] opacity-70 [mask-image:radial-gradient(ellipse_100%_100%_at_100%_0%,#000_45%,transparent_100%)]" />
 
                 {/* Dot Matrix Pattern Accent (Bottom-Left Corner) */}
-                <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 bg-[radial-gradient(#ffffff45_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-75 [mask-image:radial-gradient(ellipse_100%_100%_at_0%_100%,#000_45%,transparent_100%)]" />
+                <div className="pointer-events-none absolute bottom-0 left-0 h-24 w-24 sm:h-40 sm:w-40 bg-[radial-gradient(#ffffff45_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-75 [mask-image:radial-gradient(ellipse_100%_100%_at_0%_100%,#000_45%,transparent_100%)]" />
 
                 {/* Technical Corner Brackets */}
-                <div className="pointer-events-none absolute top-5 left-5 h-6 w-6 border-t-2 border-l-2 border-white/70 rounded-tl-sm" />
-                <div className="pointer-events-none absolute bottom-5 right-5 h-6 w-6 border-b-2 border-r-2 border-white/70 rounded-br-sm" />
+                <div className="pointer-events-none absolute top-3 left-3 sm:top-5 sm:left-5 h-4 w-4 sm:h-6 sm:w-6 border-t-2 border-l-2 border-white/70 rounded-tl-sm" />
+                <div className="pointer-events-none absolute bottom-3 right-3 sm:bottom-5 sm:right-5 h-4 w-4 sm:h-6 sm:w-6 border-b-2 border-r-2 border-white/70 rounded-br-sm" />
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-24 sm:px-6 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-32">
+        <section className="mx-auto grid w-full max-w-7xl items-center gap-8 sm:gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:px-8 lg:py-28">
           <div className="order-2 relative lg:order-1">
             <div className="relative z-10 overflow-hidden rounded-2xl shadow-xl">
               <img
                 src="https://www.pnnl.gov/sites/default/files/styles/hero_1600x1200/public/media/image/Full%20Size-Rapid_Prototyping_Lab-11.jpg?h=8c1344d8&itok=dKKJFDij"
                 alt="Engineering workflow"
-                className="h-[420px] w-full object-cover sm:h-[500px]"
+                className="h-[260px] sm:h-[380px] lg:h-[480px] w-full object-cover"
               />
             </div>
             <div className="absolute -bottom-8 -right-8 -z-10 h-64 w-64 rounded-full bg-sky-900/5 blur-2xl"></div>
           </div>
 
-          <div className="order-1 space-y-6 lg:order-2">
-            <h2 className="reveal-up text-3xl font-black leading-tight tracking-tight text-[#191c1e] sm:text-4xl">Ending the Industrial Disconnect in African Manufacturing</h2>
-            <p className="reveal-up delay-1 text-lg leading-relaxed text-slate-600">
+          <div className="order-1 space-y-5 sm:space-y-6 lg:order-2">
+            <h2 className="reveal-up text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tight text-[#191c1e]">Ending the Industrial Disconnect in African Manufacturing</h2>
+            <p className="reveal-up delay-1 text-sm sm:text-base lg:text-lg leading-relaxed text-slate-600">
               High regional demand for manufactured products meets capable local workshops operating below full capacity. Because of fragmented market visibility, businesses routinely rely on expensive overseas imports, while capable domestic facilities remain underutilized. DFN provides the digital routing, verification, and orchestration layer to bridge this gap.
             </p>
 
-            <ul className="reveal-up delay-2 space-y-4 pt-2">
+            <ul className="reveal-up delay-2 space-y-3 sm:space-y-4 pt-1 sm:pt-2">
               <li className="flex items-start gap-3">
-                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-sky-900/10">
+                <div className="mt-1 flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-sky-900/10">
                   <Check size={14} weight="bold" className="text-[#004873]" />
                 </div>
-                <span className="font-medium text-[#191c1e]">Verified fabrication nodes mapped across key regional industrial corridors.</span>
+                <span className="text-sm sm:text-base font-medium text-[#191c1e]">Verified fabrication nodes mapped across key regional industrial corridors.</span>
               </li>
               <li className="flex items-start gap-3">
-                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-sky-900/10">
+                <div className="mt-1 flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-sky-900/10">
                   <Check size={14} weight="bold" className="text-[#004873]" />
                 </div>
-                <span className="font-medium text-[#191c1e]">Standardized engineering protocols to validate designs before production.</span>
+                <span className="text-sm sm:text-base font-medium text-[#191c1e]">Standardized engineering protocols to validate designs before production.</span>
               </li>
             </ul>
 
-            <div className="reveal-up delay-3 pt-3">
-              <Link href="/manifesto" className="inline-flex items-center gap-1 font-bold text-[#006098] transition-all hover:gap-2 hover:underline">
+            <div className="reveal-up delay-3 pt-2 sm:pt-3">
+              <Link href="/manifesto" className="inline-flex items-center gap-1.5 text-sm sm:text-base font-bold text-[#006098] transition-all hover:gap-2.5 hover:underline">
                 See our Ambitious Plans
                 <ArrowRight size={16} weight="bold" />
               </Link>
@@ -398,14 +404,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-white py-24 lg:py-32">
+        <section className="bg-white py-14 sm:py-20 lg:py-28">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-14 max-w-2xl space-y-4 lg:mb-16">
-              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">Our Core Capabilities</h2>
-              <p className="text-slate-600">Unlocking the potential of domestic manufacturing for the next generation of innovators.</p>
+            <div className="mb-10 sm:mb-14 max-w-2xl space-y-3 sm:space-y-4 lg:mb-16">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#191c1e]">Our Core Capabilities</h2>
+              <p className="text-sm sm:text-base text-slate-600">Unlocking the potential of domestic manufacturing for the next generation of innovators.</p>
             </div>
 
-            <div ref={servicesRef} className="grid gap-8 md:grid-cols-3">
+            <div ref={servicesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {[
                 {
                   icon: CubeFocus,
@@ -428,13 +434,13 @@ export default function LandingPage() {
                   <div
                     key={service.title}
                     data-service-card
-                    className="group space-y-6 rounded-2xl bg-[#f8fafc] p-10 shadow-sm transition-all hover:shadow-xl hover:shadow-sky-900/5"
+                    className="group space-y-4 sm:space-y-6 rounded-2xl bg-[#f8fafc] p-6 sm:p-8 lg:p-9 shadow-sm transition-all hover:shadow-xl hover:shadow-sky-900/5"
                   >
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-sky-900/5 transition-colors group-hover:bg-[#004873]">
-                      <IconComp size={32} weight="duotone" className="text-[#006098] transition-colors group-hover:text-white" />
+                    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-sky-900/5 transition-colors group-hover:bg-[#004873]">
+                      <IconComp size={28} weight="duotone" className="text-[#006098] transition-colors group-hover:text-white sm:scale-110" />
                     </div>
-                    <h3 className="text-2xl font-bold">{service.title}</h3>
-                    <p className="leading-relaxed text-slate-600">{service.text}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-[#191c1e]">{service.title}</h3>
+                    <p className="text-sm sm:text-base leading-relaxed text-slate-600">{service.text}</p>
                   </div>
                 );
               })}
@@ -442,7 +448,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden bg-[#004873] py-24 text-white lg:py-32">
+        <section className="relative overflow-hidden bg-[#004873] py-14 sm:py-20 text-white lg:py-28">
           <div className="pointer-events-none absolute right-0 top-0 h-full w-1/3 opacity-10">
             <svg className="h-full w-full fill-current" viewBox="0 0 100 100" aria-hidden="true">
               <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -453,13 +459,13 @@ export default function LandingPage() {
           </div>
 
           <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-14 text-3xl font-black tracking-tight sm:text-5xl lg:mb-16">
+            <h2 className="mb-10 sm:mb-14 text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight lg:mb-16">
               Built for Every Pillar
               <br />
               of the Ecosystem
             </h2>
 
-            <div ref={pillarsRef} className="grid gap-8 md:grid-cols-3">
+            <div ref={pillarsRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               {[
                 {
                   title: 'Manufacturers',
@@ -483,14 +489,14 @@ export default function LandingPage() {
                 <div
                   key={pillar.title}
                   data-pillar-card
-                  className="space-y-6 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
+                  className="space-y-4 sm:space-y-6 rounded-2xl border border-white/10 bg-white/5 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
                 >
-                  <img src={pillar.img} alt={pillar.title} className="h-48 w-full rounded-xl object-cover grayscale transition-all hover:grayscale-0" />
-                  <h4 className="text-xl font-bold">{pillar.title}</h4>
-                  <p className="leading-relaxed text-[#b4d8ff]">{pillar.text}</p>
-                  <Link href={pillar.href} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-all hover:gap-4">
+                  <img src={pillar.img} alt={pillar.title} className="h-40 sm:h-44 lg:h-48 w-full rounded-xl object-cover grayscale transition-all hover:grayscale-0" />
+                  <h4 className="text-lg sm:text-xl font-bold">{pillar.title}</h4>
+                  <p className="text-sm sm:text-base leading-relaxed text-[#b4d8ff]">{pillar.text}</p>
+                  <Link href={pillar.href} className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider sm:tracking-widest transition-all hover:gap-3">
                     Learn More
-                    <ArrowRight size={16} weight="bold" />
+                    <ArrowRight size={14} weight="bold" />
                   </Link>
                 </div>
               ))}
@@ -498,14 +504,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#f2f4f6] py-20">
+        <section className="bg-[#f2f4f6] py-12 sm:py-16 lg:py-20">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-8 text-center text-3xl font-black tracking-tight text-[#191c1e] sm:mb-10 sm:text-4xl">
+            <h2 className="mb-6 sm:mb-8 text-center text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#191c1e]">
               <Link href="/stakeholders" className="transition-colors hover:text-[#004873] hover:underline underline-offset-4">
                 Platform Benchmarks*
               </Link>
             </h2>
-            <div ref={statsRef} className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 md:gap-8">
+            <div ref={statsRef} className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-4 md:gap-8">
               {[
                 { value: '±0.02mm', label: 'Tolerance Target' },
                 { value: '25+', label: 'Standards Indexed' },
@@ -515,47 +521,47 @@ export default function LandingPage() {
                 <div
                   key={stat.label}
                   data-stat-card
-                  className="space-y-2 rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg sm:p-8"
+                  className="space-y-1.5 sm:space-y-2 rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 lg:p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
                 >
-                  <div className="text-3xl font-black text-[#004873] sm:text-4xl">{stat.value}</div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-sm">{stat.label}</div>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#004873]">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs lg:text-sm font-semibold uppercase tracking-wider sm:tracking-[0.2em] text-slate-500">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-5xl space-y-8 px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-28">
-          <Quotes size={72} weight="duotone" className="inline-block text-[#98cbff] opacity-60" />
-          <blockquote data-testimonial-item className="text-3xl font-black italic leading-[1.12] tracking-tight text-[#191c1e] sm:text-4xl md:text-5xl">
+        <section className="mx-auto w-full max-w-5xl space-y-6 sm:space-y-8 px-4 py-14 sm:py-20 sm:px-6 lg:px-8 lg:py-28 text-center">
+          <Quotes size={48} weight="duotone" className="inline-block text-[#98cbff] opacity-60 sm:scale-125 lg:scale-150" />
+          <blockquote data-testimonial-item className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black italic leading-[1.3] sm:leading-[1.2] tracking-tight text-[#191c1e]">
             DFN is not just a network; it is the coordination infrastructure for African industrial autonomy. By indexing verified machine capacity and standardizing engineering workflows, we turn fragmented workshops into a reliable, enterprise-grade manufacturing pipeline.
           </blockquote>
           <div data-testimonial-item className="space-y-1">
-            <div className="text-xl font-black">Udonsi Chris</div>
-            <div className="text-xs font-medium uppercase tracking-[0.25em] text-slate-500 sm:text-sm">Head of Product, Digital Fabrication Network</div>
+            <div className="text-lg sm:text-xl font-black text-[#191c1e]">Udonsi Chris</div>
+            <div className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider sm:tracking-[0.25em] text-slate-500">Head of Product, Digital Fabrication Network</div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+        <section className="mx-auto w-full max-w-7xl px-4 pb-14 sm:px-6 sm:pb-20 lg:px-8 lg:pb-28">
+          <div className="mb-8 sm:mb-10 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <div className="text-xs font-bold uppercase tracking-widest text-[#006098]">
+              <div className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#006098]">
                 Dispatches & Field Notes
               </div>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl">
+              <h2 className="mt-1.5 sm:mt-2 text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#191c1e]">
                 From the Engineering Desk
               </h2>
             </div>
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1 text-sm font-bold text-[#006098] transition-all hover:gap-2 hover:underline"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-[#006098] transition-all hover:gap-2 hover:underline"
             >
               <span>View All Articles</span>
-              <ArrowRight size={16} weight="bold" />
+              <ArrowRight size={14} weight="bold" />
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
                 slug: 'the-problem-of-innovating-in-nigeria',
@@ -590,7 +596,7 @@ export default function LandingPage() {
                 href={`/blog/${post.slug}`}
                 className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200/70 transition-all hover:-translate-y-1 hover:shadow-xl hover:border-slate-300"
               >
-                <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-100">
                   <img
                     src={post.img}
                     alt={post.title}
@@ -600,12 +606,12 @@ export default function LandingPage() {
                     {post.category}
                   </div>
                 </div>
-                <div className="flex flex-1 flex-col p-6">
+                <div className="flex flex-1 flex-col p-5 sm:p-6">
                   <span className="text-xs font-semibold text-slate-500">{post.readTime}</span>
-                  <h3 className="mt-2 text-lg font-bold text-[#191c1e] transition-colors group-hover:text-[#006098]">
+                  <h3 className="mt-2 text-base sm:text-lg font-bold text-[#191c1e] transition-colors group-hover:text-[#006098]">
                     {post.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600 line-clamp-2">
+                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600 line-clamp-2">
                     {post.excerpt}
                   </p>
                   <div className="mt-auto pt-4 flex items-center gap-1 text-xs font-bold text-[#006098] transition-colors group-hover:text-[#004873]">
@@ -618,28 +624,27 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
-          <div data-cta-final className="relative overflow-hidden rounded-[2rem] bg-[#004873] p-10 text-center text-white shadow-2xl sm:p-16 lg:rounded-[3rem] lg:p-24">
+        <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8 lg:pb-32">
+          <div data-cta-final className="relative overflow-hidden rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] bg-[#004873] px-5 py-10 sm:px-12 sm:py-16 text-center text-white shadow-2xl lg:p-24">
             <div className="absolute inset-0 bg-gradient-to-b from-[#006098] to-[#007abf] opacity-90"></div>
-            <div className="relative z-10 space-y-7">
-              <h2 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+            <div className="relative z-10 space-y-5 sm:space-y-7">
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-6xl font-black tracking-tight">
                 Ready to Build the
                 <br />
                 Future of African Manufacturing?
               </h2>
-              <p className="mx-auto max-w-2xl text-lg leading-relaxed text-[#cee5ff] sm:text-xl">
+              <p className="mx-auto max-w-2xl text-sm sm:text-base lg:text-xl leading-relaxed text-[#cee5ff]">
                 Apply for priority access to the DFN Pioneer Cohort. Whether you are developing hardware, operating manufacturing capacity, or seeking resilient domestic supply chains, join our network today.
               </p>
-              <div className="pt-3">
+              <div className="pt-2 sm:pt-3">
                 <Link
                   href="/coming-soon"
                   data-cta-pulse
-                  className="inline-block rounded-2xl bg-white px-10 py-5 text-xl font-black text-[#004873] shadow-2xl transition-all hover:scale-105 active:scale-95 sm:text-2xl"
+                  className="inline-block w-full sm:w-auto rounded-xl sm:rounded-2xl bg-white px-8 py-4 text-base sm:text-xl lg:text-2xl font-black text-[#004873] shadow-2xl transition-all hover:scale-105 active:scale-95"
                 >
                   Join the Waitlist
                 </Link>
               </div>
-
             </div>
           </div>
         </section>
