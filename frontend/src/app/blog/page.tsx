@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowUpRight, Bell, Calendar, Clock, List, PaperPlaneRight, Sparkle } from '@phosphor-icons/react/dist/ssr';
+import { ArrowUpRight, Bell, Calendar, Clock, List, PaperPlaneRight, Sparkle, ArticleMedium } from '@phosphor-icons/react/dist/ssr';
 import { Inter } from 'next/font/google';
 
-import { blogPreviews } from './blog-data';
+import { getHygraphPosts, type HygraphPost } from '@/lib/hygraph';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -12,40 +12,59 @@ export const metadata: Metadata = {
   description: 'The technical journal of the Digital Fabrication Network.',
 };
 
-const labelStyle = 'inline-flex items-center rounded-full px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-[0.24em]';
+const labelStyle =
+  'inline-flex items-center rounded-full px-3 py-1 text-[0.6875rem] font-bold uppercase tracking-[0.24em]';
 
-function VisualCard({ preview, className = '' }: { preview: (typeof blogPreviews)[number]; className?: string }) {
-  const isFeature = preview.variant === 'feature';
-  const isQuote = preview.variant === 'quote';
-  const isSecondary = preview.variant === 'secondary';
+function VisualCard({
+  post,
+  variant = 'compact',
+  className = '',
+}: {
+  post: HygraphPost;
+  variant?: 'feature' | 'secondary' | 'compact';
+  className?: string;
+}) {
+  const isFeature = variant === 'feature';
+  const isSecondary = variant === 'secondary';
 
   return (
     <Link
-      href={`/blog/${preview.slug}`}
+      href={`/blog/${post.slug}`}
       className={`group flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-[0_20px_40px_rgba(0,96,152,0.06)] transition-transform duration-300 hover:-translate-y-1 ${className}`}
     >
-      <div className={`relative overflow-hidden ${isFeature ? 'h-[480px]' : isSecondary ? 'h-64' : 'h-48'}`}>
+      <div
+        className={`relative overflow-hidden ${
+          isFeature ? 'h-[480px]' : isSecondary ? 'h-64' : 'h-48'
+        }`}
+      >
         <img
-          src={preview.imageUrl}
-          alt={preview.imageAlt}
+          src={post.coverImageUrl}
+          alt={post.title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
         />
-        {isFeature ? <div className="absolute inset-0 bg-gradient-to-t from-[#004873]/85 via-[#004873]/30 to-transparent" /> : null}
-        {!isFeature ? <div className="absolute inset-0 bg-gradient-to-t from-[#004873]/50 via-transparent to-transparent opacity-70" /> : null}
+        {isFeature ? (
+          <div className="absolute inset-0 bg-gradient-to-t from-[#004873]/85 via-[#004873]/30 to-transparent" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-t from-[#004873]/50 via-transparent to-transparent opacity-70" />
+        )}
 
         {isFeature ? (
-          <div className="absolute bottom-0 p-10">
-            <span className={`${labelStyle} bg-[#cee5ff] text-[#004a77]`}>{preview.badge}</span>
-            <h2 className="mt-4 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white">{preview.title}</h2>
+          <div className="absolute bottom-0 p-8 sm:p-10">
+            <span className={`${labelStyle} bg-[#cee5ff] text-[#004a77]`}>
+              {post.badge || 'Featured Report'}
+            </span>
+            <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
+              {post.title}
+            </h2>
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-medium text-[#cee5ff]">
               <span className="inline-flex items-center gap-1.5">
                 <Clock size={16} weight="duotone" />
-                {preview.readTime}
+                {post.readTime}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Calendar size={16} weight="duotone" />
-                {preview.publishedAt}
+                {post.publishedAt}
               </span>
             </div>
           </div>
@@ -56,18 +75,30 @@ function VisualCard({ preview, className = '' }: { preview: (typeof blogPreviews
         {!isFeature ? (
           <>
             <div className="mb-4 flex items-center justify-between gap-3">
-              <span className={`${labelStyle} bg-[#cee5ff] text-[#004a77]`}>{preview.category}</span>
-              <span className="text-xs font-semibold uppercase tracking-[0.24em] text-[#717881]">{preview.readTime}</span>
+              <span className={`${labelStyle} bg-[#cee5ff] text-[#004a77]`}>
+                {post.category}
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-[0.24em] text-[#717881]">
+                {post.readTime}
+              </span>
             </div>
-            <h3 className={`font-bold tracking-tight text-[#191c1e] ${isQuote ? 'text-2xl italic' : 'text-xl'}`}>{preview.title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-[#414750]">{preview.excerpt}</p>
+            <h3 className="text-xl font-bold tracking-tight text-[#191c1e]">
+              {post.title}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-[#414750]">
+              {post.excerpt}
+            </p>
           </>
         ) : null}
 
         {!isFeature ? (
           <div className="mt-auto flex items-center justify-between pt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#717881]">
-            <span>{preview.publishedAt}</span>
-            <ArrowUpRight size={16} weight="bold" className="text-[#004873] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            <span>{post.publishedAt}</span>
+            <ArrowUpRight
+              size={16}
+              weight="bold"
+              className="text-[#004873] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
           </div>
         ) : null}
       </div>
@@ -75,39 +106,59 @@ function VisualCard({ preview, className = '' }: { preview: (typeof blogPreviews
   );
 }
 
-export default function BlogPage() {
-  const [featured, secondary, firstGrid, secondGrid, thirdGrid] = blogPreviews;
+export default async function BlogPage() {
+  const posts = await getHygraphPosts();
+
+  const featured = posts[0];
+  const secondary = posts[1];
+  const gridPosts = posts.slice(2);
 
   return (
     <div className={`${inter.className} min-h-screen bg-[#f7f9fb] text-[#191c1e]`}>
       <header className="fixed top-0 z-50 w-full border-b border-slate-200/60 bg-[#f7f9fb]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
-            <div>
-              <p className="text-xl font-extrabold tracking-tight text-[#191c1e]">DFN Lab</p>
-            </div>
+            <Link href="/" className="text-xl font-extrabold tracking-tight text-[#191c1e]">
+              DFN Lab
+            </Link>
             <nav className="hidden items-center gap-6 md:flex">
-              <Link href="/blog" className="border-b-2 border-[#006098] pb-1 text-sm font-bold text-[#006098]">
+              <Link
+                href="/blog"
+                className="border-b-2 border-[#006098] pb-1 text-sm font-bold text-[#006098]"
+              >
                 Field Notes
               </Link>
-              <Link href="/blog" className="text-sm font-medium text-[#414750] transition-colors hover:text-[#006098]">
+              <Link
+                href="/blog"
+                className="text-sm font-medium text-[#414750] transition-colors hover:text-[#006098]"
+              >
                 Fabrication Logs
               </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-3">
-            <button type="button" className="rounded-full p-2 text-[#414750] transition-colors hover:bg-white hover:text-[#006098]" aria-label="Notifications">
+            <button
+              type="button"
+              className="rounded-full p-2 text-[#414750] transition-colors hover:bg-white hover:text-[#006098]"
+              aria-label="Notifications"
+            >
               <Bell size={20} weight="duotone" />
             </button>
-            <Link
-              href={featured.notionUrl}
+            <a
+              href="https://app.hygraph.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden items-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[0.99] active:scale-95 sm:inline-flex"
             >
               <Sparkle size={16} weight="fill" />
-              Write Post
-            </Link>
-            <button type="button" className="rounded-full p-2 text-[#414750] transition-colors hover:bg-white md:hidden" aria-label="Open menu">
+              Write in Hygraph
+            </a>
+            <button
+              type="button"
+              className="rounded-full p-2 text-[#414750] transition-colors hover:bg-white md:hidden"
+              aria-label="Open menu"
+            >
               <List size={20} weight="bold" />
             </button>
           </div>
@@ -118,7 +169,9 @@ export default function BlogPage() {
         <section className="mx-auto mb-16 max-w-7xl px-6">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className={`${labelStyle} mb-4 bg-[#cee5ff] text-[#004a77]`}>Engineering Journal</span>
+              <span className={`${labelStyle} mb-4 bg-[#cee5ff] text-[#004a77]`}>
+                Engineering Journal
+              </span>
               <h1 className="max-w-xl text-5xl font-extrabold leading-[0.95] tracking-tight text-[#191c1e] sm:text-6xl lg:text-7xl">
                 Field Notes &amp;
                 <br />
@@ -127,49 +180,83 @@ export default function BlogPage() {
             </div>
 
             <div className="flex gap-2 overflow-x-auto rounded-2xl bg-[#f2f4f6] p-1.5">
-              {['All Disciplines', 'Mechanical', 'Electronics', 'Robotics', 'Software'].map((item, index) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={[
-                    'whitespace-nowrap rounded-xl px-5 py-2 text-sm transition-colors',
-                    index === 0
-                      ? 'bg-white font-bold text-[#004873] shadow-sm'
-                      : 'font-medium text-[#414750] hover:bg-[#e6e8ea]',
-                  ].join(' ')}
-                >
-                  {item}
-                </button>
-              ))}
+              {['All Disciplines', 'Mechanical', 'Electronics', 'Robotics', 'Software'].map(
+                (item, index) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={[
+                      'whitespace-nowrap rounded-xl px-5 py-2 text-sm transition-colors',
+                      index === 0
+                        ? 'bg-white font-bold text-[#004873] shadow-sm'
+                        : 'font-medium text-[#414750] hover:bg-[#e6e8ea]',
+                    ].join(' ')}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
             </div>
           </div>
         </section>
 
-        <section className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 md:grid-cols-12">
-          <div className="md:col-span-8">
-            <VisualCard preview={featured} />
-          </div>
-          <div className="md:col-span-4">
-            <VisualCard preview={secondary} />
-          </div>
+        {posts.length > 0 ? (
+          <section className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 md:grid-cols-12">
+            {featured ? (
+              <div className={secondary ? 'md:col-span-8' : 'md:col-span-12'}>
+                <VisualCard post={featured} variant="feature" />
+              </div>
+            ) : null}
 
-          <div className="md:col-span-4">
-            <VisualCard preview={firstGrid} />
-          </div>
-          <div className="md:col-span-4 border-b-4 border-[#004873]">
-            <VisualCard preview={secondGrid} />
-          </div>
-          <div className="md:col-span-4">
-            <VisualCard preview={thirdGrid} />
-          </div>
-        </section>
+            {secondary ? (
+              <div className="md:col-span-4">
+                <VisualCard post={secondary} variant="secondary" />
+              </div>
+            ) : null}
+
+            {gridPosts.map((post) => (
+              <div key={post.id} className="md:col-span-4">
+                <VisualCard post={post} variant="compact" />
+              </div>
+            ))}
+          </section>
+        ) : (
+          /* DESIGN.md Rule 8.1: Authentic Empty State for 0 real posts */
+          <section className="mx-auto max-w-7xl px-6">
+            <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-[#006098]/30 bg-white/60 p-12 text-center shadow-[0_20px_40px_rgba(0,96,152,0.03)] md:p-20">
+              <div className="flex size-16 items-center justify-center rounded-2xl bg-[#cee5ff] text-[#004873]">
+                <ArticleMedium size={32} weight="duotone" />
+              </div>
+              <h2 className="mt-6 text-2xl font-bold tracking-tight text-[#191c1e] sm:text-3xl">
+                No dispatches published yet
+              </h2>
+              <p className="mt-3 max-w-lg text-base leading-relaxed text-[#414750]">
+                Our research team and fabrication engineers are currently working on initial reports.
+                Publish your first post in your Hygraph CMS to see it appear live here.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                <a
+                  href="https://app.hygraph.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-6 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:scale-[0.99] active:scale-95"
+                >
+                  <Sparkle size={18} weight="fill" />
+                  Open Hygraph Dashboard
+                </a>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="mx-auto mt-24 max-w-7xl px-6">
           <div className="relative overflow-hidden rounded-[2rem] bg-[#f2f4f6] p-12 shadow-[0_20px_40px_rgba(0,96,152,0.06)] md:flex md:items-center md:justify-between md:gap-12">
             <div className="relative z-10 max-w-xl">
-              <h2 className="text-3xl font-extrabold tracking-tight text-[#191c1e]">Stay Synchronized.</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight text-[#191c1e]">
+                Stay Synchronized.
+              </h2>
               <p className="mt-4 text-lg leading-relaxed text-[#414750]">
-                Join 15,000+ engineers receiving bi-weekly deep dives into the future of digital fabrication.
+                Join engineers receiving bi-weekly deep dives into the future of digital fabrication.
               </p>
             </div>
 
@@ -197,7 +284,9 @@ export default function BlogPage() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-8 py-12 md:flex-row">
           <div>
             <p className="text-lg font-black tracking-tight text-[#191c1e]">DFN LAB</p>
-            <p className="text-xs uppercase tracking-[0.24em] text-[#717881]">© 2024 DFN Lab. Precision Engineered Content.</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-[#717881]">
+              © {new Date().getFullYear()} DFN Lab. Precision Engineered Content.
+            </p>
           </div>
           <div className="flex flex-wrap justify-center gap-8 text-xs font-medium uppercase tracking-[0.24em] text-[#717881]">
             <Link href="/blog" className="transition-colors hover:text-[#006098]">
@@ -215,4 +304,3 @@ export default function BlogPage() {
     </div>
   );
 }
-
