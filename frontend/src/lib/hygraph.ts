@@ -20,19 +20,11 @@ export interface HygraphPost {
 }
 
 const getEndpoint = (): string => {
-  return (
-    process.env.HYGRAPH_ENDPOINT ||
-    process.env.NEXT_PUBLIC_HYGRAPH_ENDPOINT ||
-    ''
-  ).trim();
+  return (process.env.HYGRAPH_ENDPOINT || process.env.NEXT_PUBLIC_HYGRAPH_ENDPOINT || '').trim();
 };
 
 const getAuthHeaders = (): Record<string, string> => {
-  const token = (
-    process.env.HYGRAPH_TOKEN ||
-    process.env.NEXT_PUBLIC_HYGRAPH_TOKEN ||
-    ''
-  ).trim();
+  const token = (process.env.HYGRAPH_TOKEN || process.env.NEXT_PUBLIC_HYGRAPH_TOKEN || '').trim();
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -63,12 +55,15 @@ const formatDate = (isoString?: string): string => {
 
 const estimateReadTime = (content?: string): string => {
   if (!content) return '5 min read';
-  const words = content.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length;
+  const words = content
+    .replace(/<[^>]*>/g, ' ')
+    .trim()
+    .split(/\s+/).length;
   const minutes = Math.max(1, Math.ceil(words / 200));
   return `${minutes} min read`;
 };
 
-// Primary full query for standard Hygraph Blog schemas
+// 1. Standard Post model full query
 const FULL_POSTS_QUERY = `
   query GetPosts {
     posts(orderBy: publishedAt_DESC, first: 20) {
@@ -86,11 +81,11 @@ const FULL_POSTS_QUERY = `
         markdown
         text
       }
-      tags {
+      tag {
         name
         slug
       }
-      author {
+      authors {
         name
         title
         picture {
@@ -101,7 +96,7 @@ const FULL_POSTS_QUERY = `
   }
 `;
 
-// Minimal fallback query if user schema lacks relation fields
+// 2. Standard Post model minimal query
 const MINIMAL_POSTS_QUERY = `
   query GetMinimalPosts {
     posts(first: 20) {
@@ -113,6 +108,10 @@ const MINIMAL_POSTS_QUERY = `
       createdAt
       coverImage {
         url
+      }
+      content {
+        html
+        text
       }
     }
   }
@@ -135,11 +134,11 @@ const SINGLE_POST_FULL_QUERY = `
         markdown
         text
       }
-      tags {
+      tag {
         name
         slug
       }
-      author {
+      authors {
         name
         title
         picture {
@@ -175,11 +174,18 @@ interface RawHygraphPostNode {
   title?: string;
   slug?: string;
   excerpt?: string;
+  subtitle?: string;
   publishedAt?: string;
   createdAt?: string;
   coverImage?: { url?: string };
   content?: { html?: string; markdown?: string; text?: string } | string;
+  tag?: Array<{ name?: string; slug?: string } | string>;
   tags?: Array<{ name?: string; slug?: string } | string>;
+  authors?: Array<{
+    name?: string;
+    title?: string;
+    picture?: { url?: string };
+  }>;
   author?: {
     name?: string;
     title?: string;
@@ -199,9 +205,14 @@ const normalizePost = (raw: RawHygraphPostNode): HygraphPost => {
     rawText = raw.content.text || raw.content.html || '';
   }
 
-  const tagList: string[] = (raw.tags || [])
+  // Handle both 'tag' (actual schema) and 'tags' (fallback) field names
+  const rawTags = raw.tag || raw.tags || [];
+  const tagList: string[] = rawTags
     .map((t) => (typeof t === 'string' ? t : t?.name || t?.slug || ''))
     .filter(Boolean);
+
+  // Handle 'authors' (array) or 'author' (single object)
+  const primaryAuthor = raw.authors?.[0] || raw.author;
 
   return {
     id: raw.id || raw.slug || Math.random().toString(),
@@ -209,6 +220,7 @@ const normalizePost = (raw: RawHygraphPostNode): HygraphPost => {
     title: raw.title || 'Untitled Dispatch',
     excerpt:
       raw.excerpt ||
+      raw.subtitle ||
       (rawText ? rawText.slice(0, 160) + '...' : 'No excerpt provided.'),
     htmlContent: html,
     coverImageUrl:
@@ -219,9 +231,9 @@ const normalizePost = (raw: RawHygraphPostNode): HygraphPost => {
     category: tagList[0] || 'Engineering',
     badge: 'Field Report',
     author: {
-      name: raw.author?.name || 'DFN Research Team',
-      role: raw.author?.title || 'Digital Fabrication Network',
-      avatarUrl: raw.author?.picture?.url,
+      name: primaryAuthor?.name || 'DFN Research Team',
+      role: primaryAuthor?.title || 'Digital Fabrication Network',
+      avatarUrl: primaryAuthor?.picture?.url,
     },
     tags: tagList,
   };
@@ -229,7 +241,6 @@ const normalizePost = (raw: RawHygraphPostNode): HygraphPost => {
 
 /**
  * Fetch all published blog posts from Hygraph.
- * Returns an empty array if endpoint is not configured or query fails.
  */
 export async function getHygraphPosts(): Promise<HygraphPost[]> {
   const endpoint = getEndpoint();
@@ -238,6 +249,7 @@ export async function getHygraphPosts(): Promise<HygraphPost[]> {
   }
 
   try {
+    // Try primary full query
     let response = await fetch(endpoint, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -247,7 +259,7 @@ export async function getHygraphPosts(): Promise<HygraphPost[]> {
 
     let result = await response.json();
 
-    // If full query fails (e.g. author or tags model not yet created), try minimal query
+    // If full query fails, try minimal query
     if (result.errors && !result.data?.posts) {
       response = await fetch(endpoint, {
         method: 'POST',
@@ -258,10 +270,7 @@ export async function getHygraphPosts(): Promise<HygraphPost[]> {
       result = await response.json();
     }
 
-    if (result.errors || !result.data?.posts) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Hygraph posts query returned errors:', result.errors);
-      }
+    if (!result.data?.posts) {
       return [];
     }
 
@@ -278,9 +287,7 @@ export async function getHygraphPosts(): Promise<HygraphPost[]> {
 /**
  * Fetch a single blog post by its unique slug from Hygraph.
  */
-export async function getHygraphPostBySlug(
-  slug: string
-): Promise<HygraphPost | null> {
+export async function getHygraphPostBySlug(slug: string): Promise<HygraphPost | null> {
   const endpoint = getEndpoint();
   if (!endpoint || !slug) {
     return null;
