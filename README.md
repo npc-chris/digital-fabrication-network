@@ -257,25 +257,28 @@ npm run build
 
 ### Backend (Render)
 
-**Option A — One-click Blueprint Deploy:**
+The backend runs on Render as a Node.js web service, connecting to **Neon** for serverless PostgreSQL, **Upstash** for Redis, and **MinIO** (or any S3-compatible service) for file storage.
+
+**Option A — Blueprint Deploy:**
 
 1. Click **New → Blueprint** in the [Render Dashboard](https://dashboard.render.com)
 2. Connect your GitHub repository
 3. Render auto-discovers [`render.yaml`](render.yaml) and provisions:
    - **Web Service** (`dfn-backend`) — Express API on Node.js
-   - **PostgreSQL** (`dfn-database`) — managed database
-   - **Redis** (`dfn-redis`) — managed cache
-4. Fill in secret env vars marked `sync: false` in the dashboard
+4. In the Render Dashboard, fill in the environment variables:
+   - `DATABASE_URL` — your [Neon](https://neon.tech) connection string (`?sslmode=require`)
+   - `REDIS_URL` — your [Upstash](https://upstash.com) Redis URL (`rediss://...`)
+   - `AWS_ENDPOINT` & MinIO credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+   - OAuth, SMTP, and payment credentials (see [`backend/.env.example`](backend/.env.example))
 5. Deploys automatically on push to `main`
 
 **Option B — Manual Setup:**
 
-1. Create a **Web Service** → connect your repo → set Root Directory to `backend`
+1. Create a **Web Service** in Render → connect your repo → set Root Directory to `backend`
 2. Build Command: `npm ci && npm run build`
 3. Start Command: `npm run start`
-4. Add a **PostgreSQL** database and copy `Internal Database URL` → set as `DATABASE_URL`
-5. Add a **Redis** instance and copy `Internal Connection URL` → set as `REDIS_URL`
-6. Set all remaining env vars (see [`backend/.env.example`](backend/.env.example))
+4. Set Health Check Path to `/health`
+5. Add environment variables for Neon, Upstash, and MinIO (see [`backend/.env.example`](backend/.env.example))
 
 > **Note:** Update `NEXT_PUBLIC_API_URL` in Vercel to your Render backend URL (e.g. `https://dfn-backend.onrender.com`). Update `GOOGLE_CALLBACK_URL` and `PAYSTACK_CALLBACK_URL` to use the new backend domain.
 

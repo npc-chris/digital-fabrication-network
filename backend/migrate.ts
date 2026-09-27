@@ -11,7 +11,7 @@ dotenv.config();
  * Usage: npm run migrate or node migrate.ts
  * 
  * Make sure DATABASE_URL is set in your .env file
- * For Railway: Use the PostgreSQL connection string from Railway dashboard
+ * For Neon/Render: Use your Neon pooled connection string with ?sslmode=require
  */
 async function runMigrations() {
   const connectionString = process.env.DATABASE_URL;

@@ -9,7 +9,7 @@ services:
     name: dfn-backend
     runtime: node
     region: oregon
-    plan: free # Switch to "starter" or "standard" for production
+    plan: free  # Switch to "starter" ($7/mo) to prevent spin-down in production
     rootDir: backend
     buildCommand: npm ci && npm run build
     startCommand: npm run start
@@ -19,28 +19,39 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: "10000" # Render assigns port via PORT env var; 10000 is the default
+        value: "10000"
 
-      # ── Database (auto-wired from managed Postgres) ─
+      # ── Database (Neon Serverless PostgreSQL) ───────
       - key: DATABASE_URL
-        fromDatabase:
-          name: dfn-database
-          property: connectionString
+        sync: false  # e.g. postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require
       - key: DB_SSL
         value: "true"
 
-      # ── Redis (auto-wired from managed Redis) ───────
+      # ── Cache & Pub/Sub (Upstash Redis) ─────────────
       - key: REDIS_URL
-        fromService:
-          name: dfn-redis
-          type: redis
-          property: connectionString
+        sync: false  # e.g. rediss://default:xxx@xxx.upstash.io:6379
+
+      # ── S3 / MinIO Object Storage ───────────────────
+      - key: USE_S3
+        value: "true"
+      - key: AWS_FORCE_PATH_STYLE
+        value: "true"  # Required for MinIO path-style URLs
+      - key: AWS_REGION
+        value: "us-east-1"
+      - key: AWS_S3_BUCKET
+        value: "dfn-uploads"
+      - key: AWS_ENDPOINT
+        sync: false  # e.g. https://minio.yourdomain.com or https://dfn-minio.onrender.com
+      - key: AWS_ACCESS_KEY_ID
+        sync: false  # MinIO access key / root user
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false  # MinIO secret key / root password
 
       # ── Auth ────────────────────────────────────────
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        sync: false # Set manually in Render dashboard (your Vercel URL)
+        sync: false  # Your Vercel frontend URL, e.g. https://dfn.vercel.app
 
       # ── Google OAuth ────────────────────────────────
       - key: GOOGLE_CLIENT_ID
@@ -48,7 +59,7 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_CALLBACK_URL
-        sync: false # e.g. https://dfn-backend.onrender.com/api/auth/google/callback
+        sync: false  # e.g. https://dfn-backend.onrender.com/api/auth/google/callback
 
       # ── Google Places ───────────────────────────────
       - key: GOOGLE_PLACES_API_KEY
@@ -64,22 +75,6 @@ services:
       - key: SMTP_PASS
         sync: false
 
-      # ── S3-Compatible Storage ───────────────────────
-      - key: USE_S3
-        sync: false
-      - key: AWS_REGION
-        sync: false
-      - key: AWS_ACCESS_KEY_ID
-        sync: false
-      - key: AWS_SECRET_ACCESS_KEY
-        sync: false
-      - key: AWS_S3_BUCKET
-        sync: false
-      - key: AWS_ENDPOINT
-        sync: false
-      - key: AWS_FORCE_PATH_STYLE
-        sync: false
-
       # ── Payment Providers ───────────────────────────
       - key: PAYSTACK_SECRET_KEY
         sync: false
@@ -92,18 +87,29 @@ services:
       - key: PAYSTACK_CALLBACK_URL
         sync: false
 
-#   # ── Managed PostgreSQL ──────────────────────────────
-# databases:
-#   - name: dfn-database
-#     plan: free  # Switch to "starter" for production (1 GB, daily backups)
-#     databaseName: digital_fabrication_network
-#     user: dfn_user
-#     region: oregon
-
-#   # ── Managed Redis ───────────────────────────────────
-#   # Note: Render's free Redis has a 25 MB limit.
-#   # Switch to "starter" for production (100 MB, persistence).
-#   - name: dfn-redis
-#     plan: free
-#     region: oregon
-#     maxmemoryPolicy: allkeys-lru
+  # ── (Optional) Self-Hosted MinIO on Render ───────────
+  # If you want Render to host MinIO with a persistent disk,
+  # uncomment the service below. Note that Render Disks require
+  # a paid instance type (Starter plan: $7/mo + $0.25/GB/mo).
+  # If using external MinIO / Cloudflare R2 / AWS S3, leave this commented.
+  #
+  # - type: web
+  #   name: dfn-minio
+  #   runtime: image
+  #   image:
+  #     url: minio/minio:latest
+  #   region: oregon
+  #   plan: starter
+  #   disk:
+  #     name: minio-data
+  #     mountPath: /data
+  #     sizeGB: 10
+  #   startCommand: server /data --address :10000 --console-address :10001
+  #   healthCheckPath: /minio/health/live
+  #   envVars:
+  #     - key: MINIO_ROOT_USER
+  #       sync: false
+  #     - key: MINIO_ROOT_PASSWORD
+  #       sync: false
+  #     - key: PORT
+  #       value: "10000"
