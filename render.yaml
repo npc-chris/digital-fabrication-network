@@ -9,7 +9,7 @@ services:
     name: dfn-backend
     runtime: node
     region: oregon
-    plan: free  # Switch to "starter" or "standard" for production
+    plan: free # Switch to "starter" or "standard" for production
     rootDir: backend
     buildCommand: npm ci && npm run build
     startCommand: npm run start
@@ -19,7 +19,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: "10000"  # Render assigns port via PORT env var; 10000 is the default
+        value: "10000" # Render assigns port via PORT env var; 10000 is the default
 
       # ── Database (auto-wired from managed Postgres) ─
       - key: DATABASE_URL
@@ -40,7 +40,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        sync: false  # Set manually in Render dashboard (your Vercel URL)
+        sync: false # Set manually in Render dashboard (your Vercel URL)
 
       # ── Google OAuth ────────────────────────────────
       - key: GOOGLE_CLIENT_ID
@@ -48,7 +48,7 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_CALLBACK_URL
-        sync: false  # e.g. https://dfn-backend.onrender.com/api/auth/google/callback
+        sync: false # e.g. https://dfn-backend.onrender.com/api/auth/google/callback
 
       # ── Google Places ───────────────────────────────
       - key: GOOGLE_PLACES_API_KEY
@@ -92,18 +92,18 @@ services:
       - key: PAYSTACK_CALLBACK_URL
         sync: false
 
-  # ── Managed PostgreSQL ──────────────────────────────
-databases:
-  - name: dfn-database
-    plan: free  # Switch to "starter" for production (1 GB, daily backups)
-    databaseName: digital_fabrication_network
-    user: dfn_user
-    region: oregon
+#   # ── Managed PostgreSQL ──────────────────────────────
+# databases:
+#   - name: dfn-database
+#     plan: free  # Switch to "starter" for production (1 GB, daily backups)
+#     databaseName: digital_fabrication_network
+#     user: dfn_user
+#     region: oregon
 
-  # ── Managed Redis ───────────────────────────────────
-  # Note: Render's free Redis has a 25 MB limit.
-  # Switch to "starter" for production (100 MB, persistence).
-  - name: dfn-redis
-    plan: free
-    region: oregon
-    maxmemoryPolicy: allkeys-lru
+#   # ── Managed Redis ───────────────────────────────────
+#   # Note: Render's free Redis has a 25 MB limit.
+#   # Switch to "starter" for production (100 MB, persistence).
+#   - name: dfn-redis
+#     plan: free
+#     region: oregon
+#     maxmemoryPolicy: allkeys-lru
