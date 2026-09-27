@@ -255,11 +255,29 @@ npm run build
 2. Set environment variables
 3. Deploy automatically on push to main
 
-### Backend (Railway)
+### Backend (Render)
 
-1. Connect your repository to Railway
-2. Set environment variables
-3. Deploy automatically on push to main
+**Option A — One-click Blueprint Deploy:**
+
+1. Click **New → Blueprint** in the [Render Dashboard](https://dashboard.render.com)
+2. Connect your GitHub repository
+3. Render auto-discovers [`render.yaml`](render.yaml) and provisions:
+   - **Web Service** (`dfn-backend`) — Express API on Node.js
+   - **PostgreSQL** (`dfn-database`) — managed database
+   - **Redis** (`dfn-redis`) — managed cache
+4. Fill in secret env vars marked `sync: false` in the dashboard
+5. Deploys automatically on push to `main`
+
+**Option B — Manual Setup:**
+
+1. Create a **Web Service** → connect your repo → set Root Directory to `backend`
+2. Build Command: `npm ci && npm run build`
+3. Start Command: `npm run start`
+4. Add a **PostgreSQL** database and copy `Internal Database URL` → set as `DATABASE_URL`
+5. Add a **Redis** instance and copy `Internal Connection URL` → set as `REDIS_URL`
+6. Set all remaining env vars (see [`backend/.env.example`](backend/.env.example))
+
+> **Note:** Update `NEXT_PUBLIC_API_URL` in Vercel to your Render backend URL (e.g. `https://dfn-backend.onrender.com`). Update `GOOGLE_CALLBACK_URL` and `PAYSTACK_CALLBACK_URL` to use the new backend domain.
 
 ## Contributing
 

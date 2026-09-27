@@ -92,15 +92,15 @@ export default function ResearchPage() {
           <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-14 lg:px-8">
             <div className="space-y-6">
               <h1 className="reveal-up text-4xl font-black leading-[0.95] tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
-                Accelerating
+                Translating
                 <br />
                 <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">Hardware Research</span>
                 <br />
-                in West Africa.
+                into Domestic Production.
               </h1>
 
               <p className="reveal-up delay-1 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                We bridge the gap between conceptual design and physical realization by providing a decentralized network of high-precision laboratories and industrial partnerships.
+                Bridging academic engineering and local manufacturing. We connect researchers, universities, and innovators with verified domestic workshop capacity to turn prototypes into production-ready hardware.
               </p>
 
               <div className="reveal-up delay-2 flex flex-col gap-3.5 pt-1 sm:flex-row sm:items-center">
@@ -108,13 +108,13 @@ export default function ResearchPage() {
                   href="#build-with-us"
                   className="rounded-xl bg-gradient-to-b from-[#006098] to-[#007abf] px-7 py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-900/15 transition-all hover:-translate-y-0.5 hover:shadow-sky-500/30 active:scale-95"
                 >
-                  Join as Research Fellow
+                  Join Research Cohort
                 </Link>
                 <Link
                   href="/stakeholders"
                   className="rounded-xl border border-slate-300/80 bg-white px-7 py-3.5 text-center text-sm sm:text-base font-bold text-[#004873] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50 hover:border-slate-400/80 active:scale-95"
                 >
-                  Explore Partnerships
+                  Explore Institutional Access
                 </Link>
               </div>
             </div>
@@ -148,21 +148,21 @@ export default function ResearchPage() {
         <section className="bg-[#f2f4f6] px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-[1400px]">
             <div className="mb-12 md:mb-16">
-              <h2 className="text-4xl font-bold tracking-tight text-[#191c1e]">Specialized Instrumentation</h2>
-              <p className="mt-4 max-w-xl text-slate-600">Premium laboratory and fabrication equipment for high-fidelity research and production validation.</p>
+              <h2 className="text-4xl font-bold tracking-tight text-[#191c1e]">Production & Prototyping Capabilities</h2>
+              <p className="mt-4 max-w-xl text-slate-600">Real-world manufacturing and validation capacity routed across verified domestic engineering facilities.</p>
             </div>
 
             <div className="grid h-auto grid-cols-1 gap-6 md:h-[600px] md:grid-cols-12">
               <div className="group reveal-up relative flex flex-col justify-between overflow-hidden rounded-[2rem] bg-white p-8 md:col-span-8">
                 <div className="relative z-10">
                   <Factory size={36} weight="duotone" className="mb-4 text-[#004873]" />
-                  <h3 className="mb-2 text-3xl font-bold">Precision CNC & Additive</h3>
-                  <p className="max-w-md text-slate-600">5-axis milling and industrial-grade SLM 3D printing for rapid hardware iteration without international shipping delays.</p>
+                  <h3 className="mb-2 text-3xl font-bold">Subtractive Machining & Fabrication</h3>
+                  <p className="max-w-md text-slate-600">Access milling, lathe turning, welding, and sheet metal fabrication through verified local facilities to build functional engineering prototypes without import delays.</p>
                 </div>
-                <div className="relative z-10 mt-8 flex flex-wrap gap-3">
-                  <span className="rounded-full bg-[#e6e8ea] px-3 py-1 text-xs font-bold">Micron Accuracy</span>
-                  <span className="rounded-full bg-[#e6e8ea] px-3 py-1 text-xs font-bold">Multi-Material</span>
-                  <span className="rounded-full bg-[#e6e8ea] px-3 py-1 text-xs font-bold">Remote Access</span>
+                <div className="relative z-10 mt-8 flex flex-wrap gap-6 text-xs font-semibold text-slate-600">
+                  <div>• Standard Machining Tolerances</div>
+                  <div>• Multi-Material Stock Support</div>
+                  <div>• Distributed Workshop Routing</div>
                 </div>
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj81Lo14Ae2b6WR7iPqAVCA64SUSURrSkp-T1F0Vto0HrqjXy-fbaKFWTEW23a43IreI_uyHe3bwkzVnDcShTYk1pIvNkak_2l9c_X0ygzRGH1IiPFv9_vvoRs6SBzLVqWH5kV00BmCVBQiqufYKd64HF91lkI3BaALtsp5PybPOKhIdni1M08vT_vODqgshiajjB1LODF6wfd5S-g7DzrJasjxc0vImZyikNG2CLD363Gwd6M-LvQwylHI14EyC5jQaMOHScHJEY"
@@ -174,11 +174,11 @@ export default function ResearchPage() {
               <div className="reveal-up delay-1 flex flex-col justify-between overflow-hidden rounded-[2rem] bg-[#004873] p-8 text-white md:col-span-4">
                 <div>
                   <Atom size={36} weight="duotone" className="mb-4 block" />
-                  <h3 className="mb-2 text-2xl font-bold">Materials Laboratory</h3>
-                  <p className="mb-6 text-sm leading-relaxed text-blue-100">Clean-room environments for PCB fabrication, sensor calibration, and material stress testing for regional environmental conditions.</p>
+                  <h3 className="mb-2 text-2xl font-bold">Inspection & Fit Validation</h3>
+                  <p className="mb-6 text-sm leading-relaxed text-blue-100">Validate component tolerances, material specifications, and physical fit against real operational requirements before field testing.</p>
                 </div>
                 <Link href="/prototyping" className="inline-flex items-center gap-1 text-sm font-bold text-blue-200 hover:text-white transition-colors">
-                  Explore Services <ArrowRight size={14} weight="bold" />
+                  Explore Prototyping Capabilities <ArrowRight size={14} weight="bold" />
                 </Link>
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function ResearchPage() {
           <div className="mx-auto max-w-[1400px]">
             <div className="mb-12 md:mb-16">
               <h2 className="text-4xl font-bold tracking-tight text-[#191c1e]">Academic-Industry Alliance</h2>
-              <p className="mt-4 max-w-xl text-slate-600">Direct pipelines between West African universities and global hardware manufacturers for accelerated innovation.</p>
+              <p className="mt-4 max-w-xl text-slate-600">Direct pipelines between academic engineering departments, research institutes, and domestic industrial workshops.</p>
             </div>
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -197,24 +197,24 @@ export default function ResearchPage() {
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                   <Handshake size={24} weight="duotone" className="text-[#004873]" />
                 </div>
-                <h3 className="mb-3 text-xl font-bold">Dual-Credit Research</h3>
-                <p className="text-sm leading-relaxed text-slate-600">Published academic research with integrated IP protection for industrial sponsors, ensuring both innovation and attribution.</p>
+                <h3 className="mb-3 text-xl font-bold">Applied R&D to Production</h3>
+                <p className="text-sm leading-relaxed text-slate-600">Move student and faculty engineering projects beyond paper theses into physical, testable hardware produced by local industrial nodes.</p>
               </div>
 
               <div className="reveal-up delay-1 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm hover:shadow-lg transition-all">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                   <Buildings size={24} weight="duotone" className="text-[#004873]" />
                 </div>
-                <h3 className="mb-3 text-xl font-bold">Production Sandboxing</h3>
-                <p className="text-sm leading-relaxed text-slate-600">Test manufacturing workflows in our labs before scaling to regional factories, reducing risk and optimizing processes.</p>
+                <h3 className="mb-3 text-xl font-bold">Institutional Capacity Sharing</h3>
+                <p className="text-sm leading-relaxed text-slate-600">Index and optimize underutilized machinery within university workshops, enabling cross-institutional research and shared fabrication access.</p>
               </div>
 
               <div className="reveal-up delay-2 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm hover:shadow-lg transition-all">
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                   <ShieldCheck size={24} weight="duotone" className="text-[#004873]" />
                 </div>
-                <h3 className="mb-3 text-xl font-bold">Data Security & IP</h3>
-                <p className="text-sm leading-relaxed text-slate-600">Encrypted telemetry, decentralized IP ledger, and standardized metadata protocols protecting innovation while enabling collaboration.</p>
+                <h3 className="mb-3 text-xl font-bold">Design Verification & IP Security</h3>
+                <p className="text-sm leading-relaxed text-slate-600">Standardized engineering files and strict NDA-backed routing protocols ensure research designs remain protected throughout the fabrication lifecycle.</p>
               </div>
             </div>
           </div>
@@ -224,21 +224,21 @@ export default function ResearchPage() {
           <div className="relative z-10">
             <h2 className="mb-8 text-4xl font-black leading-tight md:text-5xl">Ready to lead African hardware innovation?</h2>
             <p className="mb-10 max-w-2xl text-lg leading-relaxed text-blue-100">
-              Join the network as a research fellow, institutional partner, or equipment provider and get access to the continent's most advanced fabrication infrastructure.
+              Partner with DFN to bring your institution's engineering projects to life. Connect your faculty or lab with active manufacturing capacity across Nigeria's industrial hubs.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/coming-soon"
                 className="rounded-xl bg-white px-8 py-4 font-bold text-[#004873] shadow-lg transition-all hover:-translate-y-0.5"
               >
-                Submit Research Proposal
+                Join Pioneer Cohort
               </Link>
 
               <Link
                 href="/stakeholders"
                 className="rounded-xl border-2 border-white px-8 py-4 font-bold text-white transition-all hover:bg-white/10"
               >
-                Explore Ecosystem Map
+                View Stakeholder Roles
               </Link>
             </div>
           </div>
@@ -249,19 +249,19 @@ export default function ResearchPage() {
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
               <div>
                 <h2 className="mb-6 text-4xl font-bold tracking-tight text-[#191c1e]">Open Data, Secure Innovation</h2>
-                <p className="mb-8 text-lg text-slate-600">DFN Labs implement strict data sharing protocols that balance open-science collaboration with the competitive needs of local innovators.</p>
+                <p className="mb-8 text-lg text-slate-600">DFN enforces strict manufacturing data protocols that protect institutional intellectual property while ensuring local workshops build parts to exact engineering tolerances.</p>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0" />
-                    <span className="font-medium">Encrypted Telemetry for Lab Machines</span>
+                    <span className="font-medium">Standardized CAD & Engineering Drawings for Local Tooling</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0" />
-                    <span className="font-medium">Decentralized IP Ledger (Regional Nodes)</span>
+                    <span className="font-medium">Confidential Job Dispatch & Protected Project IP</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle size={20} weight="duotone" className="text-[#004873] shrink-0" />
-                    <span className="font-medium">Standardized Metadata for Hardware Testing</span>
+                    <span className="font-medium">Pre-Production Design for Manufacturability (DFM) Checks</span>
                   </li>
                 </ul>
               </div>
@@ -284,18 +284,18 @@ export default function ResearchPage() {
                 {[
                   {
                     icon: Users,
-                    title: 'Pioneer Cohort',
-                    text: 'Be part of the inaugural group shaping West African hardware standards.',
+                    title: 'Academic Translation',
+                    text: 'Take engineering research from theoretical models to functional physical hardware.',
                   },
                   {
                     icon: Wrench,
-                    title: 'Infrastructure Access',
-                    text: 'Unprecedented access to localized manufacturing and global testing labs.',
+                    title: 'Regional Machine Network',
+                    text: 'Direct access to verified domestic workshops with active capacity.',
                   },
                   {
                     icon: RocketLaunch,
-                    title: 'Mission-Driven',
-                    text: 'Join a cause focused on economic self-sufficiency through engineering.',
+                    title: 'Industrial Self-Reliance',
+                    text: 'Strengthen domestic supply chains by solving local engineering challenges with local capacity.',
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-4 sm:gap-5">
@@ -331,9 +331,9 @@ export default function ResearchPage() {
                     className="w-full rounded-xl border-none bg-[#f2f4f6] px-4 py-3 text-sm text-slate-700 outline-none ring-0 transition-all focus:ring-2 focus:ring-[#006098]"
                   >
                     <option>Select Stakeholder Type</option>
-                    <option>Manufacturer</option>
-                    <option>Researcher</option>
-                    <option>Engineer/Designer</option>
+                    <option>Researcher / Academic</option>
+                    <option>Engineer / Designer</option>
+                    <option>Manufacturer / Workshop</option>
                   </select>
                 </div>
                 <Link
