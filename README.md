@@ -89,7 +89,7 @@ digital-fabrication-network/
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm (enabled via `corepack enable` or `corepack pnpm`)
 - PostgreSQL 14+
 - Redis (optional, for caching)
 
@@ -105,7 +105,7 @@ digital-fabrication-network/
 2. **Install dependencies**
 
    ```bash
-   npm install
+   corepack pnpm install
    ```
 
 3. **Set up environment variables**
@@ -130,7 +130,7 @@ digital-fabrication-network/
 
    ```bash
    cd backend
-   npm run migrate
+   pnpm db:migrate
    ```
 
 5. **Run the development servers**
@@ -138,17 +138,17 @@ digital-fabrication-network/
    From the root directory:
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
    Or run separately:
 
    ```bash
    # Terminal 1 - Backend
-   npm run dev:backend
+   pnpm dev:backend
    
    # Terminal 2 - Frontend
-   npm run dev:frontend
+   pnpm dev:frontend
    ```
 
 6. **Access the application**
@@ -226,25 +226,25 @@ digital-fabrication-network/
 ### Running Tests
 
 ```bash
-npm run test
+pnpm test
 ```
 
 ### Linting
 
 ```bash
-npm run lint
+pnpm lint
 ```
 
 ### Formatting
 
 ```bash
-npm run format
+pnpm format
 ```
 
 ### Building for Production
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## Deployment
@@ -276,8 +276,8 @@ The backend runs on Render as a Node.js web service, connecting to **Neon** for 
 
 1. Create a **Web Service** in Render → connect your repo
 2. **Root Directory**: Leave blank (root of repository)
-3. **Build Command**: `npm install --include=dev && npm run build:backend`
-4. **Start Command**: `npm run start:backend`
+3. **Build Command**: `corepack enable && pnpm install && pnpm build:backend`
+4. **Start Command**: `pnpm start:backend`
 5. Set Health Check Path to `/health`
 6. Add environment variables for Neon, Upstash, and MinIO (see [`backend/.env.example`](backend/.env.example))
 

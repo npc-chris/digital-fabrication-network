@@ -1,0 +1,11 @@
+packages:
+  - 'frontend'
+  - 'backend'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - 'bcrypt'
+  - 'es5-ext'
+  - 'esbuild'
+  - 'sharp'
+  - 'unrs-resolver'

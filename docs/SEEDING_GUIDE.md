@@ -23,14 +23,14 @@ Before seeding, ensure:
 
 ```bash
 cd backend
-ALLOW_DB_CLEAR=true npm run db:clear-seed
+ALLOW_DB_CLEAR=true pnpm clear-seed
 ```
 
 ### 2. Run the seed script
 
 ```bash
 cd backend
-npm run seed
+pnpm seed
 ```
 
 This will create:
@@ -194,17 +194,17 @@ To start fresh:
 
 ```bash
 # Clear seeded data with environment variable
-ALLOW_DB_CLEAR=true npm run db:clear-seed
+ALLOW_DB_CLEAR=true pnpm clear-seed
 
 # Or reset entire database schema
 psql -d your_database_name -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
 # Re-run migrations (if using Drizzle)
 cd backend
-npm run migrate
+pnpm db:migrate
 
 # Re-seed
-npm run seed
+pnpm seed
 ```
 
 ## Notes

@@ -195,20 +195,20 @@ Build trust with verification badges and quality indicators.
 1. **Run Migrations**
    ```bash
    cd backend
-   npm run db:generate
-   npm run migrate
+   pnpm db:generate
+   pnpm db:migrate
    ```
 
 2. **Start Backend**
    ```bash
    cd backend
-   npm run dev
+   pnpm dev
    ```
 
 3. **Start Frontend**
    ```bash
    cd frontend
-   npm run dev
+   pnpm dev
    ```
 
 4. **Test Endpoints**

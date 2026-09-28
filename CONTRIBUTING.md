@@ -44,7 +44,7 @@ digital-fabrication-network/
 ### Prerequisites
 
 - Node.js 18+
-- npm 9+
+- pnpm 9+ (or `corepack pnpm`)
 - PostgreSQL 14+ (for backend development)
 
 ### Setup
@@ -55,7 +55,7 @@ git clone https://github.com/npc-chris/digital-fabrication-network.git
 cd digital-fabrication-network
 
 # Install all workspace dependencies
-npm install
+corepack pnpm install
 
 # Copy environment variable templates
 cp backend/.env.example backend/.env
@@ -63,7 +63,7 @@ cp frontend/.env.example frontend/.env
 # Fill in values in the .env files (never commit secrets)
 
 # Start development servers
-npm run dev
+pnpm dev
 ```
 
 ---
@@ -132,9 +132,9 @@ Use scopes to indicate the part of the codebase affected. Common scopes:
 
 3. **Ensure all checks pass locally**:
    ```bash
-   npm run lint
-   npm run test
-   npm run build
+   pnpm lint
+   pnpm test
+   pnpm build
    ```
 
 4. **Open a PR** against `develop` (or `main` for hotfixes) and fill in the PR template.
@@ -150,8 +150,8 @@ Use scopes to indicate the part of the codebase affected. Common scopes:
 ### Coding Standards
 
 - TypeScript is used throughout; avoid `any` types
-- Run `npm run format` before committing to apply Prettier formatting
-- Lint errors must be resolved before merging (`npm run lint`)
+- Run `pnpm format` before committing to apply Prettier formatting
+- Lint errors must be resolved before merging (`pnpm lint`)
 - All new features must include corresponding tests
 
 ---

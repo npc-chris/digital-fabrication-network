@@ -8,7 +8,7 @@ dotenv.config();
 
 /**
  * Run database migrations
- * Usage: npm run migrate or node migrate.ts
+ * Usage: pnpm db:migrate or ts-node migrate.ts
  * 
  * Make sure DATABASE_URL is set in your .env file
  * For Neon/Render: Use your Neon pooled connection string with ?sslmode=require

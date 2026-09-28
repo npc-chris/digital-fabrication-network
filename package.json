@@ -2,29 +2,42 @@
   "name": "digital-fabrication-network",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+  "packageManager": "pnpm@10.21.0",
   "scripts": {
     "prepare": "node scripts/prepare.js",
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "dev:backend": "npm run dev --workspace=backend",
-    "build": "npm run build --workspaces",
-    "build:backend": "npm run build --workspace=backend",
-    "start:backend": "npm run start --workspace=backend",
-    "test": "npm run test --workspaces",
-    "lint": "npm run lint --workspaces",
+    "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",
+    "dev:frontend": "pnpm --filter dfn-frontend dev",
+    "dev:backend": "pnpm --filter dfn-backend dev",
+    "build": "pnpm --recursive build",
+    "build:backend": "pnpm --filter dfn-backend build",
+    "start:backend": "pnpm --filter dfn-backend start",
+    "test": "pnpm --recursive test",
+    "lint": "pnpm --recursive lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "db:cleanup": "docker-compose down -v && docker-compose up -d && cd backend && npm run db:generate && npm run db:push && cd .."
+    "db:cleanup": "docker-compose down -v && docker-compose up -d && cd backend && pnpm db:generate && pnpm db:push && cd .."
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
     "@commitlint/config-conventional": "^18.6.3",
     "concurrently": "^8.2.2",
-    "prettier": "^3.1.1",
     "husky": "^8.0.3",
-    "lint-staged": "^15.2.0"
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "bcrypt",
+      "es5-ext",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ],
+    "overrides": {
+      "esbuild": "^0.25.0",
+      "next": "^16.3.3",
+      "postcss": "^8.5.23",
+      "sharp": "^0.35.4"
+    }
   }
 }
