@@ -5,16 +5,16 @@
   "packageManager": "pnpm@10.21.0",
   "scripts": {
     "prepare": "node scripts/prepare.js",
-    "dev": "concurrently \"pnpm dev:frontend\" \"pnpm dev:backend\"",
-    "dev:frontend": "pnpm --filter dfn-frontend dev",
-    "dev:backend": "pnpm --filter dfn-backend dev",
-    "build": "pnpm --recursive build",
-    "build:backend": "pnpm --filter dfn-backend build",
-    "start:backend": "pnpm --filter dfn-backend start",
-    "test": "pnpm --recursive test",
-    "lint": "pnpm --recursive lint",
+    "dev": "concurrently \"corepack pnpm dev:frontend\" \"corepack pnpm dev:backend\"",
+    "dev:frontend": "corepack pnpm --filter dfn-frontend dev",
+    "dev:backend": "corepack pnpm --filter dfn-backend dev",
+    "build": "corepack pnpm --recursive build",
+    "build:backend": "corepack pnpm --filter dfn-backend build",
+    "start:backend": "corepack pnpm --filter dfn-backend start",
+    "test": "corepack pnpm --recursive test",
+    "lint": "corepack pnpm --recursive lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "db:cleanup": "docker-compose down -v && docker-compose up -d && cd backend && pnpm db:generate && pnpm db:push && cd .."
+    "db:cleanup": "docker-compose down -v && docker-compose up -d && cd backend && corepack pnpm db:generate && corepack pnpm db:push && cd .."
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
