@@ -274,11 +274,12 @@ The backend runs on Render as a Node.js web service, connecting to **Neon** for 
 
 **Option B — Manual Setup:**
 
-1. Create a **Web Service** in Render → connect your repo → set Root Directory to `backend`
-2. Build Command: `npm ci && npm run build`
-3. Start Command: `npm run start`
-4. Set Health Check Path to `/health`
-5. Add environment variables for Neon, Upstash, and MinIO (see [`backend/.env.example`](backend/.env.example))
+1. Create a **Web Service** in Render → connect your repo
+2. **Root Directory**: Leave blank (root of repository)
+3. **Build Command**: `npm install --include=dev && npm run build:backend`
+4. **Start Command**: `npm run start:backend`
+5. Set Health Check Path to `/health`
+6. Add environment variables for Neon, Upstash, and MinIO (see [`backend/.env.example`](backend/.env.example))
 
 > **Note:** Update `NEXT_PUBLIC_API_URL` in Vercel to your Render backend URL (e.g. `https://dfn-backend.onrender.com`). Update `GOOGLE_CALLBACK_URL` and `PAYSTACK_CALLBACK_URL` to use the new backend domain.
 

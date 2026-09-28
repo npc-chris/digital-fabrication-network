@@ -10,9 +10,8 @@ services:
     runtime: node
     region: oregon
     plan: free  # Switch to "starter" ($7/mo) to prevent spin-down in production
-    rootDir: backend
-    buildCommand: npm ci && npm run build
-    startCommand: npm run start
+    buildCommand: npm install --include=dev && npm run build:backend
+    startCommand: npm run start:backend
     healthCheckPath: /health
     envVars:
       # ── Core ────────────────────────────────────────
