@@ -154,7 +154,7 @@ router.put('/:id', authenticate, authorize('provider'), async (req: Request, res
   try {
     const [service] = await db.update(services)
       .set({ ...req.body, updatedAt: new Date() })
-      .where(eq(services.id, parseInt(req.params.id)))
+      .where(eq(services.id, parseInt(req.params.id as string)))
       .returning();
     res.json(service);
   } catch (error: any) {
@@ -165,7 +165,7 @@ router.put('/:id', authenticate, authorize('provider'), async (req: Request, res
 // Delete service
 router.delete('/:id', authenticate, authorize('provider'), async (req: Request, res) => {
   try {
-    await db.delete(services).where(eq(services.id, parseInt(req.params.id)));
+    await db.delete(services).where(eq(services.id, parseInt(req.params.id as string)));
     res.status(204).send();
   } catch (error: any) {
     res.status(400).json({ error: error.message });

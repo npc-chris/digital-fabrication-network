@@ -147,7 +147,7 @@ router.get('/users', async (req: Request, res: Response) => {
 
 router.patch('/users/:id/role', async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.id, 10);
+    const userId = parseInt(req.params.id as string, 10);
     const { role } = req.body;
 
     const validRoles = ['explorer', 'provider'];
@@ -169,7 +169,7 @@ router.patch('/users/:id/role', async (req: Request, res: Response) => {
 
 router.patch('/users/:id/ban', async (req: Request, res: Response) => {
   try {
-    const userId = parseInt(req.params.id, 10);
+    const userId = parseInt(req.params.id as string, 10);
     const { banned } = req.body;
 
     const [updated] = await db
@@ -206,7 +206,7 @@ router.delete('/posts/:id', async (_req: Request, res: Response) => {
 
 router.delete('/services/:id', async (req: Request, res: Response) => {
   try {
-    const serviceId = parseInt(req.params.id, 10);
+    const serviceId = parseInt(req.params.id as string, 10);
     await db.delete(services).where(eq(services.id, serviceId));
     res.json({ message: 'Service removed successfully' });
   } catch (error: any) {
