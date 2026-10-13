@@ -5,17 +5,25 @@ import { eq, sql } from 'drizzle-orm';
 
 const router = Router();
 
-// Base seed offset for public presentation (aligns with established network momentum)
-const BASE_QUEUE_OFFSET = 840;
-
-// Helper to format priority code in hex (e.g. 841 -> DFN-0x0349)
+// Helper to format priority code in hex (e.g. 1 -> DFN-0x0001, 15 -> DFN-0x000F)
 export function formatHexPriorityCode(num: number): string {
   const safeNum = Math.max(1, Number(num) || 1);
   return `DFN-0x${safeNum.toString(16).toUpperCase().padStart(4, '0')}`;
 }
 
 // In-memory cache for fallback when DB is connecting or offline
-const memoryWaitlist = new Map<string, { queueNumber: number; hexCode: string; role: string; createdAt: string }>();
+const memoryWaitlist = new Map<
+  string,
+  {
+    queueNumber: number;
+    hexCode: string;
+    role: string;
+    fullName?: string | null;
+    organization?: string | null;
+    notes?: string | null;
+    createdAt: string;
+  }
+>();
 
 // Ensure table exists on first operation to prevent runtime failures if migration was not run yet
 let tableEnsured = false;
@@ -40,6 +48,68 @@ async function ensureWaitlistTable() {
   }
 }
 
+// GET /api/waitlist/check?email=... - Check if an email is already registered
+router.get('/check', async (req: Request, res: Response) => {
+  try {
+    await ensureWaitlistTable();
+    const queryEmail = String(req.query.email || '').trim().toLowerCase();
+    if (!queryEmail) {
+      return res.status(400).json({ error: 'Email query parameter is required' });
+    }
+
+    try {
+      const existing = await db
+        .select()
+        .from(waitlist)
+        .where(eq(waitlist.email, queryEmail))
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        const userEntry = existing[0];
+        const qNum = userEntry.queueNumber || userEntry.id;
+        const hexCode = formatHexPriorityCode(qNum);
+        return res.status(200).json({
+          success: true,
+          alreadyRegistered: true,
+          message: 'Existing waitlist reservation found.',
+          queueNumber: qNum,
+          hexCode,
+          role: userEntry.role,
+          fullName: userEntry.fullName,
+          organization: userEntry.organization,
+          notes: userEntry.notes,
+          createdAt: userEntry.createdAt,
+          entry: userEntry,
+        });
+      }
+    } catch {
+      if (memoryWaitlist.has(queryEmail)) {
+        const cached = memoryWaitlist.get(queryEmail)!;
+        return res.status(200).json({
+          success: true,
+          alreadyRegistered: true,
+          message: 'Existing waitlist reservation found.',
+          queueNumber: cached.queueNumber,
+          hexCode: cached.hexCode,
+          role: cached.role,
+          fullName: cached.fullName,
+          organization: cached.organization,
+          notes: cached.notes,
+          createdAt: cached.createdAt,
+          entry: cached,
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      alreadyRegistered: false,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Error checking waitlist' });
+  }
+});
+
 // POST /api/waitlist - Submit early access waitlist application
 router.post('/', async (req: Request, res: Response) => {
   try {
@@ -60,7 +130,7 @@ router.post('/', async (req: Request, res: Response) => {
     const validRoles = ['explorer', 'provider', 'researcher', 'enterprise'];
     const sanitizedRole = validRoles.includes(role) ? role : 'explorer';
 
-    // 1. Check if user already registered in DB
+    // 1. Check if user already registered in DB - if so, retrieve data already stored
     try {
       const existing = await db
         .select()
@@ -70,16 +140,20 @@ router.post('/', async (req: Request, res: Response) => {
 
       if (existing && existing.length > 0) {
         const userEntry = existing[0];
-        const qNum = userEntry.queueNumber || (BASE_QUEUE_OFFSET + userEntry.id);
+        const qNum = userEntry.queueNumber || userEntry.id;
         const hexCode = formatHexPriorityCode(qNum);
         return res.status(200).json({
           success: true,
           alreadyRegistered: true,
-          message: 'You are already registered on the waitlist. Your original priority spot is preserved.',
+          message: 'You are already registered on the waitlist. Your original priority spot has been retrieved.',
           queueNumber: qNum,
           hexCode,
           role: userEntry.role,
+          fullName: userEntry.fullName,
+          organization: userEntry.organization,
+          notes: userEntry.notes,
           createdAt: userEntry.createdAt,
+          entry: userEntry,
         });
       }
     } catch (dbErr) {
@@ -89,16 +163,20 @@ router.post('/', async (req: Request, res: Response) => {
         return res.status(200).json({
           success: true,
           alreadyRegistered: true,
-          message: 'You are already registered on the waitlist. Your original priority spot is preserved.',
+          message: 'You are already registered on the waitlist. Your original priority spot has been retrieved.',
           queueNumber: cached.queueNumber,
           hexCode: cached.hexCode,
           role: cached.role,
+          fullName: cached.fullName,
+          organization: cached.organization,
+          notes: cached.notes,
           createdAt: cached.createdAt,
+          entry: cached,
         });
       }
     }
 
-    // 2. Determine current total count to assign sequential queue number
+    // 2. Determine current total count to assign sequential queue number (starts from 1)
     let currentDbCount = 0;
     try {
       const countResult = await db.execute(sql`SELECT count(*)::int as count FROM waitlist;`);
@@ -107,7 +185,7 @@ router.post('/', async (req: Request, res: Response) => {
       currentDbCount = memoryWaitlist.size;
     }
 
-    const assignedQueueNumber = BASE_QUEUE_OFFSET + currentDbCount + 1;
+    const assignedQueueNumber = currentDbCount + 1;
     const hexCode = formatHexPriorityCode(assignedQueueNumber);
 
     // 3. Insert new waitlist applicant
@@ -147,18 +225,23 @@ router.post('/', async (req: Request, res: Response) => {
         return res.status(200).json({
           success: true,
           alreadyRegistered: true,
-          message: 'You are already registered on the waitlist.',
+          message: 'You are already registered on the waitlist. Your original priority spot has been retrieved.',
           queueNumber: qNum,
           hexCode: formatHexPriorityCode(qNum),
           role: userEntry?.role || sanitizedRole,
+          fullName: userEntry?.fullName || fullName,
+          organization: userEntry?.organization || organization,
+          notes: userEntry?.notes || notes,
+          createdAt: userEntry?.createdAt,
+          entry: userEntry,
         });
       }
       throw insertErr;
     }
   } catch (error: any) {
     console.error('Waitlist submission error:', error);
-    // Offline/memory fallback
-    const fallbackQueue = BASE_QUEUE_OFFSET + memoryWaitlist.size + 1;
+    // Offline/memory fallback (starts from 1)
+    const fallbackQueue = memoryWaitlist.size + 1;
     const hexCode = formatHexPriorityCode(fallbackQueue);
     const normalizedEmail = String(req.body?.email || '').trim().toLowerCase();
     if (normalizedEmail) {
@@ -166,6 +249,9 @@ router.post('/', async (req: Request, res: Response) => {
         queueNumber: fallbackQueue,
         hexCode,
         role: req.body?.role || 'explorer',
+        fullName: req.body?.fullName || null,
+        organization: req.body?.organization || null,
+        notes: req.body?.notes || null,
         createdAt: new Date().toISOString(),
       });
     }
@@ -181,7 +267,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/waitlist/count - Get current waitlist tally
+// GET /api/waitlist/count - Get current waitlist tally (starts from 1, no padding)
 router.get('/count', async (req: Request, res: Response) => {
   try {
     await ensureWaitlistTable();
@@ -189,16 +275,14 @@ router.get('/count', async (req: Request, res: Response) => {
     const currentCount = Number(countResult.rows[0]?.count || 0);
     return res.json({
       success: true,
-      baseOffset: BASE_QUEUE_OFFSET,
       dbCount: currentCount,
-      totalCount: BASE_QUEUE_OFFSET + currentCount,
+      totalCount: currentCount,
     });
   } catch (error) {
     return res.json({
       success: true,
-      baseOffset: BASE_QUEUE_OFFSET,
       dbCount: memoryWaitlist.size,
-      totalCount: BASE_QUEUE_OFFSET + memoryWaitlist.size,
+      totalCount: memoryWaitlist.size,
     });
   }
 });

@@ -43,6 +43,13 @@
       "when": 1774012015011,
       "tag": "0005_nifty_george_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791106083988,
+      "tag": "0006_small_microbe",
+      "breakpoints": true
     }
   ]
 }
