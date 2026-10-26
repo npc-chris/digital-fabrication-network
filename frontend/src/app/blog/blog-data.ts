@@ -67,6 +67,22 @@ export const blogPreviews: BlogPreview[] = [
   },
   {
     slug: 'five-axis-cnc-calibration',
+    category: 'Mechanical',
+    badge: 'Field Report',
+    title: 'The Future of 5-Axis CNC Calibration in Aerospace Prototyping',
+    excerpt:
+      'A systems-level look at calibration drift, tooling recovery, and why precision tooling is a supply-chain problem as much as a geometry problem.',
+    readTime: '10 min read',
+    publishedAt: 'Oct 24, 2024',
+    imageUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuD8C6BDINSk-z_ZZ-5rGQ9F88AN80YKGD9b3MVoPIyovs6LmmVhbko2FMM3a9Pm-CgXAyISIPt4A3mQ2PYA0CY8ztLNGeb4xykA-aED_TLE-EjGNUWMbO0t1gwehInvUPyEbZawP80reoylXajL4GhwVz3R2e1bR_e5fBWuuDPAT64lgFPsTparXhnZQqU8wTg7_5i28OvzYcOesJ-8q88Uc9iqncTQJdouoTNpnNnNqiiryCaC1Qiq99WrRcr86RTfa5-_h4F6Y88',
+    imageAlt:
+      'Highly detailed close-up of a precision industrial robotic arm in a clean tech lab with cold blue and white lighting',
+    variant: 'secondary',
+    notionUrl: '#notion-sync-pending',
+  },
+  {
+    slug: 'signal-integrity-pcb-design',
     category: 'Electronics',
     badge: 'Research Note',
     title: 'Optimizing Signal Integrity for High-Frequency PCB Design',
@@ -78,7 +94,7 @@ export const blogPreviews: BlogPreview[] = [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBJkFbasMqU2UdLxUImDByUg7Z-5DeABUj1Gcecyag65J-rVROmQS9CkfizJhrQNZR3Gd28JXs8KIHzeCfBkTyoh0ndRVpJJUozZKQF9hApVGcEKN_hC9M6zLxaoSwCNUCQk8eo8bFOLzxW3fItyk-6bi-cgNt87uvCuuoq03p-jbBk4MtMQ8AD28f24N3AHkO9CtAycHiqXBBJ94GDGzRmQqyNfxkbNEYV0QLPNI1B-W8uv_0TNZCFIaPlqODZhHl_SG8p3uKvAY',
     imageAlt:
       'Symmetrical top-down macro shot of a complex green circuit board with glowing LEDs and microchips, professional technical photography',
-    variant: 'secondary',
+    variant: 'compact',
     notionUrl: '#notion-sync-pending',
   },
   {
@@ -95,22 +111,6 @@ export const blogPreviews: BlogPreview[] = [
     imageAlt:
       'Polished steel industrial gears and mechanical components interlocked with dramatic cinematic shadow and light contrast',
     variant: 'compact',
-    notionUrl: '#notion-sync-pending',
-  },
-  {
-    slug: 'code-is-the-new-iron',
-    category: 'Software',
-    badge: 'Opinion',
-    title: 'Code is the new iron.',
-    excerpt:
-      'A philosophical look at how firmware architecture has become the primary constraint in heavy machinery performance.',
-    readTime: '4 min read',
-    publishedAt: 'Nov 12, 2024',
-    imageUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCcaGdG4Iex6ti_HoQQTnyu-QKh-RyxzbGcQPgLjsgcBftHpfB9xAwI0h8K1kPLQ71o7XdK2U-izb0LzPJW1OkUMhAV0OuiYu8IfYcE1jSDDcRu37V9lSf6-tRSc_-qke1Ee5Ls5pAjr9VZ9sZkeREQ3lTVVdY5iARBIz_OzW2Gz2wI_p5C7C6D2_RTWh58bN5ofo33tQ32jamRTAvwLB1hfPbNZXzRp65WTXnX-7AaqgoQdxjBPGB83y7vrydEnL4HSEOvFyGHkxY',
-    imageAlt:
-      'Professional headshot of a male software architect in a studio setting',
-    variant: 'quote',
     notionUrl: '#notion-sync-pending',
   },
   {

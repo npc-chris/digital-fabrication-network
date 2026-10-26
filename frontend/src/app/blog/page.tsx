@@ -57,10 +57,10 @@ function VisualCard({
 
         {isFeature ? (
           <div className="absolute bottom-0 p-6 sm:p-8 lg:p-10">
-            <span className="inline-block rounded-md bg-[#cee5ff] px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[#004a77]">
-              {post.badge || post.category || 'Featured Report'}
+            <span className="text-xs font-bold uppercase tracking-wider text-sky-200">
+              {post.category || 'Featured Dispatch'}
             </span>
-            <h2 className="mt-3 max-w-3xl text-2xl font-bold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
+            <h2 className="mt-2 max-w-3xl text-2xl font-bold leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
               {post.title}
             </h2>
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs sm:text-sm font-medium text-[#cee5ff]">
@@ -155,37 +155,13 @@ export default async function BlogPage() {
           </div>
 
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#006098]">
-                  DFN Insights &amp; Field Notes
-                </span>
-                <h1 className="mt-2 text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
-                  Field Notes &amp; Dispatches
-                </h1>
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-                  Technical reports, case studies, and manufacturing protocols from the Digital Fabrication Network.
-                </p>
-              </div>
-
-              {/* Filter Tabs */}
-              <div className="flex gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-                {['All Disciplines', 'Research', 'Electronics', 'Mechanical', 'Software'].map(
-                  (item, index) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className={`whitespace-nowrap rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold transition-colors ${
-                        index === 0
-                          ? 'bg-[#006098] text-white shadow-sm'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  )
-                )}
-              </div>
+            <div className="max-w-3xl">
+              <h1 className="text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
+                Field Notes &amp; Dispatches
+              </h1>
+              <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-lg">
+                Technical reports, case studies, and manufacturing protocols from the Digital Fabrication Network.
+              </p>
             </div>
           </div>
         </section>
@@ -237,10 +213,7 @@ export default async function BlogPage() {
         <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-2xl bg-[#004873] p-8 text-white shadow-xl sm:p-12 lg:p-14 md:flex md:items-center md:justify-between md:gap-12">
             <div className="relative z-10 max-w-xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-200">
-                Engineering Newsletter
-              </span>
-              <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
+              <h2 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
                 Stay Synchronized
               </h2>
               <p className="mt-3 text-sm sm:text-base leading-relaxed text-sky-100">
