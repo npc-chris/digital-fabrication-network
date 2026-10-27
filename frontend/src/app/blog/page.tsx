@@ -5,7 +5,6 @@ import { ArrowUpRight, ArrowRight, Calendar, Clock, PaperPlaneRight } from '@pho
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
 import { getHygraphPosts, type HygraphPost } from '@/lib/hygraph';
-import { blogPreviews } from './blog-data';
 
 export const metadata: Metadata = {
   title: 'Blog & Field Notes • Digital Fabrication Network',
@@ -116,26 +115,7 @@ function VisualCard({
 }
 
 export default async function BlogPage() {
-  const hygraphPosts = await getHygraphPosts();
-
-  // If no posts from Hygraph, use rich static articles from blog-data.ts
-  const posts =
-    hygraphPosts.length > 0
-      ? hygraphPosts
-      : blogPreviews.map((p) => ({
-          id: p.slug,
-          slug: p.slug,
-          title: p.title,
-          excerpt: p.excerpt,
-          htmlContent: '',
-          coverImageUrl: p.imageUrl,
-          publishedAt: p.publishedAt,
-          readTime: p.readTime,
-          category: p.category,
-          badge: p.badge,
-          author: { name: 'DFN Research Desk' },
-          tags: [p.category],
-        }));
+  const posts = await getHygraphPosts();
 
   const featured = posts[0];
   const secondary = posts[1];

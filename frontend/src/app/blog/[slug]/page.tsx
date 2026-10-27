@@ -7,11 +7,11 @@ import {
   Calendar,
   Clock,
 } from '@phosphor-icons/react/dist/ssr';
+import DOMPurify from 'isomorphic-dompurify';
 
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
 import { getHygraphPostBySlug, getHygraphPosts, type HygraphPost } from '@/lib/hygraph';
-import { blogArticles, blogPreviews, type BlogArticle } from '../blog-data';
 
 type BlogArticlePageProps = {
   params: Promise<{
@@ -19,54 +19,21 @@ type BlogArticlePageProps = {
   }>;
 };
 
-type ResolvedPostResult = {
-  post: HygraphPost;
-  localArticle?: BlogArticle;
-};
-
-async function resolvePost(slug: string): Promise<ResolvedPostResult | null> {
-  const remotePost = await getHygraphPostBySlug(slug);
-  if (remotePost) return { post: remotePost };
-
-  // Match local article by slug
-  const localArticle = blogArticles.find((a) => a.slug === slug);
-  if (localArticle) {
-    const post: HygraphPost = {
-      id: localArticle.slug,
-      slug: localArticle.slug,
-      title: localArticle.title,
-      excerpt: localArticle.subtitle || localArticle.intro || '',
-      htmlContent: '',
-      coverImageUrl: localArticle.heroImageUrl,
-      publishedAt: localArticle.publishedAt,
-      readTime: localArticle.readTime,
-      category: localArticle.category,
-      badge: localArticle.badge,
-      author: {
-        name: localArticle.authorName,
-        role: localArticle.authorRole,
-      },
-      tags: localArticle.tags,
-    };
-    return { post, localArticle };
-  }
-
-  return null;
+async function resolvePost(slug: string): Promise<HygraphPost | null> {
+  return await getHygraphPostBySlug(slug);
 }
 
 export async function generateMetadata({
   params,
 }: BlogArticlePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const result = await resolvePost(slug);
+  const post = await resolvePost(slug);
 
-  if (!result || !result.post) {
+  if (!post) {
     return {
       title: 'Article Not Found • Digital Fabrication Network',
     };
   }
-
-  const { post } = result;
 
   return {
     title: `${post.title} • Digital Fabrication Network`,
@@ -81,31 +48,20 @@ export async function generateMetadata({
 
 export default async function BlogArticlePage({ params }: BlogArticlePageProps) {
   const { slug } = await params;
-  const result = await resolvePost(slug);
+  const post = await resolvePost(slug);
 
-  if (!result || !result.post) {
+  if (!post) {
     notFound();
   }
 
-  const { post, localArticle } = result;
-
-  // Get other recent posts for recommendations
-  const remotePosts = await getHygraphPosts();
-  const allPosts =
-    remotePosts.length > 0
-      ? remotePosts
-      : blogPreviews.map((p) => ({
-          id: p.slug,
-          slug: p.slug,
-          title: p.title,
-          excerpt: p.excerpt,
-          coverImageUrl: p.imageUrl,
-          publishedAt: p.publishedAt,
-          readTime: p.readTime,
-          category: p.category,
-        }));
-
+  // Get other authentic published posts for recommendations
+  const allPosts = await getHygraphPosts();
   const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
+
+  // Sanitize CMS HTML to prevent XSS vulnerabilities
+  const sanitizedHtml = DOMPurify.sanitize(post.htmlContent, {
+    USE_PROFILES: { html: true },
+  });
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
@@ -136,7 +92,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
                 </Link>
               </div>
 
-              {/* Clean meta without pill container */}
+              {/* Editorial metadata - clean text without pill container */}
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-sky-200">
                 <span>{post.category}</span>
                 <span className="text-sky-400">•</span>
@@ -177,93 +133,16 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
         <article className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-3xl">
             <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-10 md:p-12 shadow-xs">
-              {localArticle ? (
-                <div className="space-y-6 text-[#191c1e]">
-                  {localArticle.intro ? (
-                    <p className="text-base sm:text-lg font-medium leading-relaxed text-slate-700">
-                      {localArticle.intro}
-                    </p>
-                  ) : null}
-
-                  {localArticle.sectionTitle ? (
-                    <h2 className="pt-4 text-xl sm:text-2xl font-bold tracking-tight text-[#191c1e]">
-                      {localArticle.sectionTitle}
-                    </h2>
-                  ) : null}
-
-                  {localArticle.paragraphs?.map((p, idx) => (
-                    <p key={idx} className="text-sm sm:text-base leading-relaxed text-slate-600">
-                      {p}
-                    </p>
-                  ))}
-
-                  {localArticle.figure ? (
-                    <figure className="my-8">
-                      <img
-                        src={localArticle.figure.imageUrl}
-                        alt={localArticle.figure.imageAlt}
-                        className="w-full rounded-xl object-cover shadow-xs border border-slate-200"
-                        loading="lazy"
-                      />
-                      {localArticle.figure.caption ? (
-                        <figcaption className="mt-2.5 text-center text-xs text-slate-500">
-                          {localArticle.figure.caption}
-                        </figcaption>
-                      ) : null}
-                    </figure>
-                  ) : null}
-
-                  {localArticle.quote ? (
-                    <blockquote className="my-8 rounded-xl border-l-4 border-[#006098] bg-[#f0f7ff] p-5 sm:p-6">
-                      <p className="text-sm sm:text-base font-medium italic text-[#004873]">
-                        &ldquo;{localArticle.quote.text}&rdquo;
-                      </p>
-                      {localArticle.quote.attribution ? (
-                        <cite className="mt-2 block text-xs font-semibold text-slate-500 not-italic">
-                          — {localArticle.quote.attribution}
-                        </cite>
-                      ) : null}
-                    </blockquote>
-                  ) : null}
-
-                  {localArticle.highlights && localArticle.highlights.length > 0 ? (
-                    <div className="my-8 grid gap-4 sm:grid-cols-2">
-                      {localArticle.highlights.map((h, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-xl border border-slate-200 bg-[#f7f9fb] p-4 text-xs sm:text-sm"
-                        >
-                          <h4 className="font-bold text-[#191c1e]">{h.title}</h4>
-                          <p className="mt-1 text-slate-600 leading-relaxed">{h.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-
-                  {localArticle.metrics && localArticle.metrics.length > 0 ? (
-                    <div className="my-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {localArticle.metrics.map((m, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 text-center"
-                        >
-                          <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                            {m.label}
-                          </span>
-                          <span className="mt-1 block font-mono text-base font-bold text-[#004873]">
-                            {m.value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              ) : post.htmlContent ? (
+              {sanitizedHtml ? (
                 <div
-                  className="prose prose-slate max-w-none text-sm sm:text-base leading-relaxed text-slate-600 prose-headings:font-bold prose-headings:text-[#191c1e] prose-a:text-[#006098] prose-img:rounded-xl"
-                  dangerouslySetInnerHTML={{ __html: post.htmlContent }}
+                  className="article-content prose prose-slate max-w-none text-[#191c1e]"
+                  dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                 />
-              ) : null}
+              ) : (
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                  {post.excerpt}
+                </p>
+              )}
 
               {/* Tags Section */}
               {post.tags && post.tags.length > 0 ? (
@@ -282,7 +161,7 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
           </div>
         </article>
 
-        {/* Related Posts Recommendation */}
+        {/* Related Posts Recommendation - only authentic Hygraph posts */}
         {relatedPosts.length > 0 ? (
           <section className="border-t border-slate-200 bg-white py-16">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
