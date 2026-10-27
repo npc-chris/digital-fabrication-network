@@ -263,6 +263,22 @@ export default function ComingSoonPage() {
 
   return (
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
+      {/* Comparative Review Banner */}
+      <div className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm px-4 py-2 text-xs">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <span className="font-mono text-slate-500">
+            CURRENT ORIGINAL: <strong className="text-slate-800">/coming-soon</strong>
+          </span>
+          <Link
+            href="/coming-soon-2"
+            className="flex items-center gap-1 font-mono font-bold text-[#006098] hover:underline"
+          >
+            <span>👉 View Refined Version (/coming-soon-2)</span>
+            <ArrowRight size={13} weight="bold" />
+          </Link>
+        </div>
+      </div>
+
       <LandingNavbar />
 
       <main className="pt-14">
