@@ -28,7 +28,6 @@ const navLinks = [
   { href: '/research', label: 'Research', key: 'research' },
   { href: '/prototyping', label: 'Prototyping', key: 'prototyping' },
   { href: '/stakeholders', label: 'Stakeholders', key: 'stakeholders' },
-  { href: '/blog', label: 'Blog', key: 'blog' },
 ] as const;
 
 export default function LandingNavbar({ active = null, fixed = true }: LandingNavbarProps) {
