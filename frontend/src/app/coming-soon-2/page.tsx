@@ -10,18 +10,12 @@ import {
   Factory,
   GraduationCap,
   Buildings,
-  ShieldCheck,
-  Cube,
-  CheckCircle,
-  Lightning,
-  Crosshair,
-  Compass,
-  Wrench,
-  BookOpen,
   ArrowUpRight,
-  Gauge,
-  SlidersHorizontal,
-  TreeStructure,
+  BookOpen,
+  Target,
+  Clock,
+  ShieldCheck,
+  CheckCircle,
 } from '@phosphor-icons/react';
 
 import LandingNavbar from '@/components/LandingNavbar';
@@ -37,115 +31,104 @@ interface RoleOption {
 }
 
 const ROLES: RoleOption[] = [
-  { key: 'explorer', label: 'Hardware Designers', tagline: 'Product builders & startups', icon: Cpu },
-  { key: 'provider', label: 'Machine Shops', tagline: 'CNC & fabrication hubs', icon: Factory },
-  { key: 'researcher', label: 'University Labs', tagline: 'Academic R&D & prototyping', icon: GraduationCap },
-  { key: 'enterprise', label: 'Industrial Enterprise', tagline: 'Volume production & procurement', icon: Buildings },
+  {
+    key: 'explorer',
+    label: 'Hardware Designers',
+    tagline: 'Product builders & startups developing physical devices',
+    icon: Cpu,
+  },
+  {
+    key: 'provider',
+    label: 'Machine Shops',
+    tagline: 'Fabrication hubs, CNC workshops & manufacturing facilities',
+    icon: Factory,
+  },
+  {
+    key: 'researcher',
+    label: 'Research Fellows',
+    tagline: 'University labs, academic R&D & advanced prototyping',
+    icon: GraduationCap,
+  },
+  {
+    key: 'enterprise',
+    label: 'Industry and Enterprise',
+    tagline: 'High-volume production, procurement & supply chain engineering',
+    icon: Buildings,
+  },
 ];
-
-interface RoadmapDeliverable {
-  label: string;
-  metric?: string;
-}
 
 interface RoadmapMilestone {
   number: string;
   phaseId: string;
   title: string;
   scope: string;
-  state: 'validated' | 'active' | 'staged' | 'projected';
-  stateLabel: string;
-  verificationProtocol: string;
-  calibratedEquipment: string[];
-  hubClusters: string[];
-  deliverables: RoadmapDeliverable[];
-  telemetry: { label: string; value: string }[];
+  status: 'Completed' | 'In Progress' | 'Upcoming' | 'Planned';
+  statusStyle: 'emerald' | 'sky' | 'slate';
+  deliverables: string[];
+  metricLabel: string;
+  metricValue: string;
 }
 
 const ROADMAP_MILESTONES: RoadmapMilestone[] = [
   {
     number: '01',
     phaseId: 'PHASE 01',
-    title: 'Ground Truth & Kernel Calibration',
-    scope: 'On-site machine calibration and automated CAD geometry validation across regional industrial clusters.',
-    state: 'validated',
-    stateLabel: 'VALIDATED ON-SITE',
-    verificationProtocol: 'ISO 230-2 Spindle Repeatability & Dial Indicator Test Run',
-    calibratedEquipment: ['Haas VF-4 5-Axis VMC', 'Mazak Super Velocity', 'Charmilles Wire EDM', 'Bridgeport Knees'],
-    hubClusters: ['Ikeja Industrial Estate', 'Ilupeju Light Industrial', 'Ogun Agbara Cluster', 'Enugu Industrial Zone'],
+    title: 'Ground Truth & Spindle Benchmarking',
+    scope: 'On-site physical auditing of machine tools, spindle repeatability, and shop floor capacity across regional manufacturing hubs.',
+    status: 'Completed',
+    statusStyle: 'emerald',
     deliverables: [
-      { label: 'Automated STEP/CAD kernel for wall-thickness & undercut checks' },
-      { label: 'Calibrated spindle auditing across 42 machine shops in Nigeria' },
-      { label: 'Standardized ±0.02mm tolerance baseline for precision metal parts' },
+      'Audited 42+ partner workshops (CNC milling, lathes, Wire EDM, and industrial 3D printing)',
+      'Established standardized ±0.02mm baseline tolerance with dial indicator & test cuts',
+      'Cataloged spindle travel, RPM envelopes, and verified material handling capabilities',
     ],
-    telemetry: [
-      { label: 'Audited Hubs', value: '42 Facilities' },
-      { label: 'Indexed Spindles', value: '140+ Machines' },
-      { label: 'CAD Kernel', value: 'v1.2 Deployed' },
-    ],
+    metricLabel: 'Audited Hubs',
+    metricValue: '42 Facilities',
   },
   {
     number: '02',
     phaseId: 'PHASE 02',
-    title: 'Algorithmic Quoting & Escrow Settlement',
-    scope: 'Instant machine-hour pricing models coupled with inspection-gated milestone payment releases.',
-    state: 'active',
-    stateLabel: 'ACTIVE STAGING',
-    verificationProtocol: 'Deterministic Toolpath Time Estimator & Live Metals Spot Feed',
-    calibratedEquipment: ['3- & 4-Axis CNC Milling', 'CNC Turning Centers', 'EOS Formiga P 110 SLS'],
-    hubClusters: ['Lagos Mainland Rail', 'Abeokuta Heavy Hub', 'Port Harcourt Machine Valley'],
+    title: 'Automated Quoting & Escrow Settlement',
+    scope: 'Instant CAD geometry evaluation and spindle-hour pricing paired with inspection-gated milestone escrow to protect both clients and shops.',
+    status: 'In Progress',
+    statusStyle: 'sky',
     deliverables: [
-      { label: 'Algorithmic spindle-hour pricing based on toolpath complexity' },
-      { label: 'Live raw stock indexing for 6061 Aluminum, Brass, and Delrin' },
-      { label: 'Inspection-gated milestone escrow releasing upon metrology sign-off' },
+      'Automated STEP/CAD file analysis for wall-thickness, undercuts, and tool reach constraints',
+      'Transparent pricing algorithms based on spindle hours and live raw stock prices',
+      'Milestone escrow architecture releasing payments only upon verified part sign-off',
     ],
-    telemetry: [
-      { label: 'Quote Latency', value: '<60 Seconds' },
-      { label: 'Escrow Engine', value: 'Phased Payouts' },
-      { label: 'Settlement Rail', value: 'Direct Banking' },
-    ],
+    metricLabel: 'Quoting Latency',
+    metricValue: '<60 Seconds',
   },
   {
     number: '03',
     phaseId: 'PHASE 03',
-    title: 'Distributed Dispatch & Metrology Pipeline',
-    scope: 'Algorithmic capacity routing to idle machine spindles with certified optical & contact CMM inspection.',
-    state: 'staged',
-    stateLabel: 'STAGED DEPLOYMENT',
-    verificationProtocol: 'Contact Probe CMM Coordinate Verification & NIST Calibration',
-    calibratedEquipment: ['Mitutoyo Crysta-Plus CMM', 'GOM ATOS Optical Scanner', 'Fiber Laser Marking'],
-    hubClusters: ['National Pilot Hubs', 'Lekki Free Zone', 'Nnewi Industrial Corridor'],
+    title: 'Decentralized Job Routing & Quality Assurance',
+    scope: 'Algorithmic capacity routing to verified idle machines, supported by standardized contact probe and optical CMM inspection sheets.',
+    status: 'Upcoming',
+    statusStyle: 'slate',
     deliverables: [
-      { label: 'Direct job routing to verified idle CNC, Wire EDM, and SLS labs' },
-      { label: 'Standardized contact probe & optical CMM inspection certificates' },
-      { label: 'Laser-etched batch QR verification and material traceability sheets' },
+      'Automated dispatch matching part geometry to optimal idle machines in regional clusters',
+      'Standardized post-machining inspection sheets with calibrated optical/CMM measurements',
+      'Batch QR verification tags and material cert traceability for aerospace and industrial parts',
     ],
-    telemetry: [
-      { label: 'Routing Kernel', value: 'Load Balanced' },
-      { label: 'Metrology Spec', value: 'NIST Traceable' },
-      { label: 'Quality Target', value: '99.4% First-Pass' },
-    ],
+    metricLabel: 'Target Quality',
+    metricValue: '99.4% First-Pass',
   },
   {
     number: '04',
     phaseId: 'PHASE 04',
-    title: 'Shared Tooling & Material Clearinghouse',
-    scope: 'Aggregated procurement for raw billets, carbide tooling, and regional inter-hub logistics rails.',
-    state: 'projected',
-    stateLabel: 'EXPANSION HORIZON',
-    verificationProtocol: 'Batch Mill Certification & Regional Bonded Logistics Network',
-    calibratedEquipment: ['Bulk Cold-Rolled Billet Sawing', 'Sandvik Coromant Tooling Exchange', 'Dedicated Transport'],
-    hubClusters: ['ECOWAS Regional Corridor', 'Accra-Lagos Logistics Rail'],
+    title: 'Shared Material Pool & Regional Logistics',
+    scope: 'Consolidated raw material purchasing and scheduled inter-hub ground delivery rails across major manufacturing corridors in West Africa.',
+    status: 'Planned',
+    statusStyle: 'slate',
     deliverables: [
-      { label: 'Aggregated raw billet procurement reducing stock costs by up to 25%' },
-      { label: 'Centralized high-performance carbide cutting tool & insert exchange' },
-      { label: 'Inter-hub regional ground logistics routing across West Africa' },
+      'Bulk wholesale purchasing pool for certified 6061 aluminum, stainless, brass, and Delrin',
+      'Centralized cutting tool and carbide insert exchange reducing tooling overhead for shops',
+      'Dedicated local ground logistics connecting fabrication hubs with hardware teams in 48–72h',
     ],
-    telemetry: [
-      { label: 'Billet Sourcing', value: 'Bulk Wholesale' },
-      { label: 'Tooling Pool', value: 'Shared Catalog' },
-      { label: 'Coverage', value: 'West Africa Rail' },
-    ],
+    metricLabel: 'Material Savings',
+    metricValue: 'Up to 25%',
   },
 ];
 
@@ -187,19 +170,27 @@ const CAPABILITIES = [
 const DISPATCHES = [
   {
     slug: 'the-problem-of-innovating-in-nigeria',
-    category: 'FIELD REPORT',
-    readTime: '6 min read',
+    category: 'Research',
+    readTime: '12 min read',
     title: 'The Problem of Innovating in Nigeria: Why Durable Systems Trump Perfect Ones',
-    summary: 'How infrastructure friction reshapes technical ambition, and how distributed fabrication solves the local supply bottleneck.',
+    summary: 'A field report on how infrastructure friction reshapes technical ambition, and why durable systems matter more than perfect ones.',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAC_nVxWjzfx8lLQ8teMBCSFTLUOJIsueT2mdvw-UmwwLoIj_VEe9c923_dIp5-YvRJO3tkkeosigYJq-TGcdsuEDiSwu7pu6klnc79zajN9T9OsBCxilN7iiPMyXZs4JTrB28uurzIXaSXKCozX2hUg-5wx6OFP2QCqlLdKAmuaSOyGexvpNmKDiZnLon9t7ZrI1jzV4kanfLeuP4gN6LR5aBa9xzeg0Nu9lwqskmmQpB_TEjK5_dzf_qBAR5P1eSSSnjMlKnOeyY',
   },
   {
     slug: 'laser-sintering-beyond-traditional-casting',
-    category: 'FABRICATION',
+    category: 'Fabrication',
     readTime: '7 min read',
     title: 'Laser Sintering: Beyond Traditional Casting for Complex Functional Parts',
-    summary: 'Rewriting the rules for internal cooling channels and low-volume tooling without expensive tooling dies.',
+    summary: 'How additive manufacturing is rewriting the rules for complex internal cooling channels and low-volume tooling without expensive dies.',
     image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC-wcOOgaEAqWm-VWr9P6pqqDEwloigpblC74SSzYc1Zenv_AaOry64KGybJt9zoQEkgG4Y0rexn7w7qzjXSXsiXTvOTEH3TZd0Tg0qtaWXwb8AxTIuDiHjfZ7auSHzBrDl8cIn9VIdcOaIcJ9U8UR0zuGmWYPRDVGX4svkYf32CHbJat55DoLtfBtjo6Nuqm--wTq5WcjljZ3XeGbDQsbGO38Ogw0rAgc3duIklgiXdvw6cpP0zPUVM5VL6WpTE3HeBcV4MssZRMI',
+  },
+  {
+    slug: 'kinematic-couplings-modular-robotics',
+    category: 'Mechanical',
+    readTime: '6 min read',
+    title: 'Kinematic Couplings in Modular Robotics',
+    summary: 'Exploring deterministic location and repeatable sub-micron precision for interchangeable robot end-effectors in distributed manufacturing.',
+    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDy8deUCtUtgB8CjWsWo-oWdzGjGJ9j8pO7SoMdookvTFQTDeDkJMGKfMPvDF_iB5T9ug3wFJreO01L83Flm3eLX3DkwM9lki2-KiXz6Utmg-P1mVzFnCFb4bmMqtItmIxWNUs9PfgsAG_LL1kHB1vqrYhYNH_xPs8jhkrCIaXWbtDs2l48B6LqZfhWZrgTDgdEKQgo0QUYiDxQGpP-7txNIm9WgkSucuwuNOqryf32gU2EePnH2QQ7NkzBY9PTvn4JsdM5P3nnFsg',
   },
 ];
 
@@ -223,8 +214,6 @@ export default function ComingSoonV2Page() {
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
   const [liveCount, setLiveCount] = useState<number | null>(null);
-  const [activePhaseIndex, setActivePhaseIndex] = useState<number>(1); // Phase 2 default active
-  const [roadmapViewMode, setRoadmapViewMode] = useState<'timeline' | 'matrix'>('timeline');
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
@@ -378,8 +367,6 @@ export default function ComingSoonV2Page() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const activeMilestone = ROADMAP_MILESTONES[activePhaseIndex] || ROADMAP_MILESTONES[1];
-
   return (
     <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] antialiased">
       {/* Top Testing Context Bar */}
@@ -389,7 +376,7 @@ export default function ComingSoonV2Page() {
             <span className="font-mono font-bold text-sky-400">TEST ROUTE: /coming-soon-2</span>
             <span className="hidden text-slate-400 sm:inline">|</span>
             <span className="hidden text-slate-400 sm:inline">
-              Refined layout: Zero AI pill badges, full industrial photography, crisp microcopy, and vertical timeline diagram
+              Refined layout: Zero AI pill badges, authentic team &amp; hardware photography, vertical timeline diagram, and field dispatches
             </span>
           </div>
           <Link
@@ -405,7 +392,7 @@ export default function ComingSoonV2Page() {
       <LandingNavbar active={null} />
 
       <main className="pt-8">
-        {/* HERO SECTION: Split Industrial Layout with High-Fidelity Visual Anchor */}
+        {/* HERO SECTION: Split Layout with Form on Left & Team Photo with Goals on Right */}
         <section className="relative overflow-hidden pt-8 pb-16 lg:pt-12 lg:pb-24">
           {/* Subtle Technical Blueprint Background Grid */}
           <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -416,54 +403,41 @@ export default function ComingSoonV2Page() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Header Area without AI Pills */}
             <div className="mb-10 max-w-3xl">
-              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#006098]">
-                // 01 ARCHITECTURE & ACCESS TERMINAL
-              </div>
-              <h1 className="mt-3 text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
-                The Physical Fabrication
-                <br />
+              <h1 className="text-4xl font-black tracking-tight text-[#191c1e] sm:text-5xl lg:text-6xl">
                 <span className="bg-gradient-to-r from-[#191c1e] via-[#004873] to-[#007abf] bg-clip-text text-transparent">
-                  Network.
+                  Coming Soon
                 </span>
               </h1>
-              <p className="mt-4 text-lg text-slate-600 sm:text-xl">
-                Connecting Nigeria's verified machine shops, CNC spindles, and engineering labs into one on-demand production cloud.
+              <p className="mt-4 text-lg leading-relaxed text-slate-600 sm:text-xl">
+                We&apos;re uniting Nigeria&apos;s verified machine shops, fabs, and engineering labs into one decentralized production cloud. Turn designs into physical parts in days—without import delays or customs bottlenecks.
               </p>
             </div>
 
-            {/* Split Grid: Left = Access Allocation Terminal, Right = Active Hardware Viewport */}
+            {/* Split Grid: Left = Waitlist Form, Right = Team Photo & Platform Goals */}
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
-              {/* Access Terminal Column */}
+              {/* Left Column: Waitlist Form */}
               <div className="lg:col-span-6">
                 <div className="relative rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-900/5 sm:p-8">
-                  {/* Technical Datum Brackets */}
-                  <div className="pointer-events-none absolute top-3 left-3 font-mono text-[9px] text-slate-300">
-                    + TERM_ID: LAG-01
-                  </div>
-                  <div className="pointer-events-none absolute top-3 right-3 font-mono text-[9px] text-slate-300">
-                    SEC_LVL: 04 +
-                  </div>
-
                   {!submitted ? (
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div className="border-b border-slate-100 pb-4">
                         <div className="flex items-center justify-between">
                           <h2 className="text-xl font-bold tracking-tight text-[#191c1e]">
-                            Reserve Network Allocation
+                            Join the Waitlist
                           </h2>
                           <div className="font-mono text-xs font-semibold text-slate-500">
-                            QUEUE: #{liveCount ? liveCount + 1 : 142}
+                            QUEUE: #{liveCount ? liveCount + 1 : '...'}
                           </div>
                         </div>
                         <p className="mt-1 text-xs text-slate-500">
-                          Direct capacity access for product builders, fabrication hubs, and research labs.
+                          Get early access to Nigeria&apos;s distributed manufacturing platform for rapid prototyping, small-batch production, and hardware R&amp;D.
                         </p>
                       </div>
 
                       {/* Track Selector with Tagline and Industrial Styling */}
                       <div>
                         <label className="block font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-                          Primary Engineering Track
+                          Primary Track
                         </label>
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                           {ROLES.map((role) => {
@@ -497,12 +471,12 @@ export default function ComingSoonV2Page() {
                         </div>
                       </div>
 
-                      {/* Inputs Grid */}
+                      {/* Inputs Grid: Name, Email, Org, Role */}
                       <div className="space-y-3 pt-1">
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <div>
                             <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                              Contact Name
+                              Name
                             </label>
                             <input
                               type="text"
@@ -514,7 +488,7 @@ export default function ComingSoonV2Page() {
                           </div>
                           <div>
                             <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                              Work / Institutional Email <span className="text-rose-500">*</span>
+                              Email <span className="text-rose-500">*</span>
                             </label>
                             <input
                               type="email"
@@ -530,11 +504,11 @@ export default function ComingSoonV2Page() {
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <div>
                             <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                              Organization, Hub, or University
+                              Organization
                             </label>
                             <input
                               type="text"
-                              placeholder="e.g. Apex Precision Tools"
+                              placeholder="e.g. Apex Precision Tools or UNILAG"
                               value={organization}
                               onChange={(e) => setOrganization(e.target.value)}
                               className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-[#006098] focus:bg-white focus:ring-1 focus:ring-[#006098]"
@@ -542,11 +516,11 @@ export default function ComingSoonV2Page() {
                           </div>
                           <div>
                             <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                              Target Fabrication Capability
+                              Role
                             </label>
                             <input
                               type="text"
-                              placeholder="e.g. 5-Axis Milling, Wire EDM, SLS"
+                              placeholder="e.g. Lead Engineer, Shop Owner, Researcher"
                               value={notes}
                               onChange={(e) => setNotes(e.target.value)}
                               className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none transition-all focus:border-[#006098] focus:bg-white focus:ring-1 focus:ring-[#006098]"
@@ -570,46 +544,38 @@ export default function ComingSoonV2Page() {
                           {submitting ? (
                             <>
                               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                              <span>Allocating Queue Slot...</span>
+                              <span>Joining Waitlist...</span>
                             </>
                           ) : (
                             <>
-                              <span>Request Allocation Pass</span>
+                              <span>Join Waitlist</span>
                               <ArrowRight size={15} weight="bold" />
                             </>
                           )}
                         </button>
                       </div>
-
-                      <div className="flex items-center justify-between pt-1 text-[11px] text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <ShieldCheck size={14} weight="duotone" className="text-emerald-600" />
-                          Zero Spam • No Public Disclosure
-                        </span>
-                        <span>Encrypted Escrow Staging</span>
-                      </div>
                     </form>
                   ) : (
-                    /* Confirmed Allocation Ticket Card: Styled like an authentic industrial Job Routing Ticket */
+                    /* Confirmed Allocation Ticket Card */
                     <div className="space-y-6">
                       <div className="border-b border-slate-200 pb-4">
                         <div className="flex items-center justify-between">
                           <div className="font-mono text-xs font-bold uppercase tracking-widest text-emerald-700">
-                            {isExistingRegistration ? 'CREDENTIAL RESTORED' : 'ALLOCATION CONFIRMED'}
+                            {isExistingRegistration ? 'WAITLIST ENTRY RETRIEVED' : 'WAITLIST ENTRY CONFIRMED'}
                           </div>
                           <div className="font-mono text-xs text-slate-400">
-                            STAMP: {new Date().toLocaleDateString()}
+                            DATE: {new Date().toLocaleDateString()}
                           </div>
                         </div>
                         <h3 className="mt-1 text-2xl font-black text-[#191c1e]">
-                          {isExistingRegistration ? 'Existing Allocation Retrieved' : 'Priority Access Ticket'}
+                          {isExistingRegistration ? 'Existing Allocation Retrieved' : 'Priority Access Confirmed'}
                         </h3>
                         <p className="mt-0.5 text-xs text-slate-500">
-                          Your early hardware allocation spot is registered on the West Africa pilot dispatch queue.
+                          You&apos;re on the priority queue for platform rollout and beta testing.
                         </p>
                       </div>
 
-                      {/* Industrial Job Ticket Representation */}
+                      {/* Ticket Representation */}
                       <div className="rounded-xl border border-sky-300/80 bg-gradient-to-br from-sky-50/70 via-white to-slate-50 p-5 shadow-sm">
                         <div className="flex items-center justify-between border-b border-sky-200/70 pb-3">
                           <div>
@@ -652,7 +618,7 @@ export default function ComingSoonV2Page() {
                           </div>
                           {email && (
                             <div className="col-span-2">
-                              <span className="block font-mono text-[10px] uppercase text-slate-400">Assigned Email</span>
+                              <span className="block font-mono text-[10px] uppercase text-slate-400">Email Address</span>
                               <span className="font-medium text-slate-700 truncate block">{email}</span>
                             </div>
                           )}
@@ -682,7 +648,7 @@ export default function ComingSoonV2Page() {
                           className="inline-flex items-center gap-1.5 rounded-xl bg-[#006098] px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-[#004873]"
                         >
                           <BookOpen size={15} weight="duotone" />
-                          <span>Explore Engineering Dispatches</span>
+                          <span>Explore Field Dispatches</span>
                         </Link>
                         <Link
                           href="/manifesto"
@@ -697,78 +663,99 @@ export default function ComingSoonV2Page() {
                 </div>
               </div>
 
-              {/* Hardware Viewport Column: Tactile Industrial Photography & HUD Telemetry */}
+              {/* Right Column: Picture of Team followed by Highlights of Goals */}
               <div className="lg:col-span-6 flex flex-col justify-between">
-                <div className="relative overflow-hidden rounded-2xl border border-slate-900/10 bg-slate-950 text-white shadow-2xl">
-                  {/* Real Industrial Hardware Photography */}
-                  <div className="relative h-72 sm:h-80 w-full overflow-hidden">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
+                  {/* Photo of Team & Researchers Collaborating in Lab */}
+                  <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-slate-900">
                     <img
-                      src="/root-hero-img.jpg"
-                      alt="5-Axis CNC Spindle carving high-precision metal parts"
-                      className="h-full w-full object-cover opacity-85 transition-transform duration-700 hover:scale-105"
+                      src="/landing-researchers.jpg"
+                      alt="DFN engineering team and researchers collaborating on hardware prototyping"
+                      className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/20" />
-
-                    {/* Architectural Corner Brackets */}
-                    <div className="pointer-events-none absolute top-4 left-4 h-6 w-6 border-t-2 border-l-2 border-white/70" />
-                    <div className="pointer-events-none absolute top-4 right-4 h-6 w-6 border-t-2 border-r-2 border-white/70" />
-                    <div className="pointer-events-none absolute bottom-4 left-4 h-6 w-6 border-b-2 border-l-2 border-white/70" />
-                    <div className="pointer-events-none absolute bottom-4 right-4 h-6 w-6 border-b-2 border-r-2 border-white/70" />
-
-                    {/* Telemetry Reticle Crosshairs */}
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-30">
-                      <Crosshair size={48} weight="light" className="text-sky-300" />
-                    </div>
-
-                    {/* HUD Coordinates Bar */}
-                    <div className="absolute top-4 left-6 right-6 flex items-center justify-between font-mono text-[10px] text-sky-200/90">
-                      <span>FACILITY: IKEJA INDUSTRIAL CLUSTER</span>
-                      <span>LAT: 6.5244° N / LON: 3.3792° E</span>
-                    </div>
-
-                    {/* Active Machine Readout */}
-                    <div className="absolute bottom-4 left-6 right-6 flex flex-wrap items-center justify-between gap-2">
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                    <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between text-white">
                       <div>
-                        <div className="font-mono text-[10px] uppercase text-sky-400">Audited Hardware Spec</div>
-                        <div className="text-base font-bold text-white">5-Axis High-Speed Machining Center</div>
+                        <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-sky-300">
+                          Collaborative Engineering &amp; Research
+                        </div>
+                        <div className="text-sm font-bold sm:text-base">
+                          DFN Team &amp; Academic Researchers in the Lab
+                        </div>
                       </div>
-                      <div className="font-mono text-xs font-bold text-emerald-400">
-                        SPINDLE: CALIBRATED (±0.02mm)
+                      <div className="rounded-md bg-white/20 px-2 py-1 font-mono text-[10px] font-semibold backdrop-blur-xs">
+                        ON GROUND
                       </div>
                     </div>
                   </div>
 
-                  {/* Technical Benchmark Metrics Strip */}
-                  <div className="grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 bg-slate-900/95 p-4 text-center">
-                    <div>
-                      <div className="font-mono text-xl font-black text-sky-400 sm:text-2xl">42</div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
-                        Calibrated Hubs
-                      </div>
+                  {/* Highlights of Goals */}
+                  <div className="p-6 sm:p-7">
+                    <div className="mb-4 flex items-center gap-2">
+                      <Target size={18} weight="bold" className="text-[#006098]" />
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
+                        Platform Objectives &amp; Mission
+                      </h3>
                     </div>
-                    <div>
-                      <div className="font-mono text-xl font-black text-white sm:text-2xl">±0.02mm</div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
-                        Tolerance Target
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-mono text-xl font-black text-emerald-400 sm:text-2xl">&lt;60s</div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
-                        Quoting Latency
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Sub-card: Ground Reality Highlight */}
-                <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#006098]/10 text-[#006098]">
-                      <Compass size={18} weight="bold" />
+                    <div className="space-y-3.5">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[#006098]">
+                          <Check size={12} weight="bold" />
+                        </div>
+                        <div className="text-xs leading-relaxed text-slate-700">
+                          <strong className="text-slate-900">Network 50+ Machine Hubs:</strong> Unify verified CNC machine shops, precision turning centers, and 3D print labs into a synchronized national production cloud.
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[#006098]">
+                          <Check size={12} weight="bold" />
+                        </div>
+                        <div className="text-xs leading-relaxed text-slate-700">
+                          <strong className="text-slate-900">Instant DFM &amp; Quoting:</strong> Replace slow manual procurement with automated toolpath analysis, wall-thickness checks, and instant spindle-hour pricing.
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[#006098]">
+                          <Check size={12} weight="bold" />
+                        </div>
+                        <div className="text-xs leading-relaxed text-slate-700">
+                          <strong className="text-slate-900">Guaranteed ±0.02mm Tolerances:</strong> Enforce ISO 2768-m dimensional precision through standardized CMM inspection sheets and milestone-gated escrow releases.
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-[#006098]">
+                          <Check size={12} weight="bold" />
+                        </div>
+                        <div className="text-xs leading-relaxed text-slate-700">
+                          <strong className="text-slate-900">Domestic Supply Chain Resilience:</strong> Slash hardware prototyping lead times from 8–12 weeks of international shipping down to 48–72 hours of local manufacturing.
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs leading-relaxed text-slate-600">
-                      <strong className="text-slate-900">Decentralized Production Reality:</strong> Rather than building a single massive factory, DFN benchmarks existing precision CNC machines and 3D printers, unifying them into an automated, inspection-gated digital fabric.
+
+                    {/* Benchmark Metrics Strip */}
+                    <div className="mt-6 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-5 text-center">
+                      <div>
+                        <div className="font-mono text-xl font-black text-[#006098]">42+</div>
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-slate-500">
+                          Audited Hubs
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-mono text-xl font-black text-slate-900">±0.02mm</div>
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-slate-500">
+                          Tolerance Baseline
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-mono text-xl font-black text-emerald-600">&lt;60s</div>
+                        <div className="font-mono text-[10px] uppercase tracking-wider text-slate-500">
+                          Instant Quotes
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -777,297 +764,160 @@ export default function ComingSoonV2Page() {
           </div>
         </section>
 
-        {/* SECTION 2: BESPOKE VERTICAL TIMELINE DIAGRAM & CLUSTER MATRIX */}
+        {/* SECTION 2: VERTICAL TIMELINE DIAGRAM ONLY */}
         <section className="relative border-t border-slate-200 bg-[#f2f4f6] py-16 sm:py-20 lg:py-24 overflow-hidden">
           {/* Subtle Blueprint Radial Texture */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#00487315_1px,transparent_1px)] [background-size:24px_24px] opacity-60" />
 
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {/* Section Header with Industrial Precision and View Mode Controls */}
-            <div className="flex flex-col items-center justify-between gap-6 border-b border-slate-300/70 pb-8 text-center md:flex-row md:text-left">
-              <div>
-                <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#006098]">
-                  // 02 DEPLOYMENT ARCHITECTURE
-                </div>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl">
-                  Engineering Deployment Diagram
-                </h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  Staged progression from physical spindle calibration to autonomous multi-hub dispatch.
-                </p>
-              </div>
+            {/* Section Header */}
+            <div className="border-b border-slate-300/70 pb-8 text-center sm:text-left">
+              <h2 className="text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl">
+                Our Roadmap
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Staged progression from physical spindle calibration to decentralized multi-hub production.
+              </p>
+            </div>
 
-              {/* View Switcher: Vertical Timeline Diagram vs Equipment Matrix */}
-              <div className="flex items-center rounded-xl border border-slate-300 bg-white p-1 shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => setRoadmapViewMode('timeline')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs font-bold transition-all ${
-                    roadmapViewMode === 'timeline'
-                      ? 'bg-[#006098] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <TreeStructure size={14} weight="bold" />
-                  <span>Timeline Diagram</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRoadmapViewMode('matrix')}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs font-bold transition-all ${
-                    roadmapViewMode === 'matrix'
-                      ? 'bg-[#006098] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <SlidersHorizontal size={14} weight="bold" />
-                  <span>Equipment Matrix</span>
-                </button>
+            {/* VERTICAL TIMELINE DIAGRAM */}
+            <div className="relative mx-auto mt-14 max-w-4xl">
+              <div className="space-y-12 sm:space-y-16">
+                {ROADMAP_MILESTONES.map((milestone, idx) => {
+                  const isLeft = idx % 2 === 0;
+                  const isCompleted = milestone.status === 'Completed';
+                  const isInProgress = milestone.status === 'In Progress';
+                  const hasNext = idx < ROADMAP_MILESTONES.length - 1;
+
+                  return (
+                    <div
+                      key={milestone.number}
+                      className={`relative flex flex-col sm:flex-row items-start ${
+                        isLeft ? 'sm:flex-row-reverse' : ''
+                      } gap-6 sm:gap-12 group`}
+                    >
+                      {/* Vertical line connecting this node down to the next node. Terminated at Milestone 4 (no line after last item). */}
+                      {hasNext && (
+                        <div
+                          className="absolute left-4 sm:left-1/2 -translate-x-1/2 top-9 -bottom-12 sm:-bottom-16 w-[2px] bg-gradient-to-b from-sky-600 via-sky-400 to-slate-300 pointer-events-none"
+                          aria-hidden="true"
+                        />
+                      )}
+
+                      {/* Center Node Indicator */}
+                      <div className="absolute left-4 sm:left-1/2 -translate-x-1/2 top-0 z-10 flex h-9 w-9 items-center justify-center rounded-xl border-2 border-white bg-white shadow-md">
+                        {isCompleted ? (
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
+                            <Check size={16} weight="bold" />
+                          </div>
+                        ) : isInProgress ? (
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#006098] text-white shadow-xs">
+                            <span className="font-mono text-xs font-bold">{milestone.number}</span>
+                          </div>
+                        ) : (
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 font-mono text-xs font-semibold">
+                            {milestone.number}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Milestone Card */}
+                      <div className="ml-12 sm:ml-0 w-full sm:w-[calc(50%-2.5rem)] rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
+                        {/* Phase Header */}
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                          <span className="font-mono text-xs font-black tracking-wider text-slate-400">
+                            {milestone.phaseId}
+                          </span>
+                          <span
+                            className={`font-mono text-[11px] font-bold tracking-wider ${
+                              isCompleted
+                                ? 'text-emerald-700'
+                                : isInProgress
+                                ? 'text-[#006098]'
+                                : 'text-slate-500'
+                            }`}
+                          >
+                            {milestone.status.toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Title and Scope */}
+                        <h3 className="mt-3 text-lg font-bold text-[#191c1e] sm:text-xl">
+                          {milestone.title}
+                        </h3>
+                        <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600">
+                          {milestone.scope}
+                        </p>
+
+                        {/* Key Deliverables */}
+                        <div className="mt-4 space-y-2 border-t border-slate-100 pt-3">
+                          <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            Milestone Deliverables
+                          </div>
+                          {milestone.deliverables.map((item, dIdx) => (
+                            <div key={dIdx} className="flex items-start gap-2 text-xs text-slate-700">
+                              <span className="mt-0.5 text-[#006098] font-bold">▸</span>
+                              <span className="leading-snug">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Telemetry / Metric Box */}
+                        <div className="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 font-mono text-xs">
+                          <span className="text-[10px] uppercase text-slate-400 font-semibold">{milestone.metricLabel}</span>
+                          <span className="font-bold text-[#004873]">{milestone.metricValue}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* VIEW A: VERTICAL TIMELINE DIAGRAM */}
-            {roadmapViewMode === 'timeline' && (
-              <div className="relative mx-auto mt-14 max-w-4xl">
-                {/* Central/Left Calibrated Vertical Spine Axis with Millimeter Marks */}
-                <div className="absolute top-4 bottom-4 left-4 sm:left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-emerald-500 via-[#006098] to-slate-400" />
-
-                <div className="space-y-12 sm:space-y-16">
-                  {ROADMAP_MILESTONES.map((milestone, idx) => {
-                    const isLeft = idx % 2 === 0;
-                    const isValidated = milestone.state === 'validated';
-                    const isActive = milestone.state === 'active';
-                    const isStaged = milestone.state === 'staged';
-                    const isSelected = activePhaseIndex === idx;
-
-                    return (
-                      <div
-                        key={milestone.number}
-                        onClick={() => setActivePhaseIndex(idx)}
-                        className={`relative cursor-pointer flex flex-col sm:flex-row items-start ${
-                          isLeft ? 'sm:flex-row-reverse' : ''
-                        } gap-6 sm:gap-12 group`}
-                      >
-                        {/* Center Node Indicator */}
-                        <div
-                          className={`absolute left-4 sm:left-1/2 -translate-x-1/2 top-0 z-10 flex h-9 w-9 items-center justify-center rounded-xl border-2 bg-white shadow-md transition-all group-hover:scale-110 ${
-                            isSelected ? 'ring-4 ring-sky-300/50' : ''
-                          }`}
-                        >
-                          {isValidated ? (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white">
-                              <Check size={16} weight="bold" />
-                            </div>
-                          ) : isActive ? (
-                            <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-[#006098] text-white">
-                              <span className="absolute -inset-1 animate-ping rounded-lg bg-sky-400 opacity-40" />
-                              <Lightning size={16} weight="bold" />
-                            </div>
-                          ) : isStaged ? (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700 font-mono text-xs font-bold">
-                              {milestone.number}
-                            </div>
-                          ) : (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-400 font-mono text-xs">
-                              {milestone.number}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Milestone Card */}
-                        <div
-                          className={`ml-12 sm:ml-0 w-full sm:w-[calc(50%-2.5rem)] rounded-2xl border bg-white p-6 shadow-sm transition-all group-hover:-translate-y-0.5 group-hover:shadow-md ${
-                            isSelected
-                              ? 'border-[#006098] ring-2 ring-[#006098]/30 shadow-sky-900/10'
-                              : 'border-slate-200'
-                          }`}
-                        >
-                          {/* Phase Header without Badges */}
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span className="font-mono text-xs font-black tracking-wider text-slate-400">
-                              {milestone.phaseId}
-                            </span>
-                            <span
-                              className={`font-mono text-[11px] font-bold tracking-wider ${
-                                isValidated
-                                  ? 'text-emerald-700'
-                                  : isActive
-                                  ? 'text-[#006098]'
-                                  : 'text-slate-500'
-                              }`}
-                            >
-                              {milestone.stateLabel}
-                            </span>
-                          </div>
-
-                          {/* Title and Scope */}
-                          <h3 className="mt-3 text-lg font-bold text-[#191c1e] sm:text-xl">
-                            {milestone.title}
-                          </h3>
-                          <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600">
-                            {milestone.scope}
-                          </p>
-
-                          {/* Deliverables Checklist */}
-                          <div className="mt-4 space-y-2 border-t border-slate-100 pt-3">
-                            <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              Key Deliverables
-                            </div>
-                            {milestone.deliverables.map((item, dIdx) => (
-                              <div key={dIdx} className="flex items-start gap-2 text-xs text-slate-700">
-                                <span className="mt-0.5 text-[#006098]">▸</span>
-                                <span className="leading-snug">{item.label}</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Telemetry Strip */}
-                          <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-2.5 text-center font-mono">
-                            {milestone.telemetry.map((t, tIdx) => (
-                              <div key={tIdx} className="min-w-0">
-                                <div className="text-[10px] uppercase text-slate-400 truncate">{t.label}</div>
-                                <div className="text-xs font-bold text-[#004873] truncate">{t.value}</div>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="mt-3 text-right">
-                            <span className="font-mono text-[10px] font-semibold text-slate-400 group-hover:text-[#006098]">
-                              {isSelected ? '● Inspected' : 'Click to inspect verification specs →'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Interactive Detailed Verification Deep-Dive Panel */}
-                <div className="mt-16 rounded-2xl border-2 border-[#006098]/30 bg-white p-6 shadow-lg shadow-sky-900/5 sm:p-8">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-2">
-                    <div>
-                      <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#006098]">
-                        INSPECTION TELEMETRY // {activeMilestone.phaseId}
-                      </div>
-                      <h4 className="mt-1 text-xl font-black text-[#191c1e]">
-                        {activeMilestone.title}
-                      </h4>
-                    </div>
-                    <div className="font-mono text-xs font-bold text-[#004873] bg-sky-50 px-3 py-1.5 rounded-lg border border-sky-200">
-                      STATUS: {activeMilestone.stateLabel}
-                    </div>
-                  </div>
-
-                  <div className="mt-6 grid gap-6 sm:grid-cols-3">
-                    <div>
-                      <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                        Verification Protocol
-                      </div>
-                      <div className="text-xs font-medium text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        {activeMilestone.verificationProtocol}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                        Calibrated Hardware Tooling
-                      </div>
-                      <ul className="space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700 font-mono">
-                        {activeMilestone.calibratedEquipment.map((eq, i) => (
-                          <li key={i} className="truncate">• {eq}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                        Regional Industrial Clusters
-                      </div>
-                      <ul className="space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700">
-                        {activeMilestone.hubClusters.map((cl, i) => (
-                          <li key={i} className="truncate">• {cl}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+            {/* Repurposed Strip: Core Platform Guarantees */}
+            <div className="mx-auto mt-16 max-w-4xl rounded-2xl border border-slate-300/80 bg-white p-6 sm:p-8 shadow-sm">
+              <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-[#006098]">
+                Network Value Guarantees
               </div>
-            )}
-
-            {/* VIEW B: CLUSTER INFRASTRUCTURE MATRIX */}
-            {roadmapViewMode === 'matrix' && (
-              <div className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
-                  <div className="font-mono text-xs font-bold uppercase tracking-wider text-[#004873]">
-                    Decentralized Cluster Capability Matrix (Phase 01 & 02 Validated Nodes)
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-slate-900">Zero Customs Bottlenecks</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">
+                    Machined and 3D printed inside Nigeria to eliminate 8–12 week international freight delays.
                   </div>
                 </div>
-                <div className="divide-y divide-slate-100">
-                  {ROADMAP_MILESTONES.map((milestone) => (
-                    <div key={milestone.number} className="p-6 transition-colors hover:bg-slate-50/50">
-                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="max-w-md">
-                          <div className="font-mono text-xs font-bold text-slate-400">{milestone.phaseId}</div>
-                          <h4 className="mt-1 text-lg font-bold text-[#191c1e]">{milestone.title}</h4>
-                          <p className="mt-1 text-xs text-slate-600">{milestone.scope}</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">
-                          <div className="rounded-xl border border-slate-200 bg-white p-3">
-                            <span className="block text-[10px] uppercase text-slate-400">Tolerance Benchmark</span>
-                            <span className="font-bold text-[#004873]">±0.02mm ISO 2768-m</span>
-                          </div>
-                          <div className="rounded-xl border border-slate-200 bg-white p-3">
-                            <span className="block text-[10px] uppercase text-slate-400">Audited Spindles</span>
-                            <span className="font-bold text-[#004873]">140+ Machine Tools</span>
-                          </div>
-                          <div className="rounded-xl border border-slate-200 bg-white p-3 sm:col-span-2 lg:col-span-1">
-                            <span className="block text-[10px] uppercase text-slate-400">Cluster Status</span>
-                            <span className="font-bold text-emerald-700">{milestone.stateLabel}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-slate-900">Verified ±0.02mm Precision</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">
+                    Spindle calibrations and CMM dimensional inspection before parts leave the shop floor.
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Architecture Metrics Bar */}
-            <div className="mx-auto mt-16 max-w-4xl rounded-2xl border border-slate-300/80 bg-white p-6 shadow-sm">
-              <div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
-                <div>
-                  <div className="font-mono text-2xl font-black text-[#004873]">48%</div>
-                  <div className="font-mono text-xs text-slate-500">Pipeline Deployed</div>
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-slate-900">Milestone-Gated Escrow</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">
+                    Client funds remain locked safely in escrow until manufactured parts are approved.
+                  </div>
                 </div>
-                <div>
-                  <div className="font-mono text-2xl font-black text-emerald-600">42 / 50</div>
-                  <div className="font-mono text-xs text-slate-500">Hubs Calibrated</div>
-                </div>
-                <div>
-                  <div className="font-mono text-2xl font-black text-[#006098]">1,840h</div>
-                  <div className="font-mono text-xs text-slate-500">Weekly Capacity</div>
-                </div>
-                <div>
-                  <div className="font-mono text-2xl font-black text-slate-800">Q3 '26</div>
-                  <div className="font-mono text-xs text-slate-500">Public Dispatch</div>
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-slate-900">Domestic Raw Materials</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">
+                    Direct access to certified 6061 aluminum, 316 stainless, brass, and engineering polymers.
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* SECTION 3: PHYSICAL MACHINERY & CAPABILITIES (FULL INDUSTRIAL PHOTOGRAPHY) */}
+        {/* SECTION 3: PHYSICAL MACHINERY & CAPABILITIES */}
         <section className="bg-white py-16 sm:py-20 lg:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-12 max-w-2xl">
-              <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#006098]">
-                // 03 PHYSICAL SUITE
-              </div>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl">
-                What Powers the Network
+              <h2 className="text-3xl font-black tracking-tight text-[#191c1e] sm:text-4xl">
+                What We Have Now
               </h2>
               <p className="mt-2 text-base text-slate-600">
-                Audited fabrication machinery across the decentralized cluster.
+                Audited fabrication machinery and production capabilities across our partner network.
               </p>
             </div>
 
@@ -1117,19 +967,16 @@ export default function ComingSoonV2Page() {
           </div>
         </section>
 
-        {/* SECTION 4: ENGINEERING DISPATCHES & FIELD NOTES */}
-        <section className="border-t border-slate-200 bg-[#f2f4f6] py-16">
+        {/* SECTION 4: FIELD NOTES & DISPATCH REPORTS */}
+        <section className="border-t border-slate-200 bg-[#f2f4f6] py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end">
               <div>
-                <div className="font-mono text-xs font-bold uppercase tracking-widest text-[#006098]">
-                  // 04 FIELD INTELLIGENCE
-                </div>
-                <h2 className="mt-1 text-2xl font-black text-[#191c1e] sm:text-3xl">
-                  Engineering Dispatches
+                <h2 className="text-2xl font-black text-[#191c1e] sm:text-3xl">
+                  Field Notes &amp; Dispatch Reports
                 </h2>
                 <p className="mt-1 text-xs text-slate-600 sm:text-sm">
-                  Technical write-ups from our on-ground audits and mechanical case studies.
+                  Technical write-ups, manufacturing protocols, and on-ground case studies from the DFN engineering team.
                 </p>
               </div>
               <Link
@@ -1141,35 +988,38 @@ export default function ComingSoonV2Page() {
               </Link>
             </div>
 
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {DISPATCHES.map((post) => (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="group flex flex-col sm:flex-row overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:border-slate-300 hover:shadow-md"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
                 >
-                  <div className="relative h-44 sm:h-auto sm:w-48 shrink-0 overflow-hidden bg-slate-900">
+                  <div className="relative h-48 w-full overflow-hidden bg-slate-100">
                     <img
                       src={post.image}
                       alt={post.title}
-                      className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
                     />
+                    <div className="absolute top-3 left-3 rounded-md bg-white/90 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-slate-800 shadow-xs">
+                      {post.category}
+                    </div>
                   </div>
-                  <div className="flex flex-col justify-between p-5">
+                  <div className="flex flex-1 flex-col justify-between p-5">
                     <div>
-                      <div className="flex items-center gap-2 font-mono text-[10px] text-slate-400">
-                        <span>{post.category}</span>
-                        <span>•</span>
+                      <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-400">
+                        <Clock size={12} weight="bold" />
                         <span>{post.readTime}</span>
                       </div>
-                      <h3 className="mt-1.5 text-base font-bold text-[#191c1e] transition-colors group-hover:text-[#006098]">
+                      <h3 className="mt-2 text-base font-bold text-[#191c1e] transition-colors group-hover:text-[#006098]">
                         {post.title}
                       </h3>
-                      <p className="mt-1 text-xs text-slate-600 line-clamp-2">
+                      <p className="mt-1.5 text-xs text-slate-600 line-clamp-2 leading-relaxed">
                         {post.summary}
                       </p>
                     </div>
-                    <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-[#006098]">
+                    <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-[#006098] pt-3 border-t border-slate-100">
                       <span>Read Dispatch</span>
                       <ArrowRight size={13} weight="bold" />
                     </div>
