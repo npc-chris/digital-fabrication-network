@@ -408,7 +408,7 @@ export default function LandingPage() {
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-10 sm:mb-14 max-w-2xl space-y-3 sm:space-y-4 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#191c1e]">Our Core Capabilities</h2>
-              <p className="text-sm sm:text-base text-slate-600">Unlocking the potential of domestic manufacturing for the next generation of innovators.</p>
+              <p className="text-sm sm:text-base text-slate-600">Coordinating domestic precision manufacturing across regional fabrication clusters.</p>
             </div>
 
             <div ref={servicesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -416,7 +416,7 @@ export default function LandingPage() {
                 {
                   icon: CubeFocus,
                   title: 'Design & CAD Intelligence',
-                  text: 'Automated analysis that evaluates manufacturability early, streamlining requirements and specifications before work reaches the shop floor.',
+                  text: 'Automated analysis evaluating manufacturability early, verifying tolerances and specifications before work reaches the shop floor.',
                 },
                 {
                   icon: GitFork,
