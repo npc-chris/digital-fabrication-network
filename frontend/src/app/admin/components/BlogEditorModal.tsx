@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Code,
   Eye,
-  Sparkle as Sparkles,
   Columns as LayoutPanelTop,
   Image as ImagePlus,
   LinkSimple as Link2,
@@ -189,7 +188,7 @@ export default function BlogEditorModal({ open, onOpenChange, onPublish }: BlogE
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="font-medium">Quick Templates</Badge>
             <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('welcome')} disabled={isPublishing}>
-              <Sparkles className="size-4" data-icon="inline-start" /> Welcome
+              Welcome
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={() => handleApplyTemplate('update')} disabled={isPublishing}>
               Platform Update

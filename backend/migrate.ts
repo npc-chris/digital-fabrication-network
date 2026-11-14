@@ -17,12 +17,12 @@ async function runMigrations() {
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {
-    console.error('❌ DATABASE_URL environment variable is not set');
+    console.error('[ERROR] DATABASE_URL environment variable is not set');
     console.log('Please set DATABASE_URL in your .env file or environment variables');
     process.exit(1);
   }
 
-  console.log('🚀 Starting database migration...');
+  console.log('[MIGRATE] Starting database migration...');
 
   const requiresSsl =
     process.env.DB_SSL === 'true' ||
@@ -38,17 +38,17 @@ async function runMigrations() {
   const db = drizzle(pool, { schema });
 
   try {
-    console.log('📦 Running migrations...');
+    console.log('[MIGRATE] Running migrations...');
     await migrate(db, { migrationsFolder: './drizzle' });
 
-    console.log('✅ Migrations completed successfully!');
+    console.log('[SUCCESS] Migrations completed successfully!');
   } catch (error) {
-    console.error('❌ Migration failed:', error instanceof Error ? error.message : String(error));
+    console.error('[ERROR] Migration failed:', error instanceof Error ? error.message : String(error));
     console.error(error);
     process.exit(1);
   } finally {
     await pool.end();
-    console.log('🔌 Database connection closed');
+    console.log('[INFO] Database connection closed');
   }
 }
 

@@ -273,7 +273,7 @@ export default function ComingSoonPage() {
             href="/coming-soon-2"
             className="flex items-center gap-1 font-mono font-bold text-[#006098] hover:underline"
           >
-            <span>👉 View Refined Version (/coming-soon-2)</span>
+            <span>View Refined Version (/coming-soon-2)</span>
             <ArrowRight size={13} weight="bold" />
           </Link>
         </div>
