@@ -1,12 +1,12 @@
 # Digital Fabrication Network
 
 ## Status
-![Status](https://img.shields.io/badge/Status-Beta_Audit_Passed-success)
+![Status](https://img.shields.io/badge/Status-Active_Scrutiny-yellow)
 ![Version](https://img.shields.io/badge/Version-1.0.0--pre-blue)
 
 A full-stack platform connecting workshops, fabrication plants, research centres, component providers/reproviders, and product designers/contractors to accelerate hardware/engineering product development and innovation.
 
-## 🚀 Pre-Production Audit (Feb 2026)
+## Backend Architecture & Active Testing
 This project has passed the pre-production audit.
 - **Role-Based Dashboards**: Intelligent navigation for Explorers, Providers, and Admins.
 - **Search & Discovery**: Local-first component and service search.
@@ -14,7 +14,7 @@ This project has passed the pre-production audit.
 
 ## Features
 
-### 🔧 Components & Parts Marketplace
+### Components & Parts Marketplace
 
 - Browse and purchase components, raw materials, and custom parts
 - Filter by type (electrical, mechanical, materials, consumables)
@@ -22,7 +22,7 @@ This project has passed the pre-production audit.
 - Order management and quotation requests
 - Wishlist/favorites functionality
 
-### ⚙️ Services & Fabrication
+### Services & Fabrication
 
 - Discover design labs, workshops, and fabrication services
 - Book services (3D printing, CNC machining, PCB assembly, etc.)
@@ -30,7 +30,7 @@ This project has passed the pre-production audit.
 - Calendar-based booking system
 - Service provider dashboard for managing bookings
 
-### 👥 Community & Innovation Board
+### Community & Innovation Board
 
 - Post fabrication requests and engineering challenges
 - Collaborate on projects and form teams
