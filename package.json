@@ -9,6 +9,7 @@
     "dev:frontend": "corepack pnpm --filter dfn-frontend dev",
     "dev:backend": "corepack pnpm --filter dfn-backend dev",
     "build": "corepack pnpm --recursive build",
+    "typecheck": "corepack pnpm --filter dfn-backend build",
     "build:backend": "corepack pnpm --filter dfn-backend build",
     "start:backend": "corepack pnpm --filter dfn-backend start",
     "test": "corepack pnpm --recursive test",
