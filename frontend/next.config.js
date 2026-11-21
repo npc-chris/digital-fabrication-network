@@ -49,6 +49,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/coming-soon-2',
+        destination: '/coming-soon',
+        permanent: true,
+      },
+      {
         source: '/sign-in',
         destination: '/coming-soon',
         permanent: false,
