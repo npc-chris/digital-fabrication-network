@@ -59,6 +59,25 @@ export const transactions = pgTable('transactions', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Escrow milestones table for multi-milestone contract partitioning
+export const escrowMilestones = pgTable('escrow_milestones', {
+  id: serial('id').primaryKey(),
+  transactionId: integer('transaction_id').references(() => transactions.id),
+  rfqId: integer('rfq_id').notNull(),
+  tenantId: integer('tenant_id').notNull(),
+  milestoneIndex: integer('milestone_index').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  percentage: decimal('percentage', { precision: 5, scale: 2 }).notNull(),
+  amount: decimal('amount', { precision: 12, scale: 2 }).notNull(),
+  currency: varchar('currency', { length: 10 }).default('NGN'),
+  status: varchar('status', { length: 50 }).notNull().default('locked'),
+  workAuthorizationTicket: varchar('work_authorization_ticket', { length: 255 }),
+  releasedAt: timestamp('released_at'),
+  refundedAt: timestamp('refunded_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Services table
 export const services = pgTable('services', {
   id: serial('id').primaryKey(),
@@ -156,6 +175,28 @@ export const waitlist = pgTable('waitlist', {
   notes: text('notes'),
   queueNumber: integer('queue_number'),
   createdAt: timestamp('created_at').defaultNow(),
+});
+
+// First-Article Quality Control Inspections table
+export const qcInspections = pgTable('qc_inspections', {
+  id: serial('id').primaryKey(),
+  batchId: varchar('batch_id', { length: 100 }).notNull(),
+  partNumber: varchar('part_number', { length: 100 }).notNull(),
+  operatorId: integer('operator_id').references(() => users.id),
+  operatorName: varchar('operator_name', { length: 255 }),
+  nominalMm: decimal('nominal_mm', { precision: 10, scale: 4 }).notNull(),
+  toleranceUpperMm: decimal('tolerance_upper_mm', { precision: 10, scale: 4 }).notNull(),
+  toleranceLowerMm: decimal('tolerance_lower_mm', { precision: 10, scale: 4 }).notNull(),
+  maxTaperMm: decimal('max_taper_mm', { precision: 10, scale: 4 }).default('0.0030'),
+  readings: text('readings').notNull(), // JSON array string e.g. [40.008, 40.007, 40.009]
+  taperDeviationMm: decimal('taper_deviation_mm', { precision: 10, scale: 4 }).notNull(),
+  status: varchar('status', { length: 50 }).notNull(), // 'ACCEPTED' | 'REJECTED'
+  failureReason: text('failure_reason'),
+  photoUrl: varchar('photo_url', { length: 500 }),
+  notes: text('notes'),
+  metadata: text('metadata'), // JSON object string (device, offline sync, timestamp)
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 // NOTE: tables intentionally removed from this runtime schema:

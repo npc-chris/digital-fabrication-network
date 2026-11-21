@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS "qc_inspections" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"batch_id" varchar(100) NOT NULL,
+	"part_number" varchar(100) NOT NULL,
+	"operator_id" integer,
+	"operator_name" varchar(255),
+	"nominal_mm" numeric(10, 4) NOT NULL,
+	"tolerance_upper_mm" numeric(10, 4) NOT NULL,
+	"tolerance_lower_mm" numeric(10, 4) NOT NULL,
+	"max_taper_mm" numeric(10, 4) DEFAULT '0.0030',
+	"readings" text NOT NULL,
+	"taper_deviation_mm" numeric(10, 4) NOT NULL,
+	"status" varchar(50) NOT NULL,
+	"failure_reason" text,
+	"photo_url" varchar(500),
+	"notes" text,
+	"metadata" text,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
+);
