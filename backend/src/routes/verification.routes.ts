@@ -3,10 +3,67 @@ import { db } from '../config/database';
 import { verificationDocuments, profiles, users } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
 import { eq, desc } from 'drizzle-orm';
+import { premblyKycService } from '../services/kyc-provider.service';
 
 const router = Router();
 
-// Submit verification documents
+// Provider Health & Capability Check
+router.get('/prembly/health', (_req, res: Response) => {
+  res.json({
+    status: 'ok',
+    provider: 'Prembly (Identitypass)',
+    mode: premblyKycService.isSandbox ? 'sandbox' : 'live',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Automated Nigerian Workshop CAC Registration Verification
+router.post('/verify-cac', authenticate, async (req: any, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const { rcNumber, companyType, companyName } = req.body;
+
+    if (!rcNumber || typeof rcNumber !== 'string') {
+      return res.status(400).json({ error: 'CAC registration number (rcNumber) is required' });
+    }
+
+    const outcome = await premblyKycService.verifyWorkshop(userId, {
+      rcNumber,
+      companyType,
+      companyName,
+    });
+
+    if (!outcome.verified) {
+      return res.status(422).json(outcome);
+    }
+
+    res.status(200).json(outcome);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal error verifying CAC registration' });
+  }
+});
+
+// Automated Tax Identification Number (TIN) Verification
+router.post('/verify-tin', authenticate, async (req: any, res: Response) => {
+  try {
+    const { tin, channel } = req.body;
+
+    if (!tin || typeof tin !== 'string') {
+      return res.status(400).json({ error: 'Tax Identification Number (tin) is required' });
+    }
+
+    const result = await premblyKycService.verifyTin({ tin, channel });
+    if (!result.verified) {
+      return res.status(422).json(result);
+    }
+
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal error verifying TIN' });
+  }
+});
+
+// Submit verification documents (manual upload fallback)
 router.post('/submit', authenticate, async (req: any, res: Response) => {
   try {
     const userId = req.user.id;

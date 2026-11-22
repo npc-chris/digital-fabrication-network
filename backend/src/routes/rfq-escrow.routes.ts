@@ -5,8 +5,61 @@ import rfqEscrowService, {
   KycVerificationRequiredError,
   MilestoneAmountMismatchError,
 } from '../services/rfq-escrow.service';
+import { paystackService } from '../services/paystack.service';
 
 const router = Router();
+
+/**
+ * POST /api/rfq/escrow/initialize-deposit
+ * Initializes a Nigerian Paystack checkout transaction for escrow contract deposit.
+ */
+router.post('/initialize-deposit', authenticate, async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { rfqId, totalAmount, tenantId, callbackUrl } = req.body;
+
+    if (!rfqId || totalAmount === undefined || typeof totalAmount !== 'number' || totalAmount <= 0) {
+      return res.status(400).json({
+        error: 'rfqId and positive totalAmount are required to initialize escrow payment',
+      });
+    }
+
+    const email = req.user?.email || 'founder@fabnetwork.ng';
+    const initResult = await paystackService.initializePayment({
+      email,
+      amount: totalAmount,
+      callbackUrl,
+      metadata: {
+        rfqId: Number(rfqId),
+        tenantId: Number(tenantId || 1),
+        userId: req.user?.id,
+        purpose: 'ESCROW_CONTRACT_DEPOSIT',
+      },
+    });
+
+    return res.status(200).json(initResult);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Error initializing Paystack escrow deposit' });
+  }
+});
+
+/**
+ * GET /api/rfq/escrow/verify-transaction/:reference
+ * Verifies transaction payment reference directly with Paystack API.
+ */
+router.get('/verify-transaction/:reference', authenticate, async (req: Request, res: Response): Promise<any> => {
+  try {
+    const rawRef = req.params.reference;
+    const reference = Array.isArray(rawRef) ? rawRef[0] : rawRef;
+    if (!reference) {
+      return res.status(400).json({ error: 'Transaction reference is required' });
+    }
+
+    const verification = await paystackService.verifyPayment(String(reference));
+    return res.status(200).json(verification);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Error verifying Paystack transaction' });
+  }
+});
 
 /**
  * POST /api/rfq/escrow/fund
