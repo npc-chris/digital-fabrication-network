@@ -214,6 +214,107 @@ describe('RFQ Escrow Routes (API Tests)', () => {
       expect(response.body.status).toBe('released');
       expect(response.body.milestoneIndex).toBe(1);
     });
+
+    it('returns 422 with code TECHNICAL_HOLD_ACTIVE when milestone has active technical hold', async () => {
+      // Place milestone on technical hold
+      rfqEscrowService.applyTechnicalHold({
+        rfqId: 501,
+        tenantId: 10,
+        milestoneIndex: 2,
+        holdType: 'HOLD_NCR',
+        reason: 'Hole pitch out-of-spec deviation (121.8 mm vs 120.00 mm)',
+        referenceId: 'NCR-2026-001',
+      });
+
+      const response = await request(app)
+        .post('/api/rfq/escrow/release-milestone')
+        .set('Authorization', `Bearer ${explorerToken}`)
+        .send({
+          idempotencyKey: 'rel-held-api',
+          rfqId: 501,
+          tenantId: 10,
+          milestoneIndex: 2,
+          providerId: 202,
+        });
+
+      expect(response.status).toBe(422);
+      expect(response.body.code).toBe('TECHNICAL_HOLD_ACTIVE');
+    });
+  });
+
+  describe('Technical Hold Management Routes (KAN-43)', () => {
+    it('POST /api/rfq/escrow/technical-hold creates technical hold and returns 201', async () => {
+      const response = await request(app)
+        .post('/api/rfq/escrow/technical-hold')
+        .set('Authorization', `Bearer ${explorerToken}`)
+        .send({
+          rfqId: 601,
+          tenantId: 10,
+          milestoneIndex: 1,
+          holdType: 'HOLD_NCR',
+          reason: 'Casting void porosity exceeds ASTM threshold',
+          referenceId: 'NCR-601-POR',
+          affectedSerialNumbers: ['CAST-01', 'CAST-02'],
+        });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.hold.holdType).toBe('HOLD_NCR');
+      expect(response.body.hold.active).toBe(true);
+    });
+
+    it('POST /api/rfq/escrow/technical-hold returns 400 when required fields are missing', async () => {
+      const response = await request(app)
+        .post('/api/rfq/escrow/technical-hold')
+        .set('Authorization', `Bearer ${explorerToken}`)
+        .send({
+          rfqId: 601,
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    it('POST /api/rfq/escrow/technical-hold/resolve resolves technical hold and returns 200', async () => {
+      rfqEscrowService.applyTechnicalHold({
+        rfqId: 602,
+        tenantId: 10,
+        milestoneIndex: 1,
+        holdType: 'HOLD_NCR',
+        reason: 'Non-conforming dimensional reading',
+      });
+
+      const response = await request(app)
+        .post('/api/rfq/escrow/technical-hold/resolve')
+        .set('Authorization', `Bearer ${explorerToken}`)
+        .send({
+          rfqId: 602,
+          tenantId: 10,
+          milestoneIndex: 1,
+          resolutionAction: 'CORRECTIVE_REWORK_COMPLETED',
+          notes: 'Slotted bushing installed and re-inspected',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.resolvedCount).toBe(1);
+    });
+
+    it('GET /api/rfq/escrow/technical-hold/:rfqId returns active holds', async () => {
+      rfqEscrowService.applyTechnicalHold({
+        rfqId: 603,
+        tenantId: 10,
+        holdType: 'HOLD_WARRANTY_INVESTIGATION',
+        reason: 'Subsurface casting porosity voids',
+      });
+
+      const response = await request(app)
+        .get('/api/rfq/escrow/technical-hold/603')
+        .set('Authorization', `Bearer ${explorerToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.rfqId).toBe(603);
+      expect(response.body.activeHolds).toHaveLength(1);
+    });
   });
 
   describe('POST /api/rfq/escrow/refund', () => {

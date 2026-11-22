@@ -19,6 +19,9 @@ import emailVerificationRoutes from './routes/email-verification.routes';
 import locationsRoutes from './routes/locations.routes';
 import waitlistRoutes from './routes/waitlist.routes';
 import qcRoutes from './routes/qc.routes';
+import rfqEscrowRoutes from './routes/rfq-escrow.routes';
+import foundryDefectRoutes from './routes/foundry-defect.routes';
+import emergencyBreakdownRoutes from './routes/emergency-breakdown.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -56,6 +59,11 @@ app.use('/api/locations', locationsRoutes);
 app.use('/api/waitlist', waitlistRoutes);
 app.use('/api/qc', qcRoutes);
 app.use('/api/v1/qc', qcRoutes);
+app.use('/api/rfq/escrow', rfqEscrowRoutes);
+app.use('/api/foundry', foundryDefectRoutes);
+app.use('/api/v1/foundry', foundryDefectRoutes);
+app.use('/api/emergency', emergencyBreakdownRoutes);
+app.use('/api/v1/emergency', emergencyBreakdownRoutes);
 
 
 // Error handling

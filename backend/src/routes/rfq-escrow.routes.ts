@@ -4,6 +4,7 @@ import rfqEscrowService, {
   TenantIsolationViolationError,
   KycVerificationRequiredError,
   MilestoneAmountMismatchError,
+  TechnicalHoldActiveError,
 } from '../services/rfq-escrow.service';
 import { paystackService } from '../services/paystack.service';
 
@@ -142,6 +143,9 @@ router.post('/release-milestone', authenticate, async (req: Request, res: Respon
 
     return res.status(200).json(result);
   } catch (error: any) {
+    if (error instanceof TechnicalHoldActiveError) {
+      return res.status(422).json({ error: error.message, code: 'TECHNICAL_HOLD_ACTIVE' });
+    }
     if (error instanceof KycVerificationRequiredError) {
       return res.status(403).json({ error: error.message });
     }
@@ -149,6 +153,106 @@ router.post('/release-milestone', authenticate, async (req: Request, res: Respon
       return res.status(403).json({ error: error.message });
     }
     return res.status(500).json({ error: error.message || 'Internal milestone release error' });
+  }
+});
+
+/**
+ * POST /api/rfq/escrow/technical-hold
+ * Place a milestone or RFQ on technical hold (HOLD_NCR or HOLD_WARRANTY_INVESTIGATION).
+ */
+router.post('/technical-hold', authenticate, async (req: Request, res: Response): Promise<any> => {
+  try {
+    const {
+      rfqId,
+      tenantId,
+      milestoneIndex,
+      holdType,
+      reason,
+      referenceId,
+      affectedSerialNumbers,
+    } = req.body;
+
+    if (!rfqId || !tenantId || !reason) {
+      return res.status(400).json({
+        error: 'Missing required parameters: rfqId, tenantId, and reason are required',
+      });
+    }
+
+    const validHoldType = holdType === 'HOLD_WARRANTY_INVESTIGATION' ? 'HOLD_WARRANTY_INVESTIGATION' : 'HOLD_NCR';
+
+    const result = rfqEscrowService.applyTechnicalHold({
+      rfqId: Number(rfqId),
+      tenantId: Number(tenantId),
+      milestoneIndex: milestoneIndex !== undefined ? Number(milestoneIndex) : undefined,
+      holdType: validHoldType,
+      reason: String(reason),
+      referenceId: referenceId ? String(referenceId) : undefined,
+      affectedSerialNumbers: Array.isArray(affectedSerialNumbers) ? affectedSerialNumbers : undefined,
+    });
+
+    return res.status(201).json(result);
+  } catch (error: any) {
+    if (error instanceof TenantIsolationViolationError) {
+      return res.status(403).json({ error: error.message });
+    }
+    return res.status(500).json({ error: error.message || 'Error applying technical hold' });
+  }
+});
+
+/**
+ * POST /api/rfq/escrow/technical-hold/resolve
+ * Resolve an active technical hold following verified corrective action or remelt.
+ */
+router.post('/technical-hold/resolve', authenticate, async (req: Request, res: Response): Promise<any> => {
+  try {
+    const {
+      rfqId,
+      tenantId,
+      milestoneIndex,
+      approverId,
+      resolutionAction,
+      notes,
+    } = req.body;
+
+    if (!rfqId || !tenantId || !resolutionAction) {
+      return res.status(400).json({
+        error: 'Missing required parameters: rfqId, tenantId, and resolutionAction are required',
+      });
+    }
+
+    const result = rfqEscrowService.resolveTechnicalHold({
+      rfqId: Number(rfqId),
+      tenantId: Number(tenantId),
+      milestoneIndex: milestoneIndex !== undefined ? Number(milestoneIndex) : undefined,
+      approverId: Number(approverId || req.user?.id || 1),
+      resolutionAction,
+      notes,
+    });
+
+    return res.status(200).json(result);
+  } catch (error: any) {
+    if (error instanceof TenantIsolationViolationError) {
+      return res.status(403).json({ error: error.message });
+    }
+    return res.status(500).json({ error: error.message || 'Error resolving technical hold' });
+  }
+});
+
+/**
+ * GET /api/rfq/escrow/technical-hold/:rfqId
+ * List active technical holds for an RFQ.
+ */
+router.get('/technical-hold/:rfqId', authenticate, async (req: Request, res: Response): Promise<any> => {
+  try {
+    const rfqId = Number(req.params.rfqId);
+    if (!rfqId) {
+      return res.status(400).json({ error: 'Valid rfqId parameter is required' });
+    }
+
+    const activeHolds = rfqEscrowService.getActiveTechnicalHolds(rfqId);
+    return res.status(200).json({ rfqId, activeHolds });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Error fetching active technical holds' });
   }
 });
 

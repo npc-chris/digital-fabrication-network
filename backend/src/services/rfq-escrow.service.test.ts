@@ -18,6 +18,7 @@ import rfqEscrowService, {
   TenantIsolationViolationError,
   KycVerificationRequiredError,
   MilestoneAmountMismatchError,
+  TechnicalHoldActiveError,
 } from './rfq-escrow.service';
 import { db } from '../config/database';
 
@@ -214,6 +215,76 @@ describe('RfqEscrowService - Multi-Milestone Escrow (Unit Tests)', () => {
       expect(result.milestoneIndex).toBe(1);
       expect(result.providerId).toBe(202);
       expect(result.releasedAt).toBeDefined();
+    });
+
+    it('throws TechnicalHoldActiveError when milestone is under technical hold (HOLD_NCR)', async () => {
+      // Apply technical hold due to non-conformance telemetry
+      rfqEscrowService.applyTechnicalHold({
+        rfqId: 501,
+        tenantId: 10,
+        milestoneIndex: 2,
+        holdType: 'HOLD_NCR',
+        reason: 'Hole pitch measured 121.8 mm vs spec 120.00 +/- 0.05 mm',
+        referenceId: 'NCR-2026-001',
+      });
+
+      // Mock verified provider profile
+      (db.select as jest.Mock).mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockResolvedValue([{ userId: 202, verificationStatus: 'verified' }]),
+        }),
+      });
+
+      await expect(
+        rfqEscrowService.releaseMilestone({
+          idempotencyKey: 'rel-key-held',
+          rfqId: 501,
+          tenantId: 10,
+          milestoneIndex: 2,
+          providerId: 202,
+        })
+      ).rejects.toThrow(TechnicalHoldActiveError);
+    });
+
+    it('allows release after technical hold is verified and resolved', async () => {
+      rfqEscrowService.applyTechnicalHold({
+        rfqId: 501,
+        tenantId: 10,
+        milestoneIndex: 2,
+        holdType: 'HOLD_NCR',
+        reason: 'Hole pitch deviation',
+        referenceId: 'NCR-2026-001',
+      });
+
+      // Resolve technical hold following corrective rework
+      const resolveResult = rfqEscrowService.resolveTechnicalHold({
+        rfqId: 501,
+        tenantId: 10,
+        milestoneIndex: 2,
+        approverId: 303,
+        resolutionAction: 'CORRECTIVE_REWORK_COMPLETED',
+        notes: 'Offset slotted bushing installed at ₦12,500',
+      });
+
+      expect(resolveResult.success).toBe(true);
+      expect(resolveResult.resolvedCount).toBe(1);
+
+      (db.select as jest.Mock).mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockResolvedValue([{ userId: 202, verificationStatus: 'verified' }]),
+        }),
+      });
+
+      const releaseResult = await rfqEscrowService.releaseMilestone({
+        idempotencyKey: 'rel-key-resolved',
+        rfqId: 501,
+        tenantId: 10,
+        milestoneIndex: 2,
+        providerId: 202,
+      });
+
+      expect(releaseResult.success).toBe(true);
+      expect(releaseResult.status).toBe('released');
     });
   });
 
