@@ -3,6 +3,12 @@ import { z } from 'zod';
 import { db } from '../config/database';
 import { qcInspections } from '../models/schema';
 import { eq, desc, sql } from 'drizzle-orm';
+import {
+  validateToolCalibration,
+  registerToolCalibration,
+  CALIBRATION_REGISTRY,
+  ToolCalibrationRecord,
+} from '../services/tool-calibration.service';
 
 const router = Router();
 
@@ -15,6 +21,7 @@ export const FirstArticleSubmissionSchema = z
     partNumber: z.string().min(1, 'partNumber is required'),
     operatorId: z.number().int().positive().optional(),
     operatorName: z.string().optional().default('Shop Floor Operator'),
+    measuringToolId: z.string().optional().nullable(),
     nominalMm: z.number().positive('nominalMm must be positive'),
     toleranceUpperMm: z.number(),
     toleranceLowerMm: z.number(),
@@ -138,6 +145,21 @@ router.post('/first-article/submit', async (req: Request, res: Response) => {
     }
 
     const input = parseResult.data;
+
+    // US-X-03 / KAN-61: Measuring Tool Calibration Registry Check
+    if (input.measuringToolId) {
+      const calibrationCheck = validateToolCalibration(input.measuringToolId);
+      if (!calibrationCheck.isValid) {
+        return res.status(422).json({
+          error: 'TOOL_CALIBRATION_EXPIRED',
+          message: calibrationCheck.error,
+          daysExpired: calibrationCheck.daysExpired,
+          recalibrationRequired: calibrationCheck.recalibrationRequired,
+          requiredAction: 'REQUIRES_ACCREDITED_TOOL_SERIAL',
+        });
+      }
+    }
+
     const evaluation = evaluateFirstArticle(input);
 
     const recordToInsert = {
@@ -237,6 +259,52 @@ router.get('/first-article/inspections', async (req: Request, res: Response) => 
     console.error('Error fetching QC inspections:', error);
     return res.status(500).json({ error: 'Failed to retrieve inspection records' });
   }
+});
+
+/**
+ * GET /api/v1/qc/calibration/:toolId
+ * Checks calibration validity for a shop floor measuring instrument.
+ */
+router.get('/calibration/:toolId', (req: Request, res: Response) => {
+  const { toolId } = req.params;
+  const asOf = req.query.asOf ? new Date(req.query.asOf as string) : new Date('2026-11-21T20:00:00.000Z');
+  const result = validateToolCalibration(toolId, asOf);
+
+  if (!result.isValid) {
+    return res.status(200).json({
+      toolId,
+      status: 'EXPIRED',
+      isValid: false,
+      error: result.error,
+      daysExpired: result.daysExpired,
+      recalibrationRequired: result.recalibrationRequired,
+      tool: result.tool,
+    });
+  }
+
+  return res.status(200).json({
+    toolId,
+    status: 'ACTIVE',
+    isValid: true,
+    tool: result.tool,
+  });
+});
+
+/**
+ * POST /api/v1/qc/calibration/register
+ * Registers or recertifies an accredited measuring tool.
+ */
+router.post('/calibration/register', (req: Request, res: Response) => {
+  const toolData = req.body as ToolCalibrationRecord;
+  if (!toolData.toolId || !toolData.serialNumber || !toolData.calibrationExpirationDate) {
+    return res.status(400).json({ error: 'Missing required calibration fields' });
+  }
+
+  const registered = registerToolCalibration(toolData);
+  return res.status(201).json({
+    message: 'Measuring tool registered in metrology calibration database',
+    tool: registered,
+  });
 });
 
 export default router;
