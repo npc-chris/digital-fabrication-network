@@ -287,4 +287,57 @@ describe('RFQ Escrow Routes (API Tests)', () => {
       expect(response.body.data.fundingResult.status).toBe('ESCROW_FUNDED');
     });
   });
+
+  describe('POST /api/rfq/escrow/initialize-deposit', () => {
+    it('returns 401 Unauthorized when unauthenticated', async () => {
+      const response = await request(app)
+        .post('/api/rfq/escrow/initialize-deposit')
+        .send({ rfqId: 501, totalAmount: 150000 });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 400 Bad Request when rfqId or totalAmount is missing or invalid', async () => {
+      const response = await request(app)
+        .post('/api/rfq/escrow/initialize-deposit')
+        .set('Authorization', `Bearer ${explorerToken}`)
+        .send({ rfqId: 501, totalAmount: -100 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('rfqId and positive totalAmount');
+    });
+
+    it('returns 200 with checkout URL and transaction reference on valid request', async () => {
+      const response = await request(app)
+        .post('/api/rfq/escrow/initialize-deposit')
+        .set('Authorization', `Bearer ${explorerToken}`)
+        .send({
+          rfqId: 501,
+          totalAmount: 250000,
+          tenantId: 10,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.authorizationUrl).toContain('checkout.paystack.com');
+      expect(response.body.reference).toContain('DFN-PAY-');
+    });
+  });
+
+  describe('GET /api/rfq/escrow/verify-transaction/:reference', () => {
+    it('returns 401 Unauthorized when unauthenticated', async () => {
+      const response = await request(app).get('/api/rfq/escrow/verify-transaction/DFN-PAY-123');
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 200 with payment verification status', async () => {
+      const response = await request(app)
+        .get('/api/rfq/escrow/verify-transaction/DFN-PAY-TEST-9988')
+        .set('Authorization', `Bearer ${explorerToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
+      expect(response.body.reference).toBe('DFN-PAY-TEST-9988');
+    });
+  });
 });

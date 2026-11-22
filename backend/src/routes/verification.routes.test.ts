@@ -253,4 +253,115 @@ describe('Workshop KYC Verification Routes (API Tests)', () => {
       expect(response.body.documents).toHaveLength(1);
     });
   });
+
+  describe('GET /api/verification/prembly/health', () => {
+    it('returns 200 with Prembly provider capability status', async () => {
+      const response = await request(app).get('/api/verification/prembly/health');
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('ok');
+      expect(response.body.provider).toContain('Prembly');
+      expect(response.body.mode).toBeDefined();
+    });
+  });
+
+  describe('POST /api/verification/verify-cac', () => {
+    it('returns 401 when unauthenticated', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-cac')
+        .send({ rcNumber: 'RC-1234567' });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 400 when rcNumber is missing', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-cac')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('rcNumber');
+    });
+
+    it('returns 200 with verified company payload on valid CAC registration', async () => {
+      (db.insert as jest.Mock).mockReturnValue({
+        values: jest.fn().mockReturnValue({
+          returning: jest.fn().mockResolvedValue([{ id: 105, status: 'approved' }]),
+        }),
+      });
+      (db.update as jest.Mock).mockReturnValue({
+        set: jest.fn().mockReturnValue({
+          where: jest.fn().mockResolvedValue([{ id: 202 }]),
+        }),
+      });
+
+      const response = await request(app)
+        .post('/api/verification/verify-cac')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({
+          rcNumber: 'RC-1234567',
+          companyName: 'BENIN CNC FABRICATORS LTD',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.verified).toBe(true);
+      expect(response.body.status).toBe('verified');
+      expect(response.body.verificationDetails.rcNumber).toBe('RC-1234567');
+    });
+
+    it('returns 422 when CAC number is not found or inactive', async () => {
+      (db.insert as jest.Mock).mockReturnValue({
+        values: jest.fn().mockResolvedValue([]),
+      });
+      (db.update as jest.Mock).mockReturnValue({
+        set: jest.fn().mockReturnValue({
+          where: jest.fn().mockResolvedValue([]),
+        }),
+      });
+
+      const response = await request(app)
+        .post('/api/verification/verify-cac')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({
+          rcNumber: 'RC-9990001',
+        });
+
+      expect(response.status).toBe(422);
+      expect(response.body.verified).toBe(false);
+      expect(response.body.status).toBe('rejected');
+    });
+  });
+
+  describe('POST /api/verification/verify-tin', () => {
+    it('returns 401 when unauthenticated', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-tin')
+        .send({ tin: '12345678-0001' });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 400 when tin is missing', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-tin')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('tin');
+    });
+
+    it('returns 200 on valid Tax Identification Number', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-tin')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({
+          tin: '12345678-0001',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.verified).toBe(true);
+    });
+  });
 });
