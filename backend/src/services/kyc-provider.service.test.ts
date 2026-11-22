@@ -1,4 +1,4 @@
-import { PremblyKycService, premblyKycService } from './kyc-provider.service';
+import { PremblyKycService, premblyKycService, kycProviderService } from './kyc-provider.service';
 import { db } from '../config/database';
 
 jest.mock('../config/database', () => {
@@ -154,6 +154,55 @@ describe('PremblyKycService - Nigerian CAC & Identity Verification', () => {
 
       expect(outcome.verified).toBe(false);
       expect(outcome.status).toBe('rejected');
+    });
+  });
+
+  describe('KycProviderService (Multi-Provider Dispatcher)', () => {
+    it('dispatches to identifyorg by default and verifies workshop', async () => {
+      const mockDoc = { id: 301, status: 'approved' };
+      (db.insert as jest.Mock).mockReturnValue({
+        values: jest.fn().mockReturnValue({
+          returning: jest.fn().mockResolvedValue([mockDoc]),
+        }),
+      });
+      (db.update as jest.Mock).mockReturnValue({
+        set: jest.fn().mockReturnValue({
+          where: jest.fn().mockResolvedValue([{ id: 202 }]),
+        }),
+      });
+
+      const outcome = await kycProviderService.verifyWorkshop(202, {
+        rcNumber: 'RC-1452390',
+        companyName: 'BENIN CNC FABRICATORS LTD',
+      });
+
+      expect(outcome.verified).toBe(true);
+      expect(outcome.providerUsed).toBe('identifyorg');
+      expect(outcome.status).toBe('verified');
+    });
+
+    it('honors explicit provider override for prembly', async () => {
+      const mockDoc = { id: 302, status: 'approved' };
+      (db.insert as jest.Mock).mockReturnValue({
+        values: jest.fn().mockReturnValue({
+          returning: jest.fn().mockResolvedValue([mockDoc]),
+        }),
+      });
+      (db.update as jest.Mock).mockReturnValue({
+        set: jest.fn().mockReturnValue({
+          where: jest.fn().mockResolvedValue([{ id: 202 }]),
+        }),
+      });
+
+      const outcome = await kycProviderService.verifyWorkshop(202, {
+        rcNumber: 'RC-1452390',
+        companyName: 'ABA METALS LTD',
+        provider: 'prembly',
+      });
+
+      expect(outcome.verified).toBe(true);
+      expect(outcome.providerUsed).toBe('prembly');
+      expect(outcome.status).toBe('verified');
     });
   });
 });
