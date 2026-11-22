@@ -364,4 +364,94 @@ describe('Workshop KYC Verification Routes (API Tests)', () => {
       expect(response.body.verified).toBe(true);
     });
   });
+
+  describe('GET /api/verification/providers', () => {
+    it('returns 200 with available provider matrix including IdentifyOrg and Prembly', async () => {
+      const response = await request(app).get('/api/verification/providers');
+
+      expect(response.status).toBe(200);
+      expect(response.body.primaryProvider).toBeDefined();
+      expect(response.body.providers.identifyorg).toBeDefined();
+      expect(response.body.providers.prembly).toBeDefined();
+    });
+  });
+
+  describe('GET /api/verification/identifyorg/health', () => {
+    it('returns 200 with IdentifyOrg health status and capabilities', async () => {
+      const response = await request(app).get('/api/verification/identifyorg/health');
+
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe('ok');
+      expect(response.body.provider).toContain('IdentifyOrg');
+      expect(response.body.capabilities).toContain('CAC_KYB');
+      expect(response.body.capabilities).toContain('BVN');
+    });
+  });
+
+  describe('POST /api/verification/verify-bvn', () => {
+    it('returns 401 when unauthenticated', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-bvn')
+        .send({ bvn: '22212345678' });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 400 when bvn is missing', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-bvn')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('bvn');
+    });
+
+    it('returns 200 with verified BVN details on valid 11-digit BVN', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-bvn')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({
+          bvn: '22212345678',
+          firstName: 'Chidi',
+          lastName: 'Okeke',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.verified).toBe(true);
+      expect(response.body.bvn).toBe('22212345678');
+    });
+  });
+
+  describe('POST /api/verification/verify-nin', () => {
+    it('returns 401 when unauthenticated', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-nin')
+        .send({ nin: '11122233344' });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 400 when nin is missing', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-nin')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toContain('nin');
+    });
+
+    it('returns 200 with verified NIN status on valid 11-digit NIN', async () => {
+      const response = await request(app)
+        .post('/api/verification/verify-nin')
+        .set('Authorization', `Bearer ${providerToken}`)
+        .send({
+          nin: '11122233344',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.verified).toBe(true);
+    });
+  });
 });

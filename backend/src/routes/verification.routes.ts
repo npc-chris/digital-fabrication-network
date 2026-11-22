@@ -3,34 +3,68 @@ import { db } from '../config/database';
 import { verificationDocuments, profiles, users } from '../models/schema';
 import { authenticate, authorize } from '../middleware/auth';
 import { eq, desc } from 'drizzle-orm';
-import { premblyKycService } from '../services/kyc-provider.service';
+import { premblyKycService, kycProviderService } from '../services/kyc-provider.service';
+import { identifyOrgService } from '../services/identifyorg.service';
 
 const router = Router();
 
-// Provider Health & Capability Check
+// Multi-Provider Status & Capability Matrix
+router.get('/providers', (_req, res: Response) => {
+  res.json({
+    primaryProvider: kycProviderService.primaryProvider,
+    providers: {
+      identifyorg: {
+        name: 'IdentifyOrg (identifyorg.com)',
+        mode: identifyOrgService.isSandbox ? 'sandbox' : 'live',
+        capabilities: ['CAC_KYB', 'BVN', 'NIN', 'TAX_ID', 'FRAML_SCREENING'],
+      },
+      prembly: {
+        name: 'Prembly (Identitypass)',
+        mode: premblyKycService.isSandbox ? 'sandbox' : 'live',
+        capabilities: ['CAC_KYB', 'TIN_FIRS'],
+      },
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// IdentifyOrg Health & Capability Check
+router.get('/identifyorg/health', (_req, res: Response) => {
+  res.json({
+    status: 'ok',
+    provider: 'IdentifyOrg (identifyorg.com)',
+    mode: identifyOrgService.isSandbox ? 'sandbox' : 'live',
+    capabilities: ['CAC_KYB', 'BVN', 'NIN', 'TAX_ID', 'FRAML_SCREENING'],
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Prembly Health & Capability Check
 router.get('/prembly/health', (_req, res: Response) => {
   res.json({
     status: 'ok',
     provider: 'Prembly (Identitypass)',
     mode: premblyKycService.isSandbox ? 'sandbox' : 'live',
+    capabilities: ['CAC_KYB', 'TIN_FIRS'],
     timestamp: new Date().toISOString(),
   });
 });
 
-// Automated Nigerian Workshop CAC Registration Verification
+// Automated Nigerian Workshop CAC Registration Verification (IdentifyOrg & Prembly)
 router.post('/verify-cac', authenticate, async (req: any, res: Response) => {
   try {
     const userId = req.user.id;
-    const { rcNumber, companyType, companyName } = req.body;
+    const { rcNumber, companyType, companyName, provider } = req.body;
 
     if (!rcNumber || typeof rcNumber !== 'string') {
       return res.status(400).json({ error: 'CAC registration number (rcNumber) is required' });
     }
 
-    const outcome = await premblyKycService.verifyWorkshop(userId, {
+    const outcome = await kycProviderService.verifyWorkshop(userId, {
       rcNumber,
       companyType,
       companyName,
+      provider,
     });
 
     if (!outcome.verified) {
@@ -40,6 +74,46 @@ router.post('/verify-cac', authenticate, async (req: any, res: Response) => {
     res.status(200).json(outcome);
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Internal error verifying CAC registration' });
+  }
+});
+
+// Automated Director Bank Verification Number (BVN) Verification (IdentifyOrg)
+router.post('/verify-bvn', authenticate, async (req: any, res: Response) => {
+  try {
+    const { bvn, firstName, lastName } = req.body;
+
+    if (!bvn || typeof bvn !== 'string') {
+      return res.status(400).json({ error: 'Bank Verification Number (bvn) is required' });
+    }
+
+    const result = await identifyOrgService.verifyBvn({ bvn, firstName, lastName });
+    if (!result.verified) {
+      return res.status(422).json(result);
+    }
+
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal error verifying BVN' });
+  }
+});
+
+// Automated National Identification Number (NIN) Verification (IdentifyOrg)
+router.post('/verify-nin', authenticate, async (req: any, res: Response) => {
+  try {
+    const { nin } = req.body;
+
+    if (!nin || typeof nin !== 'string') {
+      return res.status(400).json({ error: 'National Identification Number (nin) is required' });
+    }
+
+    const result = await identifyOrgService.verifyNin({ nin });
+    if (!result.verified) {
+      return res.status(422).json(result);
+    }
+
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Internal error verifying NIN' });
   }
 });
 

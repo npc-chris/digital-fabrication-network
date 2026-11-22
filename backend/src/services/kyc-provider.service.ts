@@ -1,12 +1,16 @@
 import axios, { AxiosInstance } from 'axios';
 import { db } from '../config/database';
-import { verificationDocuments, profiles, users } from '../models/schema';
+import { verificationDocuments, profiles } from '../models/schema';
 import { eq } from 'drizzle-orm';
+import { identifyOrgService } from './identifyorg.service';
+
+export type KycProviderName = 'identifyorg' | 'prembly';
 
 export interface CacVerificationRequest {
   rcNumber: string;
   companyType?: 'RC' | 'BN' | 'IT';
   companyName?: string;
+  provider?: KycProviderName;
 }
 
 export interface CacDirector {
@@ -50,6 +54,7 @@ export interface WorkshopKycOutcome {
   verified: boolean;
   status: 'verified' | 'pending' | 'rejected';
   message: string;
+  providerUsed: KycProviderName;
   documentId?: number;
   verificationDetails?: CacCompanyData;
 }
@@ -316,24 +321,79 @@ export class PremblyKycService {
 
   /**
    * High-level workshop onboarding KYC verification.
-   * Updates database profiles and verification records atomically.
+   */
+  public async verifyWorkshop(userId: number, params: CacVerificationRequest): Promise<WorkshopKycOutcome> {
+    return kycProviderService.verifyWorkshop(userId, { ...params, provider: 'prembly' });
+  }
+}
+
+/**
+ * Unified KYC Provider Orchestrator
+ * Coordinates IdentifyOrg (identifyorg.com) and Prembly (Identitypass) with failover.
+ */
+export class KycProviderService {
+  public prembly = new PremblyKycService();
+  public identifyOrg = identifyOrgService;
+
+  public get primaryProvider(): KycProviderName {
+    const configured = (process.env.KYC_PRIMARY_PROVIDER || '').toLowerCase();
+    if (configured === 'prembly') return 'prembly';
+    return 'identifyorg';
+  }
+
+  /**
+   * Universal CAC verification dispatching to chosen or primary provider.
+   */
+  public async verifyCac(params: CacVerificationRequest): Promise<CacVerificationResult & { providerUsed: KycProviderName }> {
+    const providerToUse = params.provider || this.primaryProvider;
+
+    if (providerToUse === 'identifyorg') {
+      const result = await this.identifyOrg.verifyBusiness(params);
+      return { ...result, providerUsed: 'identifyorg' };
+    }
+
+    const result = await this.prembly.verifyCac(params);
+    return { ...result, providerUsed: 'prembly' };
+  }
+
+  /**
+   * High-level workshop onboarding KYC verification.
+   * Updates database profiles and verification records atomically with failover capability.
    */
   public async verifyWorkshop(userId: number, params: CacVerificationRequest): Promise<WorkshopKycOutcome> {
     if (!userId || typeof userId !== 'number') {
       throw new Error('Valid userId is required for workshop KYC verification');
     }
 
-    const cacResult = await this.verifyCac(params);
+    const preferredProvider = params.provider || this.primaryProvider;
+    let providerUsed: KycProviderName = preferredProvider;
+    let cacResult = await this.verifyCac({ ...params, provider: preferredProvider });
+
+    // Automatic fallback if primary fails on network error or not found
+    if (!cacResult.verified && !params.provider) {
+      const secondaryProvider: KycProviderName = preferredProvider === 'identifyorg' ? 'prembly' : 'identifyorg';
+      try {
+        const fallbackResult = await this.verifyCac({ ...params, provider: secondaryProvider });
+        if (fallbackResult.verified) {
+          cacResult = fallbackResult;
+          providerUsed = secondaryProvider;
+        }
+      } catch (err) {
+        // Keep initial result
+      }
+    }
+
     const now = new Date();
+    const providerTag = providerUsed === 'identifyorg' ? 'IdentifyOrg' : 'Prembly';
 
     if (!cacResult.verified || !cacResult.data) {
       try {
         await db.insert(verificationDocuments).values({
           userId,
           documentType: 'cac_certificate',
-          documentUrl: `prembly://cac/${params.rcNumber}`,
+          documentUrl: `${providerUsed}://cac/${params.rcNumber}`,
           status: 'rejected',
-          reviewNotes: `Automated Prembly Verification Failed: ${cacResult.message}`,
+          reviewNotes: `Automated ${providerTag} Verification Failed: ${cacResult.message}`,
           reviewedAt: now,
         });
 
@@ -345,13 +405,14 @@ export class PremblyKycService {
           })
           .where(eq(profiles.userId, userId));
       } catch (err) {
-        // Continue if DB unavailable in testing
+        // Fallback for tests without DB connection
       }
 
       return {
         userId,
         verified: false,
         status: 'rejected',
+        providerUsed,
         message: cacResult.message,
       };
     }
@@ -363,9 +424,9 @@ export class PremblyKycService {
         .values({
           userId,
           documentType: 'cac_certificate',
-          documentUrl: `prembly://cac/${cacResult.data.rcNumber}`,
+          documentUrl: `${providerUsed}://cac/${cacResult.data.rcNumber}`,
           status: 'approved',
-          reviewNotes: `Automated Prembly CAC Verification: Verified ACTIVE on ${now.toISOString()}`,
+          reviewNotes: `Automated ${providerTag} CAC Verification: Verified ACTIVE on ${now.toISOString()}`,
           reviewedAt: now,
         })
         .returning();
@@ -391,7 +452,8 @@ export class PremblyKycService {
       userId,
       verified: true,
       status: 'verified',
-      message: 'Workshop CAC credentials verified and profile accredited successfully',
+      providerUsed,
+      message: `Workshop CAC credentials verified and profile accredited successfully via ${providerTag}`,
       documentId: docId,
       verificationDetails: cacResult.data,
     };
@@ -399,3 +461,4 @@ export class PremblyKycService {
 }
 
 export const premblyKycService = new PremblyKycService();
+export const kycProviderService = new KycProviderService();
