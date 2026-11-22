@@ -266,8 +266,8 @@ router.get('/first-article/inspections', async (req: Request, res: Response) => 
  * Checks calibration validity for a shop floor measuring instrument.
  */
 router.get('/calibration/:toolId', (req: Request, res: Response) => {
-  const { toolId } = req.params;
-  const asOf = req.query.asOf ? new Date(req.query.asOf as string) : new Date('2026-11-21T20:00:00.000Z');
+  const toolId = String(req.params.toolId);
+  const asOf = req.query.asOf ? new Date(String(req.query.asOf)) : new Date('2026-11-21T20:00:00.000Z');
   const result = validateToolCalibration(toolId, asOf);
 
   if (!result.isValid) {
