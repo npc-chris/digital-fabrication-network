@@ -6,11 +6,12 @@
 
 A full-stack platform connecting workshops, fabrication plants, research centres, component providers/reproviders, and product designers/contractors to accelerate hardware/engineering product development and innovation.
 
-## Backend Architecture & Active Testing
-This project has passed the pre-production audit.
-- **Role-Based Dashboards**: Intelligent navigation for Explorers, Providers, and Admins.
-- **Search & Discovery**: Local-first component and service search.
-- **Community**: Validated specific discussion board features.
+## Product-Line Role & Service Boundaries
+`digital-fabrication-network` operates as the public platform surface (landing pages, pricing, blog, waitlist) and the product-line API gateway. Domain-sensitive capabilities live in dedicated sibling services:
+
+- **Identity, Auth & KYC (`dfn-digisec`)**: Issues RS256 JWKS tokens (`/.well-known/jwks.json`), M2M credentials, Google OAuth, email verification, and Nigerian KYC/KYB (`IdentifyOrg` + `Prembly`). Configured via `DIGISEC_API_URL` and `DIGISEC_JWKS_URL`.
+- **Escrow, Billing & Quotas (`dfn-finworld`)**: Manages Flutterwave v3 primary checkout and multi-milestone escrow (`SUB-06`), Paystack secondary fallback, SaaS plan quotas (`/api/v1/billing/quotas/verify`), and WHT/VAT pro-forma invoices. Configured via `FINWORLD_API_URL`.
+- **Product-Line Routing**: `/api/auth`, `/api/profiles`, `/api/verification`, and `/api/email-verification` forward to `dfn-digisec`; `/api/rfq/escrow`, `/api/v1/escrow`, `/api/v1/billing`, and `/api/v1/invoices` forward to `dfn-finworld`. Inspect active upstreams at `GET /api/gateway/topology`.
 
 ## Features
 

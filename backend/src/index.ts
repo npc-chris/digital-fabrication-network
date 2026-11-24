@@ -7,19 +7,14 @@ import express from 'express';
 import { createServer } from 'http';
 import path from 'path';
 import cors from 'cors';
-import passport from './config/passport';
 import { initializeWebSocket } from './config/websocket';
-import authRoutes from './routes/auth.routes';
 import servicesRoutes from './routes/services.routes';
 import uploadRoutes from './routes/upload.routes';
-import profilesRoutes from './routes/profiles.routes';
-import verificationRoutes from './routes/verification.routes';
 import adminRoutes from './routes/admin.routes';
-import emailVerificationRoutes from './routes/email-verification.routes';
 import locationsRoutes from './routes/locations.routes';
 import waitlistRoutes from './routes/waitlist.routes';
 import qcRoutes from './routes/qc.routes';
-import rfqEscrowRoutes from './routes/rfq-escrow.routes';
+import gatewayRoutes, { topologyHandler } from './routes/gateway.routes';
 import { connectRedis } from './config/redis';
 
 const app = express();
@@ -34,30 +29,32 @@ app.set('io', io);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(passport.initialize());
 
 // Serve static files from uploads directory
 const uploadsDir = process.env.LOCAL_UPLOAD_DIR || path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(uploadsDir));
 
-// Health check
+// Health check & Product-Line Topology
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    service: 'dfn-platform-gateway',
+    timestamp: new Date().toISOString(),
+  });
 });
+app.get('/api/gateway/topology', topologyHandler);
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profiles', profilesRoutes);
+// Platform-owned routes (landing/waitlist, catalog services, uploads, locations, QC, admin)
 app.use('/api/services', servicesRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/verification', verificationRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/email-verification', emailVerificationRoutes);
 app.use('/api/locations', locationsRoutes);
 app.use('/api/waitlist', waitlistRoutes);
 app.use('/api/qc', qcRoutes);
 app.use('/api/v1/qc', qcRoutes);
-app.use('/api/rfq/escrow', rfqEscrowRoutes);
+
+// Gateway routing to dfn-digisec (IdP/KYC) and dfn-finworld (Flutterwave Escrow & Billing)
+app.use('/api', gatewayRoutes);
 
 
 // Error handling
@@ -88,6 +85,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
 
 export default app;

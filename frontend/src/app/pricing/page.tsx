@@ -274,7 +274,7 @@ export default function PricingPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">What payment methods do you accept?</h3>
-              <p className="text-gray-600">We accept all major credit cards, debit cards, and support local payment methods including Paystack, Interswitch, and Kora.</p>
+              <p className="text-gray-600">We accept all major credit cards, debit cards, bank transfers, USSD, and mobile money via Flutterwave (our primary checkout and milestone escrow partner), alongside Paystack fallback where enabled.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-2">Is there a free trial for Pro plan?</h3>

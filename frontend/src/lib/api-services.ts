@@ -159,18 +159,38 @@ export const verificationAPI = {
   },
 };
 
-// Payments API
+const FINWORLD_URL = process.env.NEXT_PUBLIC_FINWORLD_URL || '';
+
+// Payments API (routed to dfn-finworld with Flutterwave as primary checkout rail)
 export const paymentsAPI = {
-  initialize: async (quoteId: number) => {
-    const response = await api.post(`/api/payments/initialize/${quoteId}`);
+  initialize: async (
+    rfqId: number,
+    totalAmount: number,
+    paymentProvider: 'flutterwave' | 'paystack' = 'flutterwave'
+  ) => {
+    const url = FINWORLD_URL
+      ? `${FINWORLD_URL.replace(/\/$/, '')}/api/v1/escrow/initialize-deposit`
+      : '/api/v1/escrow/initialize-deposit';
+    const response = await api.post(url, { rfqId, totalAmount, paymentProvider });
     return response.data;
   },
-  initializeCart: async () => {
-    const response = await api.post('/api/payments/checkout/cart');
+  initializeCheckout: async (
+    plan: 'team' | 'business' | 'enterprise',
+    paymentProvider: 'flutterwave' | 'paystack' = 'flutterwave'
+  ) => {
+    const url = FINWORLD_URL
+      ? `${FINWORLD_URL.replace(/\/$/, '')}/api/v1/billing/checkout`
+      : '/api/v1/billing/checkout';
+    const response = await api.post(url, { plan, paymentProvider });
     return response.data;
   },
-  verify: async (reference: string) => {
-    const response = await api.get(`/api/payments/verify/${reference}`);
+  verify: async (reference: string, paymentProvider?: 'flutterwave' | 'paystack') => {
+    const base = FINWORLD_URL
+      ? `${FINWORLD_URL.replace(/\/$/, '')}/api/v1/escrow/verify-transaction/${reference}`
+      : `/api/v1/escrow/verify-transaction/${reference}`;
+    const response = await api.get(base, {
+      params: paymentProvider ? { provider: paymentProvider } : undefined,
+    });
     return response.data;
   },
 };

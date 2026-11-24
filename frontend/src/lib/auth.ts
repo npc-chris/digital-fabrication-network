@@ -3,6 +3,7 @@
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const DIGISEC_URL = process.env.NEXT_PUBLIC_DIGISEC_URL || API_URL;
 
 export interface AuthUser {
   id: number;
@@ -29,7 +30,7 @@ export async function verifySession(): Promise<AuthResult> {
   }
   
   try {
-    const response = await fetch(`${API_URL}/api/auth/me`, {
+    const response = await fetch(`${DIGISEC_URL}/api/auth/me`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -106,4 +107,4 @@ export function saveSession(token: string, user: AuthUser): void {
   localStorage.setItem('user', JSON.stringify(user));
 }
 
-export { API_URL };
+export { API_URL, DIGISEC_URL };

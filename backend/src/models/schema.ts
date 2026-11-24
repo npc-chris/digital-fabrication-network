@@ -1,5 +1,9 @@
 import { pgTable, serial, varchar, text, timestamp, integer, boolean, decimal, pgEnum } from 'drizzle-orm/pg-core';
 
+// NOTE: Identity/auth/KYC ownership moved to dfn-digisec and escrow/billing ownership
+// moved to dfn-finworld. Shared users/profiles/verification_documents definitions remain
+// here temporarily as read projections for /api/services and /api/admin queries.
+
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['explorer', 'provider', 'admin', 'platform_manager']);
 export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'successful', 'failed', 'escrowed', 'released', 'refunded']);
