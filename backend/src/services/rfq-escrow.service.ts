@@ -17,9 +17,56 @@ export type RfqStatus =
   | 'CANCELLED'
   | 'EXPIRED';
 
-export type EscrowStatus = 'pending' | 'escrowed' | 'released' | 'refunded' | 'failed';
+export type EscrowStatus = 'pending' | 'escrowed' | 'released' | 'refunded' | 'failed' | 'HOLD_NCR' | 'HOLD_WARRANTY_INVESTIGATION';
 
-export type MilestoneStatus = 'locked' | 'funded' | 'in_progress' | 'verified' | 'released' | 'refunded';
+export type MilestoneStatus = 'locked' | 'funded' | 'in_progress' | 'verified' | 'released' | 'refunded' | 'HOLD_NCR' | 'HOLD_WARRANTY_INVESTIGATION';
+
+export type TechnicalHoldType = 'HOLD_NCR' | 'HOLD_WARRANTY_INVESTIGATION';
+
+export interface TechnicalHoldRecord {
+  id: string;
+  rfqId: number;
+  tenantId: number;
+  milestoneIndex?: number;
+  holdType: TechnicalHoldType;
+  reason: string;
+  referenceId?: string;
+  affectedSerialNumbers?: string[];
+  appliedAt: Date;
+  resolvedAt?: Date;
+  resolvedBy?: number;
+  resolutionAction?: string;
+  notes?: string;
+  active: boolean;
+}
+
+export interface TechnicalHoldParams {
+  idempotencyKey?: string;
+  rfqId: number;
+  tenantId: number;
+  milestoneIndex?: number;
+  holdType: TechnicalHoldType;
+  reason: string;
+  referenceId?: string;
+  affectedSerialNumbers?: string[];
+}
+
+export interface ResolveTechnicalHoldParams {
+  idempotencyKey?: string;
+  rfqId: number;
+  tenantId: number;
+  milestoneIndex?: number;
+  approverId: number;
+  resolutionAction: 'CORRECTIVE_REWORK_COMPLETED' | 'WARRANTY_REMELT_VERIFIED' | 'ACCEPTED_UNDER_CONCESSION' | 'REWORK_VERIFIED';
+  notes?: string;
+}
+
+export class TechnicalHoldActiveError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TechnicalHoldActiveError';
+  }
+}
 
 export interface MilestoneDefinition {
   index?: number;
@@ -215,6 +262,105 @@ const ALLOWED_RFQ_TRANSITIONS: Record<RfqStatus, RfqStatus[]> = {
 
 export class RfqEscrowService {
   private idempotencyStore = new Map<string, any>();
+  private technicalHolds = new Map<string, TechnicalHoldRecord>();
+
+  /**
+   * Apply an immutable technical hold on the platform escrow ledger.
+   * Freezes milestone disbursement upon receiving non-conformance telemetry.
+   */
+  public applyTechnicalHold(params: TechnicalHoldParams): { success: boolean; hold: TechnicalHoldRecord } {
+    this.assertTenantAccess(params.tenantId, params.tenantId);
+
+    if (!params.reason || params.reason.trim() === '') {
+      throw new Error('Technical hold reason is required');
+    }
+
+    const holdId = `HOLD-RFQ${params.rfqId}-M${params.milestoneIndex ?? 'ALL'}-${Date.now()}`;
+    const record: TechnicalHoldRecord = {
+      id: holdId,
+      rfqId: params.rfqId,
+      tenantId: params.tenantId,
+      milestoneIndex: params.milestoneIndex,
+      holdType: params.holdType,
+      reason: params.reason,
+      referenceId: params.referenceId,
+      affectedSerialNumbers: params.affectedSerialNumbers,
+      appliedAt: new Date(),
+      active: true,
+    };
+
+    this.technicalHolds.set(holdId, record);
+    return { success: true, hold: record };
+  }
+
+  /**
+   * Check whether a milestone or RFQ has an active technical hold.
+   */
+  public isTechnicalHoldActive(rfqId: number, milestoneIndex?: number): { active: boolean; hold?: TechnicalHoldRecord } {
+    for (const hold of this.technicalHolds.values()) {
+      if (hold.active && hold.rfqId === rfqId) {
+        if (
+          hold.milestoneIndex === undefined ||
+          hold.milestoneIndex === 0 ||
+          milestoneIndex === undefined ||
+          hold.milestoneIndex === milestoneIndex
+        ) {
+          return { active: true, hold };
+        }
+      }
+    }
+    return { active: false };
+  }
+
+  /**
+   * List all active technical holds for an RFQ or tenant.
+   */
+  public getActiveTechnicalHolds(rfqId?: number, tenantId?: number): TechnicalHoldRecord[] {
+    const list: TechnicalHoldRecord[] = [];
+    for (const hold of this.technicalHolds.values()) {
+      if (!hold.active) continue;
+      if (rfqId !== undefined && hold.rfqId !== rfqId) continue;
+      if (tenantId !== undefined && hold.tenantId !== tenantId) continue;
+      list.push(hold);
+    }
+    return list;
+  }
+
+  /**
+   * Resolve a technical hold after verified corrective rework or remelt.
+   */
+  public resolveTechnicalHold(params: ResolveTechnicalHoldParams): {
+    success: boolean;
+    resolvedCount: number;
+    resolvedHolds: TechnicalHoldRecord[];
+  } {
+    this.assertTenantAccess(params.tenantId, params.tenantId);
+
+    const resolved: TechnicalHoldRecord[] = [];
+    for (const hold of this.technicalHolds.values()) {
+      if (hold.active && hold.rfqId === params.rfqId) {
+        if (
+          params.milestoneIndex === undefined ||
+          hold.milestoneIndex === undefined ||
+          hold.milestoneIndex === 0 ||
+          hold.milestoneIndex === params.milestoneIndex
+        ) {
+          hold.active = false;
+          hold.resolvedAt = new Date();
+          hold.resolvedBy = params.approverId;
+          hold.resolutionAction = params.resolutionAction;
+          hold.notes = params.notes;
+          resolved.push(hold);
+        }
+      }
+    }
+
+    return {
+      success: true,
+      resolvedCount: resolved.length,
+      resolvedHolds: resolved,
+    };
+  }
 
   /**
    * Validate that an operation strictly respects tenant isolation boundaries.
@@ -480,6 +626,14 @@ export class RfqEscrowService {
 
     this.assertTenantAccess(params.tenantId, params.tenantId);
 
+    // Enforce technical hold on platform escrow ledger
+    const holdCheck = this.isTechnicalHoldActive(params.rfqId, params.milestoneIndex);
+    if (holdCheck.active && holdCheck.hold) {
+      throw new TechnicalHoldActiveError(
+        `Milestone ${params.milestoneIndex} of RFQ ${params.rfqId} is locked under technical hold [${holdCheck.hold.holdType}]: ${holdCheck.hold.reason}. Payouts are frozen until corrective action is verified.`
+      );
+    }
+
     // Verify provider KYC status before clearing payout
     const providerProfiles = await db
       .select()
@@ -661,6 +815,7 @@ export class RfqEscrowService {
    */
   public clearIdempotencyStore(): void {
     this.idempotencyStore.clear();
+    this.technicalHolds.clear();
   }
 }
 
