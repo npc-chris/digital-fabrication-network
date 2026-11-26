@@ -1,4 +1,4 @@
-CREATE TABLE "onboarding_submissions" (
+CREATE TABLE IF NOT EXISTS "onboarding_submissions" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"role" "user_role" NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE "onboarding_submissions" (
 	CONSTRAINT "onboarding_submissions_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
-CREATE TABLE "waitlist" (
+CREATE TABLE IF NOT EXISTS "waitlist" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"full_name" varchar(255),
@@ -26,79 +26,83 @@ CREATE TABLE "waitlist" (
 	CONSTRAINT "waitlist_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-ALTER TABLE "affiliate_stores" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "bookings" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "build_pipelines" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "cart_items" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "carts" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "community_posts" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "component_applications" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "component_categories" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "component_comparisons" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "component_subcategories" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "components" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "forum_categories" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "forum_replies" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "forum_threads" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "group_buying_campaigns" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "group_buying_participants" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "mentorship_requests" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "messages" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "order_tracking" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "orders" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "pipeline_executions" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "post_replies" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "project_assets" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "project_boms" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "project_completions" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "project_likes" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "projects" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "quotes" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "reviews" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-ALTER TABLE "wishlists" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
-DROP TABLE "affiliate_stores" CASCADE;--> statement-breakpoint
-DROP TABLE "bookings" CASCADE;--> statement-breakpoint
-DROP TABLE "build_pipelines" CASCADE;--> statement-breakpoint
-DROP TABLE "cart_items" CASCADE;--> statement-breakpoint
-DROP TABLE "carts" CASCADE;--> statement-breakpoint
-DROP TABLE "community_posts" CASCADE;--> statement-breakpoint
-DROP TABLE "component_applications" CASCADE;--> statement-breakpoint
-DROP TABLE "component_categories" CASCADE;--> statement-breakpoint
-DROP TABLE "component_comparisons" CASCADE;--> statement-breakpoint
-DROP TABLE "component_subcategories" CASCADE;--> statement-breakpoint
-DROP TABLE "components" CASCADE;--> statement-breakpoint
-DROP TABLE "forum_categories" CASCADE;--> statement-breakpoint
-DROP TABLE "forum_replies" CASCADE;--> statement-breakpoint
-DROP TABLE "forum_threads" CASCADE;--> statement-breakpoint
-DROP TABLE "group_buying_campaigns" CASCADE;--> statement-breakpoint
-DROP TABLE "group_buying_participants" CASCADE;--> statement-breakpoint
-DROP TABLE "mentorship_requests" CASCADE;--> statement-breakpoint
-DROP TABLE "messages" CASCADE;--> statement-breakpoint
-DROP TABLE "order_tracking" CASCADE;--> statement-breakpoint
-DROP TABLE "orders" CASCADE;--> statement-breakpoint
-DROP TABLE "pipeline_executions" CASCADE;--> statement-breakpoint
-DROP TABLE "post_replies" CASCADE;--> statement-breakpoint
-DROP TABLE "project_assets" CASCADE;--> statement-breakpoint
-DROP TABLE "project_boms" CASCADE;--> statement-breakpoint
-DROP TABLE "project_completions" CASCADE;--> statement-breakpoint
-DROP TABLE "project_likes" CASCADE;--> statement-breakpoint
-DROP TABLE "projects" CASCADE;--> statement-breakpoint
-DROP TABLE "quotes" CASCADE;--> statement-breakpoint
-DROP TABLE "reviews" CASCADE;--> statement-breakpoint
-DROP TABLE "wishlists" CASCADE;--> statement-breakpoint
-ALTER TABLE "profiles" DROP CONSTRAINT "profiles_username_unique";--> statement-breakpoint
-ALTER TABLE "transactions" DROP CONSTRAINT "transactions_order_id_orders_id_fk";
+ALTER TABLE IF EXISTS "affiliate_stores" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "bookings" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "build_pipelines" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "cart_items" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "carts" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "community_posts" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "component_applications" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "component_categories" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "component_comparisons" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "component_subcategories" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "components" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "forum_categories" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "forum_replies" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "forum_threads" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "group_buying_campaigns" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "group_buying_participants" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "mentorship_requests" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "messages" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "order_tracking" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "orders" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "pipeline_executions" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "post_replies" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "project_assets" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "project_boms" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "project_completions" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "project_likes" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "projects" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "quotes" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "reviews" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE IF EXISTS "wishlists" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+DROP TABLE IF EXISTS "affiliate_stores" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "bookings" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "build_pipelines" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "cart_items" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "carts" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "community_posts" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "component_applications" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "component_categories" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "component_comparisons" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "component_subcategories" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "components" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "forum_categories" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "forum_replies" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "forum_threads" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "group_buying_campaigns" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "group_buying_participants" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "mentorship_requests" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "messages" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "order_tracking" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "orders" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "pipeline_executions" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "post_replies" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "project_assets" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "project_boms" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "project_completions" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "project_likes" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "projects" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "quotes" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "reviews" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "wishlists" CASCADE;--> statement-breakpoint
+ALTER TABLE IF EXISTS "profiles" DROP CONSTRAINT IF EXISTS "profiles_username_unique";--> statement-breakpoint
+ALTER TABLE IF EXISTS "transactions" DROP CONSTRAINT IF EXISTS "transactions_order_id_orders_id_fk";
 --> statement-breakpoint
-ALTER TABLE "transactions" DROP CONSTRAINT "transactions_quote_id_quotes_id_fk";
+ALTER TABLE IF EXISTS "transactions" DROP CONSTRAINT IF EXISTS "transactions_quote_id_quotes_id_fk";
 --> statement-breakpoint
-ALTER TABLE "onboarding_submissions" ADD CONSTRAINT "onboarding_submissions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "profiles" DROP COLUMN "username";--> statement-breakpoint
-ALTER TABLE "transactions" DROP COLUMN "order_id";--> statement-breakpoint
-ALTER TABLE "transactions" DROP COLUMN "quote_id";--> statement-breakpoint
-ALTER TABLE "users" DROP COLUMN "provider_approved";--> statement-breakpoint
-DROP TYPE "public"."booking_status";--> statement-breakpoint
-DROP TYPE "public"."component_type";--> statement-breakpoint
-DROP TYPE "public"."group_buying_status";--> statement-breakpoint
-DROP TYPE "public"."mentorship_status";--> statement-breakpoint
-DROP TYPE "public"."order_status";--> statement-breakpoint
-DROP TYPE "public"."project_visibility";
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'onboarding_submissions_user_id_users_id_fk') THEN
+    ALTER TABLE "onboarding_submissions" ADD CONSTRAINT "onboarding_submissions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+  END IF;
+END $$;--> statement-breakpoint
+ALTER TABLE IF EXISTS "profiles" DROP COLUMN IF EXISTS "username";--> statement-breakpoint
+ALTER TABLE IF EXISTS "transactions" DROP COLUMN IF EXISTS "order_id";--> statement-breakpoint
+ALTER TABLE IF EXISTS "transactions" DROP COLUMN IF EXISTS "quote_id";--> statement-breakpoint
+ALTER TABLE IF EXISTS "users" DROP COLUMN IF EXISTS "provider_approved";--> statement-breakpoint
+DROP TYPE IF EXISTS "public"."booking_status";--> statement-breakpoint
+DROP TYPE IF EXISTS "public"."component_type";--> statement-breakpoint
+DROP TYPE IF EXISTS "public"."group_buying_status";--> statement-breakpoint
+DROP TYPE IF EXISTS "public"."mentorship_status";--> statement-breakpoint
+DROP TYPE IF EXISTS "public"."order_status";--> statement-breakpoint
+DROP TYPE IF EXISTS "public"."project_visibility";

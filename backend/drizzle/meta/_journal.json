@@ -50,6 +50,13 @@
       "when": 1791106083988,
       "tag": "0006_small_microbe",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791106084000,
+      "tag": "0007_qc_inspections",
+      "breakpoints": true
     }
   ]
 }

@@ -194,6 +194,8 @@ const DISPATCHES = [
   },
 ];
 
+const WAITLIST_API_URL = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '');
+
 function formatHexTicketId(num: number | null | undefined, customHex?: string): string {
   if (customHex && customHex.startsWith('DFN-0x')) return customHex;
   const safeNum = Math.max(1, Number(num) || 1);
@@ -216,8 +218,7 @@ export default function ComingSoonV2Page() {
   const [liveCount, setLiveCount] = useState<number | null>(null);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-    fetch(`${apiUrl}/api/waitlist/count`)
+    fetch(`${WAITLIST_API_URL}/api/waitlist/count`)
       .then((res) => res.json())
       .then((data) => {
         if (typeof data?.totalCount === 'number') {
@@ -255,12 +256,13 @@ export default function ComingSoonV2Page() {
     }
 
     setSubmitting(true);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     try {
       // 1. Check if email already registered
       try {
-        const checkRes = await fetch(`${apiUrl}/api/waitlist/check?email=${encodeURIComponent(normalizedEmail)}`);
+        const checkRes = await fetch(
+          `${WAITLIST_API_URL}/api/waitlist/check?email=${encodeURIComponent(normalizedEmail)}`
+        );
         if (checkRes.ok) {
           const checkData = await checkRes.json();
           if (checkData.alreadyRegistered) {
@@ -293,7 +295,7 @@ export default function ComingSoonV2Page() {
       } catch {}
 
       // 2. Submit new entry
-      const response = await fetch(`${apiUrl}/api/waitlist`, {
+      const response = await fetch(`${WAITLIST_API_URL}/api/waitlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -305,9 +307,9 @@ export default function ComingSoonV2Page() {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success) {
         const assignedQueue = data.queueNumber || (liveCount ? liveCount + 1 : 1);
         const resolvedHex = data.hexCode || formatHexTicketId(assignedQueue);
         setQueueNumber(assignedQueue);
@@ -332,26 +334,21 @@ export default function ComingSoonV2Page() {
           })
         );
       } else {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(
+          data?.error || 'Unable to complete waitlist registration right now. Please try again.'
+        );
       }
-    } catch {
-      const fallbackQueue = (liveCount || 0) + 1;
-      const resolvedHex = formatHexTicketId(fallbackQueue);
-      setQueueNumber(fallbackQueue);
-      setHexCode(resolvedHex);
-      setSubmitted(true);
-      localStorage.setItem(
-        'dfn_waitlist_ticket',
-        JSON.stringify({
-          queueNumber: fallbackQueue,
-          hexCode: resolvedHex,
-          role: selectedRole,
-          email: normalizedEmail,
-          fullName,
-          organization,
-          notes,
-          timestamp: new Date().toISOString(),
-        })
+    } catch (err: unknown) {
+      const rawMessage = err instanceof Error ? err.message : '';
+      const isNetworkError =
+        !rawMessage ||
+        rawMessage === 'Failed to fetch' ||
+        rawMessage.includes('NetworkError') ||
+        rawMessage.includes('Load failed');
+      setErrorMsg(
+        isNetworkError
+          ? 'Unable to reach the waitlist server right now. Please try again in a moment.'
+          : rawMessage
       );
     } finally {
       setSubmitting(false);
