@@ -14,8 +14,10 @@ import adminRoutes from './routes/admin.routes';
 import locationsRoutes from './routes/locations.routes';
 import waitlistRoutes from './routes/waitlist.routes';
 import qcRoutes from './routes/qc.routes';
-import gatewayRoutes, { topologyHandler } from './routes/gateway.routes';
-import { connectRedis } from './config/redis';
+import blogRoutes from './routes/blog.routes';
+import queueRoutes from './routes/queue.routes';
+import gatewayRoutes, { topologyHandler, healthProbeHandler } from './routes/gateway.routes';
+import { connectRedis, getOptionalRedisClient } from './config/redis';
 
 const app = express();
 const httpServer = createServer(app);
@@ -34,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 const uploadsDir = process.env.LOCAL_UPLOAD_DIR || path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(uploadsDir));
 
-// Health check & Product-Line Topology
+// Health check & Product-Line Topology / Load-Balancer Probes
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -43,17 +45,21 @@ app.get('/health', (req, res) => {
   });
 });
 app.get('/api/gateway/topology', topologyHandler);
+app.get('/api/gateway/health', healthProbeHandler);
 
-// Platform-owned routes (landing/waitlist, catalog services, uploads, locations, QC, admin)
+// Platform-owned routes (landing/waitlist, blog CMS, queueing, catalog, uploads, locations, QC, admin)
 app.use('/api/services', servicesRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/locations', locationsRoutes);
 app.use('/api/waitlist', waitlistRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/gateway/queue', queueRoutes);
+app.use('/api/v1/queue', queueRoutes);
 app.use('/api/qc', qcRoutes);
 app.use('/api/v1/qc', qcRoutes);
 
-// Gateway routing to dfn-digisec (IdP/KYC) and dfn-finworld (Flutterwave Escrow & Billing)
+// Load-balanced gateway routing to dfn-digisec, dfn-finworld, dfn-discovery & dfn-prism
 app.use('/api', gatewayRoutes);
 
 
@@ -66,12 +72,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Start server
 const startServer = async () => {
   try {
-    // Connect to Redis (optional, will continue without it)
-    try {
-      await connectRedis();
-      console.log('Redis connected successfully');
-    } catch (error) {
-      console.warn('Redis connection failed, continuing without cache:', error);
+    if (getOptionalRedisClient()) {
+      try {
+        await connectRedis();
+        console.log('Redis connected successfully');
+      } catch (error) {
+        console.warn('Redis connection failed, continuing without cache:', error);
+      }
     }
 
     httpServer.listen(PORT, () => {

@@ -1,6 +1,7 @@
 import express from 'express';
 import request from 'supertest';
 import gatewayRoutes, { topologyHandler } from './gateway.routes';
+import { loadBalancerService } from '../services/load-balancer.service';
 
 describe('Product-Line Gateway Routes (dfn-digisec & dfn-finworld)', () => {
   const originalEnv = process.env;
@@ -10,9 +11,16 @@ describe('Product-Line Gateway Routes (dfn-digisec & dfn-finworld)', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    loadBalancerService.resetForTests();
     process.env = { ...originalEnv };
+    delete process.env.DIGISEC_UPSTREAMS;
+    delete process.env.FINWORLD_UPSTREAMS;
+    delete process.env.DISCOVERY_UPSTREAMS;
+    delete process.env.PRISM_UPSTREAMS;
     process.env.DIGISEC_API_URL = 'https://digisec.internal';
     process.env.FINWORLD_API_URL = 'https://finworld.internal';
+    process.env.DISCOVERY_API_URL = 'https://discovery.internal';
+    process.env.PRISM_API_URL = 'https://prism.internal';
 
     app = express();
     app.use(express.json());
@@ -107,5 +115,47 @@ describe('Product-Line Gateway Routes (dfn-digisec & dfn-finworld)', () => {
     expect(res.status).toBe(502);
     expect(res.body.upstream).toBe('dfn-finworld');
     expect(res.body.detail).toContain('ECONNREFUSED');
+  });
+
+  it('fails over across load-balanced replica upstreams and forwards Discovery & Prism routes', async () => {
+    process.env.FINWORLD_UPSTREAMS = 'https://fin-primary.internal,https://fin-secondary.internal';
+    const fetchMock = jest
+      .fn()
+      .mockRejectedValueOnce(new Error('ECONNRESET'))
+      .mockResolvedValueOnce({
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ ok: true, node: 'secondary' }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ jobs: [] }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ status: 'ok', service: 'dfn-prism' }),
+      });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    const finRes = await request(app).get('/api/v1/billing/plans');
+    expect(finRes.status).toBe(200);
+    expect(finRes.body.node).toBe('secondary');
+    expect(finRes.headers['x-dfn-upstream-node']).toBe('https://fin-secondary.internal');
+
+    const discRes = await request(app).get('/api/v1/jobs');
+    expect(discRes.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://discovery.internal/api/v1/jobs',
+      expect.objectContaining({ method: 'GET' })
+    );
+
+    const prismRes = await request(app).get('/api/prism/health');
+    expect(prismRes.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://prism.internal/health',
+      expect.objectContaining({ method: 'GET' })
+    );
   });
 });

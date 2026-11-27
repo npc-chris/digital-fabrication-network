@@ -2,19 +2,30 @@ import { createClient } from 'redis';
 
 const redisUrl = process.env.REDIS_URL;
 
-if (!redisUrl) {
-  throw new Error('REDIS_URL is required');
+type RedisClientType = ReturnType<typeof createClient>;
+const redisClient: RedisClientType | null = redisUrl
+  ? createClient({
+      url: redisUrl,
+    })
+  : null;
+
+if (redisClient) {
+  redisClient.on('error', (err) => console.error('Redis Client Error', err));
+  redisClient.on('connect', () => console.log('Redis Client Connected'));
 }
 
-const redisClient = createClient({
-  url: redisUrl,
-});
-
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-redisClient.on('connect', () => console.log('Redis Client Connected'));
-
 export const connectRedis = async () => {
-  await redisClient.connect();
+  if (!redisClient) {
+    throw new Error('REDIS_URL is not configured');
+  }
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
+  return redisClient;
 };
+
+export function getOptionalRedisClient(): RedisClientType | null {
+  return redisClient;
+}
 
 export default redisClient;

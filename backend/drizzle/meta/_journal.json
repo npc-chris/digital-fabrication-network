@@ -57,6 +57,13 @@
       "when": 1791106084000,
       "tag": "0007_qc_inspections",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795791906611,
+      "tag": "0008_parallel_mephistopheles",
+      "breakpoints": true
     }
   ]
 }

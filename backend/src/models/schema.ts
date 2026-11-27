@@ -1,14 +1,26 @@
 import { pgTable, serial, varchar, text, timestamp, integer, boolean, decimal, pgEnum } from 'drizzle-orm/pg-core';
 
-// NOTE: Identity/auth/KYC ownership moved to dfn-digisec and escrow/billing ownership
-// moved to dfn-finworld. Shared users/profiles/verification_documents definitions remain
-// here temporarily as read projections for /api/services and /api/admin queries.
+// SharedDB Canonical Schema for the DFN Ecosystem:
+// digital-fabrication-network manages migrations and connection pools for SharedDB,
+// while dfn-digisec (Identity/KYC) and dfn-finworld (Escrow/Billing/Quotas) read
+// and write their domain tables on this SharedDB by default (or dedicated DBs via overrides).
 
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['explorer', 'provider', 'admin', 'platform_manager']);
 export const paymentStatusEnum = pgEnum('payment_status', ['pending', 'successful', 'failed', 'escrowed', 'released', 'refunded']);
+export const planTierEnum = pgEnum('plan_tier', ['free', 'team', 'business', 'enterprise']);
 export const supplierTypeEnum = pgEnum('supplier_type', ['local', 'african', 'international']);
 export const supplierVerificationEnum = pgEnum('supplier_verification', ['unverified', 'pending', 'verified', 'premium']);
+
+// Organizations table (aligned with dfn-digisec)
+export const organizations = pgTable('organizations', {
+  id: serial('id').primaryKey(),
+  orgKey: varchar('org_key', { length: 120 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  ownerUserId: integer('owner_user_id'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
 
 // Users table
 export const users = pgTable('users', {
@@ -16,6 +28,8 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }),
   googleId: varchar('google_id', { length: 255 }),
+  orgId: varchar('org_id', { length: 120 }),
+  orgRole: varchar('org_role', { length: 40 }).default('owner'),
   role: userRoleEnum('role').notNull().default('explorer'),
   isVerified: boolean('is_verified').default(false),
   onboardingCompleted: boolean('onboarding_completed').default(false),
@@ -203,9 +217,131 @@ export const qcInspections = pgTable('qc_inspections', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// NOTE: tables intentionally removed from this runtime schema:
-// affiliate_stores, blog_*, bookings, build_pipelines, cart_items, carts,
-// community_posts, component_*, components, forum_*, group_buying_*,
-// mentorship_*, messages, order_tracking, orders, pipeline_executions,
-// project_*, quotes, reviews, wishlists.
+// Workshop subaccounts (dfn-finworld domain table in SharedDB)
+export const workshopSubaccounts = pgTable('workshop_subaccounts', {
+  id: serial('id').primaryKey(),
+  providerId: integer('provider_id').notNull(),
+  gateway: varchar('gateway', { length: 50 }).notNull().default('flutterwave'),
+  subaccountCode: varchar('subaccount_code', { length: 120 }).notNull().unique(),
+  businessName: varchar('business_name', { length: 255 }).notNull(),
+  settlementBank: varchar('settlement_bank', { length: 50 }).notNull(),
+  accountNumber: varchar('account_number', { length: 20 }).notNull(),
+  percentageCharge: decimal('percentage_charge', { precision: 5, scale: 2 }).default('0'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Organization SaaS subscriptions & quotas (dfn-finworld domain table in SharedDB)
+export const orgSubscriptions = pgTable('org_subscriptions', {
+  id: serial('id').primaryKey(),
+  orgId: varchar('org_id', { length: 120 }).notNull().unique(),
+  plan: planTierEnum('plan').notNull().default('free'),
+  status: varchar('status', { length: 40 }).notNull().default('active'),
+  jobsRemaining: integer('jobs_remaining').notNull().default(10),
+  batchSizeLimit: integer('batch_size_limit').notNull().default(2),
+  apiCallsRemaining: integer('api_calls_remaining').notNull().default(100),
+  features: text('features').notNull().default('[]'),
+  paymentProvider: varchar('payment_provider', { length: 50 }).notNull().default('flutterwave'),
+  lastTransactionRef: varchar('last_transaction_ref', { length: 120 }),
+  periodStartsAt: timestamp('period_starts_at').defaultNow(),
+  periodEndsAt: timestamp('period_ends_at'),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Usage metering ledger (dfn-finworld domain table in SharedDB)
+export const usageEvents = pgTable('usage_events', {
+  id: serial('id').primaryKey(),
+  orgId: varchar('org_id', { length: 120 }).notNull(),
+  userId: varchar('user_id', { length: 120 }).notNull(),
+  eventType: varchar('event_type', { length: 100 }).notNull(),
+  units: integer('units').notNull().default(1),
+  metadata: text('metadata'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Institutional FIRS invoices (dfn-finworld domain table in SharedDB)
+export const invoices = pgTable('invoices', {
+  id: serial('id').primaryKey(),
+  invoiceNumber: varchar('invoice_number', { length: 80 }).notNull().unique(),
+  rfqId: integer('rfq_id'),
+  orgId: varchar('org_id', { length: 120 }).notNull(),
+  cacNumber: varchar('cac_number', { length: 64 }),
+  tinNumber: varchar('tin_number', { length: 64 }),
+  subtotalAmount: decimal('subtotal_amount', { precision: 12, scale: 2 }).notNull(),
+  vatAmount: decimal('vat_amount', { precision: 12, scale: 2 }).notNull(),
+  whtAmount: decimal('wht_amount', { precision: 12, scale: 2 }).notNull(),
+  netPayableAmount: decimal('net_payable_amount', { precision: 12, scale: 2 }).notNull(),
+  currency: varchar('currency', { length: 10 }).notNull().default('NGN'),
+  itemsJson: text('items_json'),
+  paid: boolean('paid').notNull().default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Escrow technical holds & idempotency keys (dfn-finworld domain tables in SharedDB)
+export const escrowHolds = pgTable('escrow_holds', {
+  id: serial('id').primaryKey(),
+  holdCode: varchar('hold_code', { length: 120 }).notNull().unique(),
+  rfqId: integer('rfq_id').notNull(),
+  tenantId: integer('tenant_id').notNull(),
+  milestoneIndex: integer('milestone_index'),
+  holdType: varchar('hold_type', { length: 64 }).notNull(),
+  reason: text('reason').notNull(),
+  referenceId: varchar('reference_id', { length: 120 }),
+  affectedSerialNumbers: text('affected_serial_numbers'),
+  active: boolean('active').notNull().default(true),
+  appliedAt: timestamp('applied_at').defaultNow(),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: integer('resolved_by'),
+  resolutionAction: varchar('resolution_action', { length: 80 }),
+  notes: text('notes'),
+});
+
+export const escrowIdempotency = pgTable('escrow_idempotency', {
+  id: serial('id').primaryKey(),
+  idempotencyKey: varchar('idempotency_key', { length: 160 }).notNull().unique(),
+  operation: varchar('operation', { length: 64 }).notNull(),
+  responseJson: text('response_json').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Blog & field notes CMS table
+export const blogPosts = pgTable('blog_posts', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  title: varchar('title', { length: 255 }).notNull(),
+  excerpt: text('excerpt'),
+  content: text('content'),
+  htmlContent: text('html_content').notNull(),
+  coverImageUrl: varchar('cover_image_url', { length: 500 }),
+  category: varchar('category', { length: 100 }).default('Engineering'),
+  badge: varchar('badge', { length: 80 }),
+  status: varchar('status', { length: 40 }).notNull().default('draft'), // draft | published | archived
+  authorId: integer('author_id').references(() => users.id),
+  publishedAt: timestamp('published_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Product-line queue dispatcher table
+export const queueJobs = pgTable('queue_jobs', {
+  id: serial('id').primaryKey(),
+  jobId: varchar('job_id', { length: 120 }).notNull().unique(),
+  queueName: varchar('queue_name', { length: 80 }).notNull(),
+  jobType: varchar('job_type', { length: 120 }).notNull(),
+  targetService: varchar('target_service', { length: 64 }).notNull(),
+  orgId: varchar('org_id', { length: 120 }),
+  payload: text('payload').notNull(),
+  status: varchar('status', { length: 40 }).notNull().default('queued'), // queued | processing | completed | failed | dead_letter
+  attempts: integer('attempts').notNull().default(0),
+  maxAttempts: integer('max_attempts').notNull().default(3),
+  dispatchedToUrl: varchar('dispatched_to_url', { length: 255 }),
+  resultJson: text('result_json'),
+  lastError: text('last_error'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// NOTE: Domain service boundaries:
+// - Identity, authentication & Nigerian KYC tables are governed by dfn-digisec in SharedDB.
+// - Escrow, billing, subscriptions & invoicing tables are governed by dfn-finworld in SharedDB.
+// - Platform catalog, waitlist, blog CMS, QC inspections & queueing live in digital-fabrication-network.
 

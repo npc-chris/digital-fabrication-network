@@ -49,12 +49,20 @@ services:
       # ── Auth & Product-Line Gateway ─────────────────
       - key: DIGISEC_API_URL
         sync: false  # e.g. https://dfn-digisec.onrender.com
+      - key: DIGISEC_UPSTREAMS
+        sync: false  # Optional comma-separated replicas for round-robin load balancing
       - key: DIGISEC_JWKS_URL
         sync: false  # e.g. https://dfn-digisec.onrender.com/.well-known/jwks.json
       - key: DIGISEC_ISSUER
         sync: false  # e.g. https://dfn-digisec.onrender.com
       - key: FINWORLD_API_URL
         sync: false  # e.g. https://dfn-finworld.onrender.com
+      - key: FINWORLD_UPSTREAMS
+        sync: false  # Optional comma-separated replicas for round-robin load balancing
+      - key: DISCOVERY_API_URL
+        sync: false  # e.g. https://dfn-discovery.onrender.com
+      - key: PRISM_API_URL
+        sync: false  # e.g. https://dfn-prism.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL

@@ -239,13 +239,51 @@ const normalizePost = (raw: RawHygraphPostNode): HygraphPost => {
   };
 };
 
+function getBackendBlogBaseUrl(): string {
+  return (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '');
+}
+
+function normalizeSharedDbBlogPost(post: any): HygraphPost {
+  const html = post.htmlContent || `<p>${post.content || ''}</p>`;
+  return {
+    id: String(post.id),
+    slug: String(post.slug),
+    title: String(post.title),
+    excerpt: String(post.excerpt || ''),
+    htmlContent: html,
+    coverImageUrl:
+      post.coverImageUrl ||
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80',
+    publishedAt: formatDate(post.publishedAt || post.createdAt),
+    readTime: estimateReadTime(post.content || html),
+    category: post.category || 'Engineering',
+    badge: post.badge || 'Field Note',
+    author: {
+      name: 'DFN Engineering Team',
+      role: 'Digital Fabrication Network',
+    },
+    tags: [post.category || 'Engineering'],
+  };
+}
+
 /**
- * Fetch all published blog posts from Hygraph.
+ * Fetch all published blog posts from Hygraph or SharedDB backend blog API.
  */
 export async function getHygraphPosts(): Promise<HygraphPost[]> {
   const endpoint = getEndpoint();
   if (!endpoint) {
-    return [];
+    const backendUrl = getBackendBlogBaseUrl();
+    if (!backendUrl) return [];
+    try {
+      const res = await fetch(`${backendUrl}/api/blog/posts?status=published`, {
+        next: { revalidate: 60 },
+      });
+      if (!res.ok) return [];
+      const body = (await res.json()) as { data?: any[] };
+      return Array.isArray(body.data) ? body.data.map(normalizeSharedDbBlogPost) : [];
+    } catch {
+      return [];
+    }
   }
 
   try {
@@ -290,7 +328,18 @@ export async function getHygraphPosts(): Promise<HygraphPost[]> {
 export async function getHygraphPostBySlug(slug: string): Promise<HygraphPost | null> {
   const endpoint = getEndpoint();
   if (!endpoint || !slug) {
-    return null;
+    const backendUrl = getBackendBlogBaseUrl();
+    if (!backendUrl || !slug) return null;
+    try {
+      const res = await fetch(`${backendUrl}/api/blog/posts/${encodeURIComponent(slug)}`, {
+        next: { revalidate: 60 },
+      });
+      if (!res.ok) return null;
+      const body = (await res.json()) as { post?: any };
+      return body.post ? normalizeSharedDbBlogPost(body.post) : null;
+    } catch {
+      return null;
+    }
   }
 
   try {

@@ -6,6 +6,9 @@ declare global {
       id: number;
       email: string;
       role: string;
+      orgId?: string;
+      orgRole?: string;
+      plan?: string;
     }
 
     interface Request {

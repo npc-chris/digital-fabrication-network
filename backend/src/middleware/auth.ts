@@ -4,12 +4,16 @@ import { Request, Response, NextFunction } from 'express';
 
 export interface DfnJwtPayload extends BaseJwtPayload {
   id?: number;
+  userId?: number;
   email?: string;
   role?: string;
   'https://fabnetwork.com.ng/user_id'?: number;
   'https://fabnetwork.com.ng/role'?: string;
   'https://fabnetwork.com.ng/org_id'?: string;
+  'https://fabnetwork.com.ng/orgId'?: string;
+  'https://fabnetwork.com.ng/orgRole'?: string;
   'https://fabnetwork.com.ng/plan'?: string;
+  'https://fabnetwork.com.ng/features'?: string[];
 }
 
 interface JwkRecord {
@@ -81,16 +85,42 @@ async function resolvePublicKey(kid?: string): Promise<crypto.KeyObject> {
   });
 }
 
+function parseNumericUserId(raw: unknown): number {
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    return raw;
+  }
+  if (typeof raw === 'string') {
+    const cleaned = raw.startsWith('digisec|') ? raw.slice(8) : raw;
+    const parsed = Number(cleaned);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return 0;
+}
+
 function normalizeUserClaims(decoded: DfnJwtPayload): Express.User {
   const namespacedUserId = decoded['https://fabnetwork.com.ng/user_id'];
-  const rawId = namespacedUserId ?? decoded.id ?? decoded.sub ?? 0;
-  const parsedId = Number(rawId);
+  const rawId = namespacedUserId ?? decoded.userId ?? decoded.id ?? decoded.sub ?? 0;
 
   return {
-    id: Number.isFinite(parsedId) ? parsedId : 0,
+    id: parseNumericUserId(rawId),
     email: String(decoded.email || ''),
     role: String(decoded['https://fabnetwork.com.ng/role'] || decoded.role || 'explorer'),
+    orgId:
+      decoded['https://fabnetwork.com.ng/orgId'] ||
+      decoded['https://fabnetwork.com.ng/org_id'] ||
+      undefined,
+    orgRole: decoded['https://fabnetwork.com.ng/orgRole'] || undefined,
+    plan: decoded['https://fabnetwork.com.ng/plan'] || undefined,
   };
+}
+
+function resolveAllowedIssuers(): [string, ...string[]] | undefined {
+  const raw = process.env.DIGISEC_ISSUER;
+  if (!raw) return undefined;
+  const trimmed = raw.replace(/\/+$/, '');
+  return [trimmed, `${trimmed}/`];
 }
 
 /**
@@ -119,10 +149,11 @@ export const authenticate = async (
 
     if (header.alg === 'RS256') {
       const publicKey = await resolvePublicKey(header.kid);
-      const verifyOptions: jwt.VerifyOptions = { algorithms: ['RS256'] };
-      if (process.env.DIGISEC_ISSUER) {
-        verifyOptions.issuer = process.env.DIGISEC_ISSUER;
-      }
+      const issuers = resolveAllowedIssuers();
+      const verifyOptions: jwt.VerifyOptions = {
+        algorithms: ['RS256'],
+        ...(issuers ? { issuer: issuers } : {}),
+      };
 
       const verified = jwt.verify(token, publicKey, verifyOptions) as DfnJwtPayload;
       req.user = normalizeUserClaims(verified);

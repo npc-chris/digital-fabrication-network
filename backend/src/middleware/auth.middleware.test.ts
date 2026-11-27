@@ -69,6 +69,7 @@ describe('Platform Gateway Auth Middleware (RS256 JWKS + HS256 Fallback)', () =>
       id: 42,
       email: 'founder@fablab.ng',
       role: 'provider',
+      orgId: 'org_lagos_01',
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith(
@@ -137,6 +138,44 @@ describe('Platform Gateway Auth Middleware (RS256 JWKS + HS256 Fallback)', () =>
       .get('/admin-only')
       .set('Authorization', `Bearer ${token}`);
     expect(denied.status).toBe(403);
+  });
+
+  it('parses digisec userId claim and digisec|id subject prefix cleanly', async () => {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+    const publicJwk = publicKey.export({ format: 'jwk' });
+    const kid = 'digisec-sub-key';
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ keys: [{ ...publicJwk, kid, alg: 'RS256', use: 'sig' }] }),
+    }) as unknown as typeof fetch;
+
+    const token = jwt.sign(
+      {
+        userId: 77,
+        email: 'machinist@aba.ng',
+        role: 'provider',
+        'https://fabnetwork.com.ng/orgId': 'org_aba_77',
+      },
+      privateKey,
+      {
+        algorithm: 'RS256',
+        keyid: kid,
+        issuer: 'http://localhost:4100/',
+        subject: 'digisec|77',
+      }
+    );
+
+    process.env.DIGISEC_ISSUER = 'http://localhost:4100';
+
+    const res = await request(app).get('/protected').set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body.user).toEqual({
+      id: 77,
+      email: 'machinist@aba.ng',
+      role: 'provider',
+      orgId: 'org_aba_77',
+    });
   });
 
   it('rejects missing, malformed, and wrong-key tokens cleanly', async () => {
