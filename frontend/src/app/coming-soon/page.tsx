@@ -20,6 +20,7 @@ import {
 
 import LandingNavbar from '@/components/LandingNavbar';
 import Footer from '@/components/Footer';
+import TicketBarcode from '@/components/TicketBarcode';
 
 type RoleKey = 'explorer' | 'provider' | 'researcher' | 'enterprise';
 
@@ -607,15 +608,9 @@ export default function ComingSoonV2Page() {
                           )}
                         </div>
 
-                        {/* Barcode Graphic Effect */}
+                        {/* Scannable Code 128 Barcode */}
                         <div className="mt-4 border-t border-sky-200/70 pt-3">
-                          <div className="flex h-5 w-full items-center justify-between opacity-40">
-                            {[4, 2, 6, 1, 3, 5, 2, 7, 2, 4, 1, 5, 3, 2, 6, 2, 4, 3, 5, 1, 3, 6, 2, 5, 3, 4, 2].map(
-                              (w, i) => (
-                                <div key={i} className="h-full bg-slate-900" style={{ width: `${w * 1.5}px` }} />
-                              )
-                            )}
-                          </div>
+                          <TicketBarcode value={currentTicketId} className="opacity-85" />
                         </div>
                       </div>
 

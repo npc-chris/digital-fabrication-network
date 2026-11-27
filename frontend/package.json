@@ -28,6 +28,7 @@
     "framer-motion": "^12.34.3",
     "gsap": "^3.14.2",
     "isomorphic-dompurify": "^4.6.0",
+    "jsbarcode": "^3.12.3",
     "lucide-react": "^0.561.0",
     "next": "^16.3.3",
     "postcss": "^8.5.6",
